@@ -4,12 +4,36 @@ import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.utils.AssetType;
 import openfl.utils.Assets as OpenFlAssets;
+import lime.utils.Assets;
+import flixel.FlxSprite;
+#if sys
+import sys.io.File;
+import sys.FileSystem;
+import flixel.graphics.FlxGraphic;
+import openfl.display.BitmapData;
+#end
+
+import flash.media.Sound;
+
+using StringTools;
+
 
 class Paths
 {
 	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
 
+	public static var modsthing:Map<String, Bool> = new Map<String, Bool>();
+	static public var modDir:String = null;
+	public static var customSoundsLoaded:Map<String, Sound> = new Map();
+
 	static var currentLevel:String;
+
+	static public function getModFolders()
+		{
+			modsthing.set('data', true);
+			modsthing.set('songs', true);
+			modsthing.set('dialogues', true);
+		}
 
 	static public function setCurrentLevel(name:String)
 	{
@@ -60,6 +84,9 @@ class Paths
 			return getPath('$key.txt', TEXT, library);
 		}
 	
+		
+		
+
 
 	inline static public function xml(key:String, ?library:String)
 	{
@@ -91,16 +118,50 @@ class Paths
 		return getPath('music/$key.$SOUND_EXT', MUSIC, library);
 	}
 
-	inline static public function voices(song:String)
+	inline static public function voices(song:String):Any
+		{
+			var file:Sound = returnSongFile(modsSongs(song.toLowerCase().replace(' ', '-') + '/Voices'));
+			if(file != null) {
+				return file;
+			}
+	
+			return 'songs:assets/songs/${song.toLowerCase().replace(' ', '-')}/Voices.$SOUND_EXT';
+		}
+	
+		inline static public function inst(song:String):Any
+		{
+		
+			var file:Sound = returnSongFile(modsSongs(song.toLowerCase().replace(' ', '-') + '/Inst'));
+			if(file != null) {
+				return file;
+			}
+		
+			return 'songs:assets/songs/${song.toLowerCase().replace(' ', '-')}/Inst.$SOUND_EXT';
+		}
+
+	inline static private function returnSongFile(file:String):Sound
 	{
-		return 'songs:assets/songs/${song.toLowerCase()}/Voices.$SOUND_EXT';
+		if(FileSystem.exists(file)) {
+			if(!customSoundsLoaded.exists(file)) {
+				customSoundsLoaded.set(file, Sound.fromFile(file));
+			}
+			return customSoundsLoaded.get(file);
+		}
+		return null;
 	}
 
-	inline static public function inst(song:String)
-	{
-		return 'songs:assets/songs/${song.toLowerCase()}/Inst.$SOUND_EXT';
-	}
-
+	inline static public function fileExists(key:String, type:AssetType, ?library:String)
+		{
+			if(FileSystem.exists(mods(modDir + '/' + key)) || FileSystem.exists(mods(key))) {
+				return true;
+			}
+			
+			if(OpenFlAssets.exists(Paths.getPath(key, type, library))) {
+				return true;
+			}
+			return false;
+		}
+	
 	inline static public function image(key:String, ?library:String)
 	{
 		return getPath('images/$key.png', IMAGE, library);
@@ -109,6 +170,29 @@ class Paths
 	inline static public function font(key:String)
 	{
 		return 'assets/fonts/$key';
+
+	}
+
+	inline static public function bruhtxt(key:String)
+		{
+			return modfold('$key.txt');
+		}
+
+	inline static public function mods(key:String = '') {
+		return 'mods/' + key;
+	}
+
+	inline static public function modsSongs(key:String) {
+		return modfold('songs/' + key + '.' + SOUND_EXT);
+	}
+
+	inline static public function modsong(key:String) {
+		return modfold('data/' + key + '.json');
+	}
+	
+	
+	inline static public function formatToSongPath(path:String) {
+		return path.toLowerCase().replace(' ', '-');
 	}
 
 	inline static public function getSparrowAtlas(key:String, ?library:String)
@@ -119,5 +203,15 @@ class Paths
 	inline static public function getPackerAtlas(key:String, ?library:String)
 	{
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file('images/$key.txt', library));
+	}
+	static public function modfold(key:String) {
+		if(modDir != null && modDir.length > 0) {
+			// psych engine for the win
+			var fileToCheck:String = mods(modDir + '/' + key);
+			if(FileSystem.exists(fileToCheck)) {
+				return fileToCheck;
+			}
+		}
+		return 'mods/' + key;
 	}
 }
