@@ -120,7 +120,7 @@ class DialogueBox extends FlxSpriteGroup
 		add(portraitLeft);
 		portraitLeft.visible = false;
 		
-		portraitLeftCustom = new FlxSprite(155, FlxG.height - 510).loadGraphic(Paths.swagmodicon('portraits/' + curCharacter + 'Port'));
+		portraitLeftCustom = new FlxSprite(155, FlxG.height - 510).loadGraphic(Paths.swagmodicon('portraits/' + Character + 'Port'));
 		portraitLeftCustom.antialiasing = false;
 		portraitLeftCustom.updateHitbox();
 		portraitLeftCustom.scrollFactor.set();

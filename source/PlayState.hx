@@ -965,7 +965,11 @@ class PlayState extends MusicBeatState
 					schoolIntro(doof);
 				case 'thorns':
 				    schoolIntro(doof);
-
+				default:
+					if (SONG.dialoguetoggle != 'true'){
+						startCountdown();
+					}
+					
 			}
 			switch(SONG.dialoguetoggle)
 			{
@@ -1081,8 +1085,6 @@ class PlayState extends MusicBeatState
 					inCutscene = true;
 					add(dialogueBox);
 				}
-			else
-				startCountdown();
 				
 			}
 
