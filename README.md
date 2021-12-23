@@ -73,6 +73,8 @@ class APIStuff
 
 and you should be good to go there.
 
+and also if you see the error message sees cannot find assets/video its because you need to make a folder named videos and put it in /assets/preload once you added it there you can compile your source code with no problem
+
 ### Compiling game
 NOTE: If you see any messages relating to deprecated packages, ignore them. They're just warnings that don't affect compiling
 
