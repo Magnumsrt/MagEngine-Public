@@ -1,1 +1,0 @@
-Add the images with the exact same names as the original file in the assets. If done correctly, your new skin will override the old image. You can also make skin packs, just make a new folder, copy the icon and meta file, and your good to go!

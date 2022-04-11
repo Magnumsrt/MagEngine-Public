@@ -1,6 +1,5 @@
 package;
 
-import flixel.math.FlxMath;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSubState;
@@ -11,15 +10,11 @@ import flixel.util.FlxTimer;
 class GameOverSubstate extends MusicBeatSubstate
 {
 	var bf:Boyfriend;
-
-	var camFollow:FlxPoint;
-	var camFollowPos:FlxObject;
-	var updateCamera:Bool = false;
-	var isFollowingAlready:Bool = false;
+	var camFollow:FlxObject;
 
 	var stageSuffix:String = "";
 
-	public function new(x:Float, y:Float, camX:Float, camY:Float)
+	public function new(x:Float, y:Float)
 	{
 		var daStage = PlayState.curStage;
 		var daBf:String = '';
@@ -42,7 +37,8 @@ class GameOverSubstate extends MusicBeatSubstate
 		bf = new Boyfriend(x, y, daBf);
 		add(bf);
 
-		camFollow = new FlxPoint(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y);
+		camFollow = new FlxObject(bf.getGraphicMidpoint().x, bf.getGraphicMidpoint().y, 1, 1);
+		add(camFollow);
 
 		FlxG.sound.play(Paths.sound('fnf_loss_sfx' + stageSuffix));
 		Conductor.changeBPM(100);
@@ -53,46 +49,35 @@ class GameOverSubstate extends MusicBeatSubstate
 		FlxG.camera.target = null;
 
 		bf.playAnim('firstDeath');
-
-		camFollowPos = new FlxObject(0, 0, 1, 1);
-		camFollowPos.setPosition(FlxG.camera.scroll.x + (FlxG.camera.width / 2), FlxG.camera.scroll.y + (FlxG.camera.height / 2));
-		add(camFollowPos);
 	}
 
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
 
-		if (updateCamera)
-		{
-			var lerpVal:Float = CoolUtil.boundTo(elapsed * 0.6, 0, 1);
-			camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
-		}
-
 		if (controls.ACCEPT)
+		{
 			endBullshit();
+		}
 
 		if (controls.BACK)
 		{
+			FlxG.sound.music.stop();
+
 			if (PlayState.isStoryMode)
 				FlxG.switchState(new StoryMenuState());
 			else
 				FlxG.switchState(new FreeplayState());
-
-			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 		}
 
-		if (bf.animation.curAnim.name == 'firstDeath')
+		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame == 12)
 		{
-			if (bf.animation.curAnim.curFrame >= 12 && !isFollowingAlready)
-			{
-				FlxG.camera.follow(camFollowPos, LOCKON, 1);
-				updateCamera = true;
-				isFollowingAlready = true;
-			}
+			FlxG.camera.follow(camFollow, LOCKON, 0.01);
+		}
 
-			if (bf.animation.curAnim.finished)
-				FlxG.sound.playMusic(Paths.music('gameOver' + stageSuffix));
+		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.finished)
+		{
+			FlxG.sound.playMusic(Paths.music('gameOver' + stageSuffix));
 		}
 
 		if (FlxG.sound.music.playing)

@@ -6,7 +6,6 @@ import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
-import openfl.Lib;
 
 class MenuItem extends FlxSpriteGroup
 {
@@ -18,10 +17,6 @@ class MenuItem extends FlxSpriteGroup
 	{
 		super(x, y);
 		week = new FlxSprite().loadGraphic(Paths.image('storymenu/week' + weekNum));
-		if (weekNum < 7)
-		{
-			week.color = FlxColor.BLACK;
-		}
 		add(week);
 	}
 
@@ -47,8 +42,8 @@ class MenuItem extends FlxSpriteGroup
 			flashingInt += 1;
 
 		if (flashingInt % fakeFramerate >= Math.floor(fakeFramerate / 2))
-			week.color = FlxColor.GREEN;
+			week.color = 0xFF33ffff;
 		else
-			week.color = FlxColor.BLACK;
+			week.color = FlxColor.WHITE;
 	}
 }

@@ -4,28 +4,8 @@ import Section.SwagSection;
 import haxe.Json;
 import haxe.format.JsonParser;
 import lime.utils.Assets;
-#if sys
-import sys.io.File;
-import sys.FileSystem;
-#end
 
 using StringTools;
-
-class MidSongEvent
-{
-	public var events:String;
-	public var valueOne:String;
-	public var valueTwo:String;
-	public var eventPos:Float;
-
-	public function new(events:String, eventPos:Float, valueTwo:String, valueOne:String)
-	{
-		this.events = events;
-		this.eventPos = eventPos;
-		this.valueTwo = valueTwo;
-		this.valueOne = valueOne;
-	}
-}
 
 typedef SwagSong =
 {
@@ -37,12 +17,7 @@ typedef SwagSong =
 
 	var player1:String;
 	var player2:String;
-	public var events:Array<MidSongEvent>;
 	var validScore:Bool;
-	var stage:String;
-	var gfVersion:String;
-	public var dialoguetoggle:String;
-	public var videotoggle:String;
 }
 
 class Song
@@ -55,11 +30,6 @@ class Song
 
 	public var player1:String = 'bf';
 	public var player2:String = 'dad';
-	public var stage:String = PlayState.curStage;
-	public var gfVersion:String = 'gf';
-	public var dialoguetoggle:String = 'false';
-	public var videotoggle:String = 'false';
-	public var events:Array<MidSongEvent>;
 
 	public function new(song, notes, bpm)
 	{
@@ -70,26 +40,7 @@ class Song
 
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
-		var rawJson = null;
-
-		var formattedFolder:String = Paths.formatToSongPath(folder);
-		var formattedSong:String = Paths.formatToSongPath(jsonInput);
-		#if MODS
-		var moddyFile:String = Paths.modsJson(formattedFolder + '/' + formattedSong);
-		if (FileSystem.exists(moddyFile))
-		{
-			rawJson = File.getContent(moddyFile).trim();
-		}
-		#end
-
-		if (rawJson == null)
-		{
-			#if sys
-			rawJson = File.getContent(Paths.json(formattedFolder + '/' + formattedSong)).trim();
-			#else
-			rawJson = Assets.getText(Paths.json(formattedFolder + '/' + formattedSong)).trim();
-			#end
-		}
+		var rawJson = Assets.getText(Paths.json(folder.toLowerCase() + '/' + jsonInput.toLowerCase())).trim();
 
 		while (!rawJson.endsWith("}"))
 		{

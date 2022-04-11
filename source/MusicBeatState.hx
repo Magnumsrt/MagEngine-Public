@@ -5,7 +5,6 @@ import flixel.FlxG;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.ui.FlxUIState;
 import flixel.math.FlxRect;
-import flixel.FlxState;
 import flixel.util.FlxTimer;
 
 class MusicBeatState extends FlxUIState
@@ -20,17 +19,6 @@ class MusicBeatState extends FlxUIState
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
 
-	override function create()
-	{
-		var skip:Bool = FlxTransitionableState.skipNextTransOut;
-		super.create();
-
-		// Custom made Trans out
-		if (!skip)
-			openSubState(new CustomFadeTransition(1, true));
-		FlxTransitionableState.skipNextTransOut = false;
-	}
-
 	override function update(elapsed:Float)
 	{
 		// everyStep();
@@ -43,39 +31,6 @@ class MusicBeatState extends FlxUIState
 			stepHit();
 
 		super.update(elapsed);
-	}
-
-	public static function switchState(nextState:FlxState)
-	{
-		// Custom made Trans in
-		var curState:Dynamic = FlxG.state;
-		var leState:MusicBeatState = curState;
-		if (!FlxTransitionableState.skipNextTransIn)
-		{
-			leState.openSubState(new CustomFadeTransition(0.7, false));
-			if (nextState == FlxG.state)
-			{
-				CustomFadeTransition.finishCallback = function()
-				{
-					FlxG.resetState();
-				};
-			}
-			else
-			{
-				CustomFadeTransition.finishCallback = function()
-				{
-					FlxG.switchState(nextState);
-				};
-			}
-			return;
-		}
-		FlxTransitionableState.skipNextTransIn = false;
-		FlxG.switchState(nextState);
-	}
-
-	public static function resetState()
-	{
-		MusicBeatState.switchState(FlxG.state);
 	}
 
 	private function updateBeat():Void

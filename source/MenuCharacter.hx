@@ -2,7 +2,6 @@ package;
 
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
-import openfl.Assets;
 
 class MenuCharacter extends FlxSprite
 {
@@ -17,41 +16,18 @@ class MenuCharacter extends FlxSprite
 		var tex = Paths.getSparrowAtlas('campaign_menu_UI_characters');
 		frames = tex;
 
-		animation.addByPrefix(weekCharacters(), 24);
-		animation.addByPrefix(weekCharactersAccepted(), 24, false);
+		animation.addByPrefix('bf', "BF idle dance white", 24);
+		animation.addByPrefix('bfConfirm', 'BF HEY!!', 24, false);
+		animation.addByPrefix('gf', "GF Dancing Beat WHITE", 24);
+		animation.addByPrefix('dad', "Dad idle dance BLACK LINE", 24);
+		animation.addByPrefix('spooky', "spooky dance idle BLACK LINES", 24);
+		animation.addByPrefix('pico', "Pico Idle Dance", 24);
+		animation.addByPrefix('mom', "Mom Idle BLACK LINES", 24);
+		animation.addByPrefix('parents-christmas', "Parent Christmas Idle", 24);
+		animation.addByPrefix('senpai', "SENPAI idle Black Lines", 24);
 		// Parent Christmas Idle
 
 		animation.play(character);
 		updateHitbox();
-	}
-
-	function weekCharacters():String
-	{
-		var fullText:String = Assets.getText(Paths.txt('menuCharacters'));
-
-		var firstArray:Array<String> = fullText.split('\n');
-		var swagGoodArray:Array<Array<String>> = [];
-
-		for (i in firstArray)
-		{
-			swagGoodArray.push(i.split('--'));
-		}
-
-		return swagGoodArray;
-	}
-
-	function weekCharactersAccepted():String
-	{
-		var fullText:String = Assets.getText(Paths.txt('menuCharactersHEY'));
-
-		var firstArray:Array<String> = fullText.split('\n');
-		var swagGoodArray:Array<Array<String>> = [];
-
-		for (i in firstArray)
-		{
-			swagGoodArray.push(i.split('--'));
-		}
-
-		return swagGoodArray;
 	}
 }
