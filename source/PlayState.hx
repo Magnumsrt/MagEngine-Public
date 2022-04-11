@@ -132,6 +132,11 @@ class PlayState extends MusicBeatState
 	var bgGirls:BackgroundGirls;
 	var wiggleShit:WiggleEffect = new WiggleEffect();
 
+	public var shits:Int = 0;
+	public var bads:Int = 0;
+	public var goods:Int = 0;
+	public var sicks:Int = 0;
+
 	var talking:Bool = true;
 	var songScore:Int = 0;
 	var scoreTxt:FlxText;
@@ -854,6 +859,8 @@ class PlayState extends MusicBeatState
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 
+		Conductor.safeZoneOffset = MagPrefs.getValue('safeFrames') / 60 * 1000;
+
 		super.create();
 
 		Paths.clearUnusedMemory();
@@ -1362,8 +1369,9 @@ class PlayState extends MusicBeatState
 		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
 		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
 
-		iconP1.setGraphicSize(Std.int(FlxMath.lerp(150, iconP1.width, 0.50)));
-		iconP2.setGraphicSize(Std.int(FlxMath.lerp(150, iconP2.width, 0.50)));
+		var bounceVal:Float = CoolUtil.boundTo(1 - elapsed * 3.2, 0, 1);
+		iconP1.setGraphicSize(Std.int(FlxMath.lerp(150, iconP1.width, bounceVal)));
+		iconP2.setGraphicSize(Std.int(FlxMath.lerp(150, iconP2.width, bounceVal)));
 
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();
@@ -1736,7 +1744,6 @@ class PlayState extends MusicBeatState
 
 	private function popUpScore(strumtime:Float):Void
 	{
-		var noteDiff:Float = Math.abs(strumtime - Conductor.songPosition);
 		// boyfriend.playAnim('hey');
 		vocals.volume = 1;
 
@@ -1745,27 +1752,25 @@ class PlayState extends MusicBeatState
 		var coolText:FlxText = new FlxText(0, 0, 0, placement, 32);
 		coolText.screenCenter();
 		coolText.x = FlxG.width * 0.55;
-		//
 
 		var rating:FlxSprite = new FlxSprite();
 		var score:Int = 350;
 
-		var daRating:String = "sick";
+		var daRating:String = Conductor.judgeNote(Math.abs(strumtime - Conductor.songPosition));
 
-		if (noteDiff > Conductor.safeZoneOffset * 0.9)
+		switch (daRating)
 		{
-			daRating = 'shit';
-			score = 50;
-		}
-		else if (noteDiff > Conductor.safeZoneOffset * 0.75)
-		{
-			daRating = 'bad';
-			score = 100;
-		}
-		else if (noteDiff > Conductor.safeZoneOffset * 0.2)
-		{
-			daRating = 'good';
-			score = 200;
+			case 'shit':
+				score = 50;
+				shits++;
+			case 'bad':
+				score = 100;
+				bads++;
+			case 'good':
+				score = 200;
+				goods++;
+			case 'sick':
+				sicks++;
 		}
 
 		songScore += score;

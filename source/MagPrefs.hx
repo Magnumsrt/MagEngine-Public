@@ -9,7 +9,7 @@ typedef Setting =
 {
 	var type:SettingType;
 	var value:Dynamic;
-	// for percent and integer types
+	// for percent and numbers types
 	@:optional var min:Float;
 	@:optional var max:Float;
 }
@@ -18,8 +18,9 @@ enum SettingType
 {
 	Boolean;
 	Integer;
+	Float;
 	Percent;
-	Text;
+	String;
 }
 
 // my awesome oop take on haxe :O
@@ -38,6 +39,23 @@ class MagPrefs
 		'middleScroll' => {
 			type: Boolean,
 			value: false
+		},
+		// hit windows
+		'sickWindow' => {
+			type: Float,
+			value: 45
+		},
+		'goodWindow' => {
+			type: Float,
+			value: 90
+		},
+		'badWindow' => {
+			type: Float,
+			value: 135
+		},
+		'safeFrames' => {
+			type: Float,
+			value: 10
 		},
 		// notes settings
 		'cpuNotesGlow' => {
@@ -70,19 +88,27 @@ class MagPrefs
 		'debug_1' => [SEVEN, NONE],
 		'debug_2' => [EIGHT, NONE]
 	];
-	public static var defaultKeys:Map<String, Array<FlxKey>>;
+
+	// public static var defaultKeys:Map<String, Array<FlxKey>>;
 
 	public static function load()
 	{
 		if (FlxG.save.data.settings == null)
 		{
-			FlxG.save.data.settings = settings;
+			FlxG.save.data.settings = settings.copy();
 			FlxG.save.flush();
 		}
 		else
-			settings = FlxG.save.data.settings;
+		{
+			// when haxe is sus
+			var savedSettings:Map<String, Setting> = FlxG.save.data.settings;
 
-		trace(settings);
+			for (k in settings.keys())
+				if (!savedSettings.exists(k))
+					savedSettings.set(k, settings.get(k));
+
+			settings = savedSettings.copy();
+		}
 
 		var controlsSave:FlxSave = new FlxSave();
 		controlsSave.bind('controls_v2', 'ninjamuffin99');
@@ -95,10 +121,10 @@ class MagPrefs
 		}
 	}
 
-	public static function loadDefaultKeys()
-	{
-		defaultKeys = keyBinds.copy();
-	}
+	// public static function loadDefaultKeys()
+	// {
+	// 	defaultKeys = keyBinds.copy();
+	// }
 
 	public static function copyKey(arrayToCopy:Array<FlxKey>)
 	{
@@ -143,7 +169,15 @@ class MagPrefs
 		controlsSave.flush();
 	}
 
-	public static function getSetting(setting:String)
+	public static function getSettingsList()
+	{
+		var dogshet:Array<String> = [];
+		for (k in settings.keys())
+			dogshet.push(k);
+		return dogshet;
+	}
+
+	public static function getSetting(setting:String):Dynamic
 	{
 		if (settings.exists(setting))
 			return settings.get(setting)
@@ -151,8 +185,7 @@ class MagPrefs
 			return null;
 	}
 
-	// im lazy lol
-	public static function getValue(setting:String)
+	public static function getValue(setting:String):Dynamic
 	{
 		return getSetting(setting).value;
 	}

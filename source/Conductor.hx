@@ -2,10 +2,6 @@ package;
 
 import Song.SwagSong;
 
-/**
- * ...
- * @author
- */
 typedef BPMChangeEvent =
 {
 	var stepTime:Int;
@@ -27,8 +23,22 @@ class Conductor
 
 	public static var bpmChangeMap:Array<BPMChangeEvent> = [];
 
-	public function new()
+	public static function judgeNote(diff:Float = 0)
 	{
+		// tryna do MS based judgment due to popular demand
+		var timingWindows:Array<Int> = [
+			MagPrefs.getValue('sickWindow'),
+			MagPrefs.getValue('goodWindow'),
+			MagPrefs.getValue('badWindow')
+		];
+		var windowNames:Array<String> = ['sick', 'good', 'bad'];
+
+		for (i in 0...timingWindows.length) // based on 4 timing windows, will break with anything else
+		{
+			if (diff <= timingWindows[Math.round(Math.min(i, timingWindows.length - 1))])
+				return windowNames[i];
+		}
+		return 'shit';
 	}
 
 	public static function mapBPMChanges(song:SwagSong)
