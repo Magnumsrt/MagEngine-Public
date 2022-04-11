@@ -1,1 +1,0 @@
-A custom event has two dependencies, a .hx file with the name of the event you plan to put in eventList.txt as the file name. And a line in the eventList.txt file, which should be the same as the file name of the .hx file you plan to use.

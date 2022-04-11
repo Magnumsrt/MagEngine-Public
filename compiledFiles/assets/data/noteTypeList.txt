@@ -1,3 +1,0 @@
-default
-hurt-note
-kill-note
