@@ -66,6 +66,8 @@ class PlayState extends MusicBeatState
 	private var gf:Character;
 	private var boyfriend:Boyfriend;
 
+	private var singAnimations:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
+
 	private var notes:FlxTypedGroup<Note>;
 	private var unspawnNotes:Array<Note> = [];
 
@@ -1497,13 +1499,6 @@ class PlayState extends MusicBeatState
 			trace("RESET = True");
 		}
 
-		// CHEAT = brandon's a pussy
-		if (controls.CHEAT)
-		{
-			health += 1;
-			trace("User is cheating!");
-		}
-
 		if (health <= 0)
 		{
 			boyfriend.stunned = true;
@@ -1579,17 +1574,7 @@ class PlayState extends MusicBeatState
 							altAnim = '-alt';
 					}
 
-					switch (Math.abs(daNote.noteData))
-					{
-						case 0:
-							dad.playAnim('singLEFT' + altAnim, true);
-						case 1:
-							dad.playAnim('singDOWN' + altAnim, true);
-						case 2:
-							dad.playAnim('singUP' + altAnim, true);
-						case 3:
-							dad.playAnim('singRIGHT' + altAnim, true);
-					}
+					dad.playAnim(singAnimations[Std.int(Math.abs(daNote.noteData))] + altAnim, true);
 
 					dad.holdTimer = 0;
 
@@ -1870,9 +1855,9 @@ class PlayState extends MusicBeatState
 
 	private function keyShit():Void
 	{
-		var controlHoldArray:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
-		var controlArray:Array<Bool> = [controls.LEFT_P, controls.DOWN_P, controls.UP_P, controls.RIGHT_P];
-		var controlReleaseArray:Array<Bool> = [controls.LEFT_R, controls.DOWN_R, controls.UP_R, controls.RIGHT_R];
+		var controlHoldArray:Array<Bool> = [controls.UI_LEFT, controls.UI_DOWN, controls.UI_UP, controls.UI_RIGHT];
+		var controlArray:Array<Bool> = [controls.UI_LEFT_P, controls.UI_DOWN_P, controls.UI_UP_P, controls.UI_RIGHT_P];
+		var controlReleaseArray:Array<Bool> = [controls.UI_LEFT_R, controls.UI_DOWN_R, controls.UI_UP_R, controls.UI_RIGHT_R];
 
 		// FlxG.watch.addQuick('asdfa', upP);
 		if (controlArray.contains(true) && !boyfriend.stunned && generatedMusic)
@@ -1971,6 +1956,9 @@ class PlayState extends MusicBeatState
 	{
 		if (!boyfriend.stunned)
 		{
+			if (MagPrefs.getValue('ghostTapping'))
+				return;
+
 			health -= 0.04;
 			if (combo > 5 && gf.animOffsets.exists('sad'))
 				gf.playAnim('sad');
@@ -1990,17 +1978,7 @@ class PlayState extends MusicBeatState
 				boyfriend.stunned = false;
 			});
 
-			switch (direction)
-			{
-				case 0:
-					boyfriend.playAnim('singLEFTmiss', true);
-				case 1:
-					boyfriend.playAnim('singDOWNmiss', true);
-				case 2:
-					boyfriend.playAnim('singUPmiss', true);
-				case 3:
-					boyfriend.playAnim('singRIGHTmiss', true);
-			}
+			boyfriend.playAnim(singAnimations[Std.int(Math.abs(direction))] + 'miss', true);
 		}
 	}
 
@@ -2008,10 +1986,10 @@ class PlayState extends MusicBeatState
 	{
 		// just double pasting this shit cuz fuk u
 		// REDO THIS SYSTEM!
-		var upP = controls.UP_P;
-		var rightP = controls.RIGHT_P;
-		var downP = controls.DOWN_P;
-		var leftP = controls.LEFT_P;
+		var upP = controls.NOTE_UP_P;
+		var rightP = controls.NOTE_RIGHT_P;
+		var downP = controls.NOTE_DOWN_P;
+		var leftP = controls.NOTE_LEFT_P;
 
 		if (leftP)
 			noteMiss(0);
@@ -2048,17 +2026,7 @@ class PlayState extends MusicBeatState
 			else
 				health += 0.004;
 
-			switch (note.noteData)
-			{
-				case 0:
-					boyfriend.playAnim('singLEFT', true);
-				case 1:
-					boyfriend.playAnim('singDOWN', true);
-				case 2:
-					boyfriend.playAnim('singUP', true);
-				case 3:
-					boyfriend.playAnim('singRIGHT', true);
-			}
+			boyfriend.playAnim(singAnimations[Std.int(Math.abs(note.noteData))], true);
 
 			playerStrums.forEach(function(spr:StrumNote)
 			{
