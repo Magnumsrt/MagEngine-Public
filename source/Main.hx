@@ -1,5 +1,6 @@
 package;
 
+import flixel.graphics.FlxGraphic;
 import flixel.FlxGame;
 import flixel.FlxState;
 import openfl.Assets;
@@ -67,10 +68,17 @@ class Main extends Sprite
 		initialState = TitleState;
 		#end
 
+		FlxGraphic.defaultPersist = true;
+
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 
 		#if !mobile
 		addChild(new FPS(10, 3, 0xFFFFFF));
+		#end
+
+		#if html5
+		FlxG.autoPause = false;
+		FlxG.mouse.visible = false;
 		#end
 	}
 }
