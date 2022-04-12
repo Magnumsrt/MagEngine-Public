@@ -1,16 +1,25 @@
 package;
 
-import flixel.input.keyboard.FlxKey;
 #if desktop
 import Discord.DiscordClient;
+import sys.thread.Thread;
 #end
 import flixel.FlxG;
 import flixel.FlxSprite;
-// import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
-// import flixel.addons.transition.FlxTransitionableState;
-// import flixel.addons.transition.TransitionData;
+import flixel.FlxState;
+import flixel.addons.display.FlxGridOverlay;
+import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
+import flixel.addons.transition.FlxTransitionableState;
+import flixel.addons.transition.TransitionData;
+import flixel.graphics.FlxGraphic;
+import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup;
 import flixel.input.gamepad.FlxGamepad;
+import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
+import flixel.system.FlxSound;
+import flixel.system.ui.FlxSoundTray;
+import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
@@ -22,10 +31,6 @@ using StringTools;
 
 class TitleState extends MusicBeatState
 {
-	public static var muteKeys:Array<FlxKey> = [FlxKey.ZERO];
-	public static var volumeDownKeys:Array<FlxKey> = [FlxKey.NUMPADMINUS, FlxKey.MINUS];
-	public static var volumeUpKeys:Array<FlxKey> = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
-
 	static var initialized:Bool = false;
 
 	var blackScreen:FlxSprite;
@@ -40,15 +45,6 @@ class TitleState extends MusicBeatState
 
 	override public function create():Void
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
-		FlxG.game.focusLostFramerate = 60;
-		FlxG.sound.muteKeys = muteKeys;
-		FlxG.sound.volumeDownKeys = volumeDownKeys;
-		FlxG.sound.volumeUpKeys = volumeUpKeys;
-		FlxG.keys.preventDefaultKeys = [TAB];
-
 		PlayerSettings.init();
 
 		curWacky = FlxG.random.getObject(getIntroTextShit());
@@ -58,8 +54,6 @@ class TitleState extends MusicBeatState
 		super.create();
 
 		FlxG.save.bind('funkin', 'ninjamuffin99');
-
-		MagPrefs.load();
 
 		Highscore.load();
 
@@ -78,9 +72,9 @@ class TitleState extends MusicBeatState
 		}
 
 		#if FREEPLAY
-		MusicBeatState.switchState(new FreeplayState());
+		FlxG.switchState(new FreeplayState());
 		#elseif CHARTING
-		MusicBeatState.switchState(new ChartingState());
+		FlxG.switchState(new ChartingState());
 		#else
 		new FlxTimer().start(1, function(tmr:FlxTimer)
 		{
@@ -107,17 +101,17 @@ class TitleState extends MusicBeatState
 	{
 		if (!initialized)
 		{
-			// var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
-			// diamond.persist = true;
-			// diamond.destroyOnNoUse = false;
+			var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
+			diamond.persist = true;
+			diamond.destroyOnNoUse = false;
 
-			// FlxTransitionableState.defaultTransIn = new TransitionData(FADE, FlxColor.BLACK, 1, new FlxPoint(0, -1), {asset: diamond, width: 32, height: 32},
-			// 	new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
-			// FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.7, new FlxPoint(0, 1),
-			// 	{asset: diamond, width: 32, height: 32}, new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
+			FlxTransitionableState.defaultTransIn = new TransitionData(FADE, FlxColor.BLACK, 1, new FlxPoint(0, -1), {asset: diamond, width: 32, height: 32},
+				new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
+			FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.7, new FlxPoint(0, 1),
+				{asset: diamond, width: 32, height: 32}, new FlxRect(-200, -200, FlxG.width * 1.4, FlxG.height * 1.4));
 
-			// transIn = FlxTransitionableState.defaultTransIn;
-			// transOut = FlxTransitionableState.defaultTransOut;
+			transIn = FlxTransitionableState.defaultTransIn;
+			transOut = FlxTransitionableState.defaultTransOut;
 
 			// HAD TO MODIFY SOME BACKEND SHIT
 			// IF THIS PR IS HERE IF ITS ACCEPTED UR GOOD TO GO
@@ -281,7 +275,7 @@ class TitleState extends MusicBeatState
 
 				// if (version.trim() != NGio.GAME_VER_NUMS.trim() && !OutdatedSubState.leftState)
 				// {
-				// 	MusicBeatState.switchState(new OutdatedSubState());
+				// 	FlxG.switchState(new OutdatedSubState());
 				// 	trace('OLD VERSION!');
 				// 	trace('old ver');
 				// 	trace(version.trim());
@@ -290,7 +284,7 @@ class TitleState extends MusicBeatState
 				// }
 				// else
 				// {
-				MusicBeatState.switchState(new MainMenuState());
+				FlxG.switchState(new MainMenuState());
 				// }
 			});
 			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
