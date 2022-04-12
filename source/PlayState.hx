@@ -79,10 +79,10 @@ class PlayState extends MusicBeatState
 
 	public static var cameraSpeed:Float = 1;
 
-	private var camFollow:FlxObject;
+	private var camFollow:FlxPoint;
 	private var camFollowPos:FlxObject;
 
-	private static var prevCamFollow:FlxObject;
+	private static var prevCamFollow:FlxPoint;
 
 	private var strumLineNotes:FlxTypedGroup<StrumNote>;
 	private var playerStrums:FlxTypedGroup<StrumNote>;
@@ -186,6 +186,7 @@ class PlayState extends MusicBeatState
 		FlxG.cameras.add(camHUD);
 
 		FlxCamera.defaultCameras = [camGame];
+		CustomFadeTransition.nextCamera = camHUD;
 
 		persistentUpdate = true;
 		persistentDraw = true;
@@ -250,13 +251,9 @@ class PlayState extends MusicBeatState
 
 		// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
 		if (isStoryMode)
-		{
 			detailsText = "Story Mode: Week " + storyWeek;
-		}
 		else
-		{
 			detailsText = "Freeplay";
-		}
 
 		// String for when the game is paused
 		detailsPausedText = "Paused - " + detailsText;
@@ -264,6 +261,8 @@ class PlayState extends MusicBeatState
 		// Updating Discord Rich Presence.
 		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
 		#end
+
+		GameOverSubstate.resetVariables();
 
 		switch (SONG.song.toLowerCase())
 		{
@@ -609,6 +608,15 @@ class PlayState extends MusicBeatState
 
 		isPixelStage = curStage.startsWith('school');
 
+		// TODO: move this in the switch after unharcoding stages
+		if (isPixelStage)
+		{
+			GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pixel';
+			GameOverSubstate.loopSoundName = 'gameOver-pixel';
+			GameOverSubstate.endSoundName = 'gameOverEnd-pixel';
+			GameOverSubstate.characterName = 'bf-pixel-dead';
+		}
+
 		var gfVersion:String = 'gf';
 
 		if (isPixelStage)
@@ -742,9 +750,8 @@ class PlayState extends MusicBeatState
 
 		// add(strumLine);
 
-		camFollow = new FlxObject(0, 0, 1, 1);
-		camFollow.setPosition(camPos.x, camPos.y);
-		camFollowPos = new FlxObject(0, 0, 1, 1);
+		camFollow = new FlxPoint(camPos.x, camPos.y);
+		camFollowPos = new FlxObject(camPos.x, camPos.y);
 		camFollowPos.setPosition(camPos.x, camPos.y);
 		if (prevCamFollow != null)
 		{
@@ -752,12 +759,11 @@ class PlayState extends MusicBeatState
 			prevCamFollow = null;
 		}
 
-		add(camFollow);
 		add(camFollowPos);
 
 		FlxG.camera.follow(camFollowPos, LOCKON, 1);
 		FlxG.camera.zoom = defaultCamZoom;
-		FlxG.camera.focusOn(camFollow.getPosition());
+		FlxG.camera.focusOn(camFollow);
 
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 
@@ -820,7 +826,7 @@ class PlayState extends MusicBeatState
 						FlxG.sound.play(Paths.sound('Lights_Turn_On'));
 						camFollow.y = -2050;
 						camFollow.x += 200;
-						FlxG.camera.focusOn(camFollow.getPosition());
+						FlxG.camera.focusOn(camFollow);
 						FlxG.camera.zoom = 1.5;
 
 						new FlxTimer().start(0.8, function(tmr:FlxTimer)
@@ -864,6 +870,8 @@ class PlayState extends MusicBeatState
 		super.create();
 
 		Paths.clearUnusedMemory();
+
+		CustomFadeTransition.nextCamera = camHUD;
 	}
 
 	function schoolIntro(?dialogueBox:DialogueBox):Void
@@ -1344,13 +1352,16 @@ class PlayState extends MusicBeatState
 			paused = true;
 
 			// 1 / 1000 chance for Gitaroo Man easter egg
-			if (FlxG.random.bool(0.1))
-			{
-				// gitaroo man easter egg
-				FlxG.switchState(new GitarooPause());
-			}
-			else
-				openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
+			// if (FlxG.random.bool(0.1))
+			// {
+			// 	// gitaroo man easter egg
+			//  cancelMusicFadeTween();
+			// 	MusicBeatState.switchState(new GitarooPause());
+			// }
+			// else
+			// {
+			openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
+			// }
 
 			#if desktop
 			DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
@@ -1359,7 +1370,10 @@ class PlayState extends MusicBeatState
 
 		if (FlxG.keys.justPressed.SEVEN)
 		{
-			FlxG.switchState(new ChartingState());
+			persistentUpdate = false;
+			paused = true;
+			cancelMusicFadeTween();
+			MusicBeatState.switchState(new ChartingState());
 
 			#if desktop
 			DiscordClient.changePresence("Chart Editor", null, null, true);
@@ -1395,12 +1409,15 @@ class PlayState extends MusicBeatState
 			iconP2.animation.curAnim.curFrame = 0;
 
 		/* if (FlxG.keys.justPressed.NINE)
-			FlxG.switchState(new Charting()); */
+			MusicBeatState.switchState(new Charting()); */
 
-		#if debug
 		if (FlxG.keys.justPressed.EIGHT)
-			FlxG.switchState(new AnimationDebug(SONG.player2));
-		#end
+		{
+			persistentUpdate = false;
+			paused = true;
+			cancelMusicFadeTween();
+			MusicBeatState.switchState(new AnimationDebug(SONG.player2));
+		}
 
 		if (startingSong)
 		{
@@ -1443,7 +1460,7 @@ class PlayState extends MusicBeatState
 
 			if (camFollow.x != dad.getMidpoint().x + 150 && !PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection)
 			{
-				camFollow.setPosition(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+				camFollow.set(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
 				// camFollow.setPosition(lucky.getMidpoint().x - 120, lucky.getMidpoint().y + 210);
 
 				switch (dad.curCharacter)
@@ -1469,7 +1486,7 @@ class PlayState extends MusicBeatState
 
 			if (PlayState.SONG.notes[Std.int(curStep / 16)].mustHitSection && camFollow.x != boyfriend.getMidpoint().x - 100)
 			{
-				camFollow.setPosition(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
+				camFollow.set(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
 
 				if (isPixelStage)
 				{
@@ -1522,7 +1539,7 @@ class PlayState extends MusicBeatState
 					gfSpeed = 1;
 				case 163:
 					// FlxG.sound.music.stop();
-					// FlxG.switchState(new TitleState());
+					// MusicBeatState.switchState(new TitleState());
 			}
 		}
 
@@ -1533,7 +1550,7 @@ class PlayState extends MusicBeatState
 				case 128, 129, 130:
 					vocals.volume = 0;
 					// FlxG.sound.music.stop();
-					// FlxG.switchState(new PlayState());
+					// MusicBeatState.switchState(new PlayState());
 			}
 		}
 		// better streaming of shit
@@ -1558,7 +1575,7 @@ class PlayState extends MusicBeatState
 
 			openSubState(new GameOverSubstate(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 
-			// FlxG.switchState(new GameOverState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
+			// MusicBeatState.switchState(new GameOverState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 
 			#if desktop
 			// Game Over doesn't get his own variable because it's only used here
@@ -1686,10 +1703,12 @@ class PlayState extends MusicBeatState
 			{
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
-				transIn = FlxTransitionableState.defaultTransIn;
-				transOut = FlxTransitionableState.defaultTransOut;
-
-				FlxG.switchState(new StoryMenuState());
+				cancelMusicFadeTween();
+				if (FlxTransitionableState.skipNextTransIn)
+				{
+					CustomFadeTransition.nextCamera = null;
+				}
+				MusicBeatState.switchState(new StoryMenuState());
 
 				StoryMenuState.weekUnlocked[Std.int(Math.min(storyWeek + 1, StoryMenuState.weekUnlocked.length - 1))] = true;
 
@@ -1730,13 +1749,19 @@ class PlayState extends MusicBeatState
 				PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + difficulty, PlayState.storyPlaylist[0]);
 				FlxG.sound.music.stop();
 
+				cancelMusicFadeTween();
 				LoadingState.loadAndSwitchState(new PlayState());
 			}
 		}
 		else
 		{
 			trace('WENT BACK TO FREEPLAY??');
-			FlxG.switchState(new FreeplayState());
+			cancelMusicFadeTween();
+			if (FlxTransitionableState.skipNextTransIn)
+			{
+				CustomFadeTransition.nextCamera = null;
+			}
+			MusicBeatState.switchState(new FreeplayState());
 		}
 	}
 
@@ -2267,6 +2292,13 @@ class PlayState extends MusicBeatState
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.removeEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 		super.destroy();
+	}
+
+	public static function cancelMusicFadeTween()
+	{
+		if (FlxG.sound.music.fadeTween != null)
+			FlxG.sound.music.fadeTween.cancel();
+		FlxG.sound.music.fadeTween = null;
 	}
 
 	override function stepHit()
