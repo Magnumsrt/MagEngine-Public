@@ -387,7 +387,7 @@ class Alphabet extends FlxSpriteGroup
 		{
 			var scaledY = FlxMath.remapToRange(targetY, 0, 1, 0, 1.3);
 
-			var lerpVal:Float = CoolUtil.boundTo(elapsed * 9.6, 0, 1);
+			var lerpVal:Float = getLerpVal();
 			y = FlxMath.lerp(y, (scaledY * yMult) + (FlxG.height * 0.48) + yAdd, lerpVal);
 			if (forceX != Math.NEGATIVE_INFINITY)
 			{
@@ -400,6 +400,11 @@ class Alphabet extends FlxSpriteGroup
 		}
 
 		super.update(elapsed);
+	}
+
+	inline static public function getLerpVal()
+	{
+		return CoolUtil.boundTo(FlxG.elapsed * 9.6, 0, 1);
 	}
 
 	public function killTheTimer()

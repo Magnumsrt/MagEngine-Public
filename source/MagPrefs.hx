@@ -89,34 +89,27 @@ class MagPrefs
 		'debug_2' => [EIGHT, NONE]
 	];
 
-	// public static var defaultKeys:Map<String, Array<FlxKey>>;
-
 	public static function load()
 	{
-		if (FlxG.save.data.settings == null)
-		{
-			FlxG.save.data.settings = settings.copy();
-			FlxG.save.flush();
-		}
+		// place shit in a separate save since this is better for don't erase score stuff
+
+		var save:FlxSave = new FlxSave();
+		save.bind('settings', 'ninjamuffin99');
+
+		if (save.data.settings == null)
+			save.data.settings = settings;
 		else
 		{
-			// when haxe is sus
-			var savedSettings:Map<String, Setting> = FlxG.save.data.settings;
-
-			for (k in settings.keys())
-				if (!savedSettings.exists(k))
-					savedSettings.set(k, settings.get(k));
-
-			settings = savedSettings.copy();
+			var savedSettings:Map<String, Setting> = save.data.settings;
+			for (setting => data in settings)
+				if (!savedSettings.exists(setting))
+					savedSettings.set(setting, data);
+			settings = savedSettings;
 		}
 
-		var controlsSave:FlxSave = new FlxSave();
-		controlsSave.bind('controls_v2', 'ninjamuffin99');
-		if (controlsSave.data.customControls != null)
+		if (save.data.customControls != null)
 		{
-			var loadedControls:Map<String, Array<FlxKey>> = controlsSave.data.customControls;
-			for (control => keys in loadedControls)
-				keyBinds.set(control, keys);
+			keyBinds = save.data.customControls;
 			reloadControls();
 		}
 	}
@@ -149,24 +142,18 @@ class MagPrefs
 	{
 		PlayerSettings.player1.controls.setKeyboardScheme(KeyboardScheme.Solo);
 
-		TitleState.muteKeys = copyKey(keyBinds.get('volume_mute'));
-		TitleState.volumeDownKeys = copyKey(keyBinds.get('volume_down'));
-		TitleState.volumeUpKeys = copyKey(keyBinds.get('volume_up'));
-		FlxG.sound.muteKeys = TitleState.muteKeys;
-		FlxG.sound.volumeDownKeys = TitleState.volumeDownKeys;
-		FlxG.sound.volumeUpKeys = TitleState.volumeUpKeys;
+		FlxG.sound.muteKeys = copyKey(keyBinds.get('volume_mute'));
+		FlxG.sound.volumeDownKeys = copyKey(keyBinds.get('volume_down'));
+		FlxG.sound.volumeUpKeys = copyKey(keyBinds.get('volume_up'));
 	}
 
 	public static function save()
 	{
-		FlxG.save.data.settings = settings;
-		FlxG.save.flush();
-
-		// place shit in a separate save since this is better for don't erase score stuff
-		var controlsSave:FlxSave = new FlxSave();
-		controlsSave.bind('controls', 'ninjamuffin99');
-		controlsSave.data.customControls = keyBinds;
-		controlsSave.flush();
+		var save:FlxSave = new FlxSave();
+		save.bind('settings', 'ninjamuffin99');
+		save.data.settings = settings;
+		save.data.customControls = keyBinds;
+		save.flush();
 	}
 
 	public static function getSettingsList()

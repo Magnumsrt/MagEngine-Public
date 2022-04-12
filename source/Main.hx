@@ -1,5 +1,8 @@
 package;
 
+import haxe.CallStack;
+import haxe.CallStack.StackItem;
+import openfl.events.UncaughtErrorEvent;
 import flixel.graphics.FlxGraphic;
 import flixel.FlxGame;
 import flixel.FlxState;
@@ -64,8 +67,12 @@ class Main extends Sprite
 			gameHeight = Math.ceil(stageHeight / zoom);
 		}
 
+		#if sys
+		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
+		#end
+
 		#if html5
-		fps = 60;
+		framerate = 60;
 		#end
 
 		#if !debug
@@ -85,4 +92,29 @@ class Main extends Sprite
 		FlxG.mouse.visible = false;
 		#end
 	}
+
+	#if sys
+	function onCrash(e:UncaughtErrorEvent):Void
+	{
+		var errMsg:String = '';
+		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
+
+		for (stackItem in callStack)
+		{
+			switch (stackItem)
+			{
+				case FilePos(s, file, line, column):
+					errMsg += file + ' (line " + line + ")\n';
+				default:
+					Sys.println(stackItem);
+			}
+		}
+
+		errMsg += "\nUncaught Error: " + e.error;
+
+		Sys.println(errMsg);
+
+		Sys.exit(1);
+	}
+	#end
 }

@@ -1411,13 +1411,13 @@ class PlayState extends MusicBeatState
 		/* if (FlxG.keys.justPressed.NINE)
 			MusicBeatState.switchState(new Charting()); */
 
-		if (FlxG.keys.justPressed.EIGHT)
-		{
-			persistentUpdate = false;
-			paused = true;
-			cancelMusicFadeTween();
-			MusicBeatState.switchState(new AnimationDebug(SONG.player2));
-		}
+		// if (FlxG.keys.justPressed.EIGHT)
+		// {
+		// 	persistentUpdate = false;
+		// 	paused = true;
+		// 	cancelMusicFadeTween();
+		// 	MusicBeatState.switchState(new AnimationDebug(SONG.player2));
+		// }
 
 		if (startingSong)
 		{

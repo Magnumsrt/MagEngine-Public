@@ -14,7 +14,7 @@ class MenuItem extends FlxSprite
 	public function new(x:Float, y:Float, weekNum:Int = 0)
 	{
 		super(x, y);
-		loadGraphic(Paths.image('storymenu/' + weekNum));
+		loadGraphic(Paths.image('storymenu/week' + weekNum));
 		antialiasing = true;
 	}
 
