@@ -11,11 +11,10 @@ class MenuItem extends FlxSprite
 	public var targetY:Float = 0;
 	public var flashingInt:Int = 0;
 
-	public function new(x:Float, y:Float, weekName:String = '')
+	public function new(x:Float, y:Float, weekNum:Int = 0)
 	{
 		super(x, y);
-		loadGraphic(Paths.image('storymenu/' + weekName));
-		// trace('Test added: ' + WeekData.getWeekNumber(weekNum) + ' (' + weekNum + ')');
+		loadGraphic(Paths.image('storymenu/' + weekNum));
 		antialiasing = true;
 	}
 
