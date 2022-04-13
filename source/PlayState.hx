@@ -137,8 +137,10 @@ class PlayState extends MusicBeatState
 	public var goods:Int = 0;
 	public var sicks:Int = 0;
 
+	public var songScore:Int = 0;
+	public var songMisses:Int = 0;
+
 	var talking:Bool = true;
-	var songScore:Int = 0;
 	var scoreTxt:FlxText;
 
 	public static var campaignScore:Int = 0;
@@ -778,13 +780,7 @@ class PlayState extends MusicBeatState
 			'health', 0, 2);
 		healthBar.scrollFactor.set();
 		healthBar.createFilledBar(0xFFFF0000, 0xFF66FF33);
-		// healthBar
 		add(healthBar);
-
-		scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width - 190, healthBarBG.y + 30, 0, "", 20);
-		scoreTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT);
-		scoreTxt.scrollFactor.set();
-		add(scoreTxt);
 
 		iconP1 = new HealthIcon(SONG.player1, true);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
@@ -793,6 +789,12 @@ class PlayState extends MusicBeatState
 		iconP2 = new HealthIcon(SONG.player2, false);
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		add(iconP2);
+
+		scoreTxt = new FlxText(0, healthBarBG.y + 35, FlxG.width, "", 18);
+		scoreTxt.setFormat(Paths.font("vcr.ttf"), 18, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		scoreTxt.borderSize = 2;
+		scoreTxt.scrollFactor.set();
+		add(scoreTxt);
 
 		strumLineNotes.cameras = [camHUD];
 		notes.cameras = [camHUD];
@@ -1343,7 +1345,11 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
-		scoreTxt.text = "Score:" + songScore;
+		scoreTxt.text = "Score: " + songScore;
+		if (MagPrefs.getValue('missesDisplay'))
+			scoreTxt.text += " | Misses: " + songMisses;
+		if (MagPrefs.getValue('accDisplay'))
+			scoreTxt.text += " | Accuracy: 0%";
 
 		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
 		{
@@ -1712,6 +1718,7 @@ class PlayState extends MusicBeatState
 					CustomFadeTransition.nextCamera = null;
 				}
 				MusicBeatState.switchState(new StoryMenuState());
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
 				StoryMenuState.weekUnlocked[Std.int(Math.min(storyWeek + 1, StoryMenuState.weekUnlocked.length - 1))] = true;
 
@@ -1765,6 +1772,7 @@ class PlayState extends MusicBeatState
 				CustomFadeTransition.nextCamera = null;
 			}
 			MusicBeatState.switchState(new FreeplayState());
+			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 		}
 	}
 
@@ -2126,6 +2134,7 @@ class PlayState extends MusicBeatState
 
 		vocals.volume = 0;
 		songScore -= 10;
+		songMisses++;
 
 		boyfriend.playAnim(singAnimations[Std.int(Math.abs(daNote.noteData))] + 'miss', true);
 	}
@@ -2133,12 +2142,9 @@ class PlayState extends MusicBeatState
 	// You pressed a key when there was no notes to press for this key
 	function noteMissPress(direction:Int = 1):Void
 	{
-		if (!boyfriend.stunned)
+		if (!boyfriend.stunned && !MagPrefs.getValue('ghostTapping'))
 		{
 			health -= 0.05 * healthLoss;
-
-			if (MagPrefs.getValue('ghostTapping'))
-				return;
 
 			if (combo > 5 && gf != null && gf.animOffsets.exists('sad'))
 			{
@@ -2147,6 +2153,7 @@ class PlayState extends MusicBeatState
 			combo = 0;
 
 			songScore -= 10;
+			songMisses++;
 
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
 

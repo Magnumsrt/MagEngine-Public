@@ -40,6 +40,14 @@ class MagPrefs
 			type: Boolean,
 			value: false
 		},
+		'missesDisplay' => {
+			type: Boolean,
+			value: true
+		},
+		'accDisplay' => {
+			type: Boolean,
+			value: true
+		},
 		// hit windows
 		'sickWindow' => {
 			type: Float,

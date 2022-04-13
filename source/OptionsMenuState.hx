@@ -24,7 +24,9 @@ class OptionsMenuState extends MusicBeatState
 					'Middlescroll',
 					'Centers the player strumline and hides the opponent strumline.',
 					'middleScroll'
-				]
+				],
+				['Misses Display', 'Shows your misses.', 'missesDisplay'],
+				['Accuracy Display', 'Shows your accuracy.', 'accDisplay'],
 			]
 		],
 		[
@@ -50,6 +52,7 @@ class OptionsMenuState extends MusicBeatState
 
 	var curOptions:Array<Array<String>>;
 
+	// TODO: add a black box or something like KE options menu
 	var optionsText:FlxText;
 	var descText:FlxText;
 
