@@ -86,11 +86,6 @@ class Main extends Sprite
 		#if !mobile
 		addChild(new FPS(10, 3, 0xFFFFFF));
 		#end
-
-		#if html5
-		FlxG.autoPause = false;
-		FlxG.mouse.visible = false;
-		#end
 	}
 
 	#if sys
