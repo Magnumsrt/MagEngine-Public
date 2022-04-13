@@ -188,8 +188,6 @@ class TitleState extends MusicBeatState
 		ngSpr.screenCenter(X);
 		ngSpr.antialiasing = true;
 
-		FlxG.mouse.visible = false;
-
 		if (initialized)
 			skipIntro();
 		else

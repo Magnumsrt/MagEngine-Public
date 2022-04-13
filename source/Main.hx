@@ -1,5 +1,6 @@
 package;
 
+import flixel.FlxG;
 import haxe.CallStack;
 import haxe.CallStack.StackItem;
 import openfl.events.UncaughtErrorEvent;
@@ -86,6 +87,8 @@ class Main extends Sprite
 		#if !mobile
 		addChild(new FPS(10, 3, 0xFFFFFF));
 		#end
+
+		FlxG.mouse.visible = false;
 	}
 
 	#if sys

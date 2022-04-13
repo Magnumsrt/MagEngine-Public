@@ -1,5 +1,8 @@
 package;
 
+import MagPrefs.Setting;
+import flixel.util.FlxColor;
+import flixel.text.FlxText;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -11,14 +14,46 @@ using StringTools;
 
 class OptionsMenuState extends MusicBeatState
 {
-	var sections:Array<String> = ['gameplay', 'notes', 'misc'];
+	var options:Array<Array<Dynamic>> = [
+		[
+			'gameplay',
+			[
+				['Ghost Tapping', 'Let you press where there are not notes.', 'ghostTapping'],
+				['Downscroll', 'Swaps the notes scroll direction to down.', 'downScroll'],
+				[
+					'Middlescroll',
+					'Centers the player strumline and hides the opponent strumline.',
+					'middleScroll'
+				]
+			]
+		],
+		[
+			'notes',
+			[['Opponent Notes Glow', 'Makes the opponent notes glow on hit.', 'cpuNotesGlow']]
+		],
+		[
+			'misc',
+			[
+				[
+					'FPS Counter',
+					'Shows the FPS counter at the top-left of the screen.',
+					'fpsCounter'
+				]
+			]
+		]
+	];
 
-	var curSection:Int = 0;
-	var curSelected:Int = 0;
+	var selectinSection:Bool = true;
 
-	private var grpSections:FlxTypedGroup<Alphabet>;
+	static var curSection:Int = 0;
+	static var curSelected:Int = 0;
 
-	// private var iconArray:Array<HealthIcon> = [];
+	var grpSections:FlxTypedGroup<Alphabet>;
+
+	var curOptions:Array<Array<String>>;
+
+	var optionsText:FlxText;
+	var descText:FlxText;
 
 	override function create()
 	{
@@ -44,13 +79,28 @@ class OptionsMenuState extends MusicBeatState
 		grpSections = new FlxTypedGroup<Alphabet>();
 		add(grpSections);
 
-		for (i in 0...sections.length)
+		var coolY:Int = 50;
+
+		optionsText = new FlxText(50, coolY + 90, 0, "", 12);
+		optionsText.setFormat("VCR OSD Mono", 24, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		optionsText.borderSize = 1.75;
+		add(optionsText);
+
+		for (i in 0...options.length)
 		{
-			var sectionText:Alphabet = new Alphabet(0, 15, sections[i], true, false);
-			sectionText.x = sectionText.width * 2 + i * 165 + 30;
+			var sectionText:Alphabet = new Alphabet(0, coolY, options[i][0], true, false);
+			sectionText.horizontalScroll = true;
+			sectionText.targetX = getSectionX(i);
 			sectionText.ID = i;
 			grpSections.add(sectionText);
+
+			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
 		}
+
+		descText = new FlxText(0, FlxG.height - 20, FlxG.width, "", 14);
+		descText.setFormat("VCR OSD Mono", 19, FlxColor.YELLOW, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		descText.visible = false;
+		add(descText);
 
 		changeSection();
 
@@ -81,30 +131,117 @@ class OptionsMenuState extends MusicBeatState
 	{
 		super.update(elapsed);
 
-		if (FlxG.sound.music.volume < 0.7)
-		{
-			FlxG.sound.music.volume += 0.5 * FlxG.elapsed;
-		}
+		if (FlxG.sound.music.volume < 0.8)
+			FlxG.sound.music.volume += 0.5 * elapsed;
 
-		if (controls.UI_LEFT_P)
+		if (selectinSection)
 		{
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
-			changeSection(-1);
+			optionsText.alpha = 0.6;
+
+			if (controls.UI_LEFT_P)
+			{
+				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				changeSection(-1);
+			}
+			if (controls.UI_RIGHT_P)
+			{
+				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				changeSection(1);
+			}
 		}
-		if (controls.UI_RIGHT_P)
+		else
 		{
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
-			changeSection(1);
+			optionsText.alpha = 1;
+
+			if (controls.UI_UP_P)
+			{
+				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				changeSelection(-1);
+			}
+			if (controls.UI_DOWN_P)
+			{
+				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				changeSelection(1);
+			}
 		}
 
 		if (controls.BACK)
 		{
-			MusicBeatState.switchState(new MainMenuState());
+			FlxG.sound.play(Paths.sound('cancelMenu'));
+			if (!selectinSection)
+			{
+				selectinSection = true;
+				descText.visible = false;
+				changeSelection();
+			}
+			else
+			{
+				MagPrefs.save();
+				MusicBeatState.switchState(new MainMenuState());
+			}
 		}
 
 		if (controls.ACCEPT)
 		{
-			trace('current section: ' + sections[curSection]);
+			if (selectinSection)
+			{
+				FlxG.sound.play(Paths.sound('confirmMenu'));
+				selectinSection = false;
+				descText.visible = true;
+				changeSelection();
+			}
+			else
+			{
+				var setting:Setting = MagPrefs.getSetting(curOptions[curSelected][2]);
+				if (setting.type == Boolean)
+					MagPrefs.setSetting(curOptions[curSelected][2], !setting.value);
+
+				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				changeSelection();
+			}
+		}
+	}
+
+	function getSectionX(index:Int)
+	{
+		return -(FlxG.width / options.length) + index * (FlxG.width / 2) - 125;
+	}
+
+	function changeSelection(change:Int = 0)
+	{
+		curOptions = options[curSection][1];
+
+		curSelected += change;
+
+		if (curSelected < 0)
+			curSelected = curOptions.length - 1;
+		if (curSelected >= curOptions.length)
+			curSelected = 0;
+
+		descText.text = curOptions[curSelected][1];
+		descText.y = FlxG.height - descText.height;
+
+		optionsText.text = '';
+
+		for (i in 0...curOptions.length)
+		{
+			var selector:String = '';
+			if (!selectinSection && i == curSelected)
+				selector = '>  ';
+
+			var value:String = '';
+			var setting:Setting = MagPrefs.getSetting(curOptions[i][2]);
+			switch (setting.type)
+			{
+				case Boolean:
+					value = setting.value ? 'Enabled' : 'Disabled';
+				case Percent:
+					value = setting.value + '%';
+				default:
+					value = setting.value;
+			}
+
+			optionsText.text += selector + curOptions[i][0] + ' - ' + value + '\n';
 		}
 	}
 
@@ -113,19 +250,19 @@ class OptionsMenuState extends MusicBeatState
 		curSection += change;
 
 		if (curSection < 0)
-			curSection = sections.length - 1;
-		if (curSection >= sections.length)
+			curSection = options.length - 1;
+		if (curSection >= options.length)
 			curSection = 0;
 
-		var bullShit:Int = 0;
+		changeSelection();
 
 		for (item in grpSections.members)
 		{
-			bullShit++;
+			item.targetX = getSectionX(item.ID + 1 - curSection);
 
 			item.alpha = 0.6;
 
-			if (item.ID == curSection)
+			if (selectinSection && item.ID == curSection)
 				item.alpha = 1;
 		}
 	}
