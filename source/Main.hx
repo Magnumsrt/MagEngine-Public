@@ -83,9 +83,12 @@ class Main extends Sprite
 
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 
+		MagPrefs.load();
+
 		#if !mobile
 		fpsCounter = new FPSCounter(10, 3, 0xffffff);
 		addChild(fpsCounter);
+		setFPSDisplay();
 		#end
 
 		FlxG.mouse.visible = false;
