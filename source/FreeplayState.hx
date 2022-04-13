@@ -1,5 +1,6 @@
 package;
 
+import flixel.system.FlxSound;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -23,6 +24,10 @@ class FreeplayState extends MusicBeatState
 	var diffText:FlxText;
 	var lerpScore:Int = 0;
 	var intendedScore:Int = 0;
+
+	var instPlaying:Int = -1;
+
+	static var vocals:FlxSound;
 
 	private var grpSongs:FlxTypedGroup<Alphabet>;
 
@@ -113,6 +118,18 @@ class FreeplayState extends MusicBeatState
 		scoreBG.alpha = 0.6;
 		add(scoreBG);
 
+		#if PRELOAD_ALL
+		var infoBG:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, 23, 0xFF000000);
+		infoBG.y = FlxG.height - infoBG.height;
+		infoBG.alpha = 0.6;
+		add(infoBG);
+
+		var infoText:FlxText = new FlxText(5, FlxG.height - infoBG.height + 2, 0, "Press P for play the song", 12);
+		infoText.scrollFactor.set();
+		infoText.setFormat("VCR OSD Mono", 18, FlxColor.WHITE, LEFT);
+		add(infoText);
+		#end
+
 		diffText = new FlxText(scoreText.x, scoreText.y + 36, 0, "", 24);
 		diffText.font = scoreText.font;
 		add(diffText);
@@ -201,6 +218,29 @@ class FreeplayState extends MusicBeatState
 			MusicBeatState.switchState(new MainMenuState());
 		}
 
+		#if PRELOAD_ALL
+		if (FlxG.keys.justPressed.P && instPlaying != curSelected)
+		{
+			destroyVocals();
+			FlxG.sound.music.volume = 0;
+
+			var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
+			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+			if (PlayState.SONG.needsVoices)
+				vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song));
+			else
+				vocals = new FlxSound();
+
+			FlxG.sound.list.add(vocals);
+			FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 0.7);
+			vocals.play();
+			vocals.persist = true;
+			vocals.looped = true;
+			vocals.volume = 0.7;
+			instPlaying = curSelected;
+		}
+		#end
+
 		if (controls.ACCEPT)
 		{
 			var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
@@ -214,7 +254,19 @@ class FreeplayState extends MusicBeatState
 			PlayState.storyWeek = songs[curSelected].week;
 			trace('CUR WEEK' + PlayState.storyWeek);
 			LoadingState.loadAndSwitchState(new PlayState());
+
+			destroyVocals();
 		}
+	}
+
+	private static function destroyVocals()
+	{
+		if (vocals != null)
+		{
+			vocals.stop();
+			vocals.destroy();
+		}
+		vocals = null;
 	}
 
 	function changeDiff(change:Int = 0)
@@ -230,15 +282,17 @@ class FreeplayState extends MusicBeatState
 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
 		#end
 
+		diffText.text = "< ";
 		switch (curDifficulty)
 		{
 			case 0:
-				diffText.text = "EASY";
+				diffText.text += "EASY";
 			case 1:
-				diffText.text = 'NORMAL';
+				diffText.text += 'NORMAL';
 			case 2:
-				diffText.text = "HARD";
+				diffText.text += "HARD";
 		}
+		diffText.text += " >";
 	}
 
 	function changeSelection(change:Int = 0)
@@ -253,10 +307,6 @@ class FreeplayState extends MusicBeatState
 		#if !switch
 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
 		// lerpScore = 0;
-		#end
-
-		#if PRELOAD_ALL
-		FlxG.sound.playMusic(Paths.inst(songs[curSelected].songName), 0);
 		#end
 
 		var bullShit:Int = 0;
