@@ -63,7 +63,15 @@ class MagPrefs
 			value: true
 		},
 		// other settings idk
-		'fpsCounter' => {
+		'fps' => {
+			type: Boolean,
+			value: true
+		},
+		'mem' => {
+			type: Boolean,
+			value: true
+		},
+		'memPeak' => {
 			type: Boolean,
 			value: true
 		}

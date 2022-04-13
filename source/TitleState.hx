@@ -1,5 +1,6 @@
 package;
 
+import openfl.Lib;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -57,6 +58,10 @@ class TitleState extends MusicBeatState
 
 			FlxG.save.bind('funkin', 'ninjamuffin99');
 
+			MagPrefs.load();
+
+			Main.setFPSDisplay();
+
 			Highscore.load();
 
 			if (FlxG.save.data.weekUnlocked != null)
@@ -72,6 +77,15 @@ class TitleState extends MusicBeatState
 				if (!StoryMenuState.weekUnlocked[0])
 					StoryMenuState.weekUnlocked[0] = true;
 			}
+
+			#if desktop
+			DiscordClient.initialize();
+
+			Application.current.onExit.add(function(exitCode)
+			{
+				DiscordClient.shutdown();
+			});
+			#end
 		}
 
 		#if FREEPLAY
@@ -82,15 +96,6 @@ class TitleState extends MusicBeatState
 		new FlxTimer().start(1, function(tmr:FlxTimer)
 		{
 			startIntro();
-		});
-		#end
-
-		#if desktop
-		DiscordClient.initialize();
-
-		Application.current.onExit.add(function(exitCode)
-		{
-			DiscordClient.shutdown();
 		});
 		#end
 	}

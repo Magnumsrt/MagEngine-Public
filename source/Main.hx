@@ -7,9 +7,7 @@ import openfl.events.UncaughtErrorEvent;
 import flixel.graphics.FlxGraphic;
 import flixel.FlxGame;
 import flixel.FlxState;
-import openfl.Assets;
 import openfl.Lib;
-import openfl.display.FPS;
 import openfl.display.Sprite;
 import openfl.events.Event;
 
@@ -24,6 +22,7 @@ class Main extends Sprite
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
+	public static var fpsCounter:FPSCounter;
 
 	public static function main():Void
 	{
@@ -85,10 +84,37 @@ class Main extends Sprite
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 
 		#if !mobile
-		addChild(new FPS(10, 3, 0xFFFFFF));
+		fpsCounter = new FPSCounter(10, 3, 0xffffff);
+		addChild(fpsCounter);
 		#end
 
 		FlxG.mouse.visible = false;
+	}
+
+	public static function setFPSDisplay()
+	{
+		var leMain:Main = cast Lib.current.getChildAt(0);
+		leMain.toggleFPS(MagPrefs.getValue('fps'));
+		leMain.toggleMem(MagPrefs.getValue('mem'));
+		leMain.toggleMemPeak(MagPrefs.getValue('memPeak'));
+	}
+
+	public function toggleFPS(value:Bool)
+	{
+		if (fpsCounter != null)
+			fpsCounter.showFPS = value;
+	}
+
+	public function toggleMem(value:Bool)
+	{
+		if (fpsCounter != null)
+			fpsCounter.showMEM = value;
+	}
+
+	public function toggleMemPeak(value:Bool)
+	{
+		if (fpsCounter != null)
+			fpsCounter.showMEMPeak = value;
 	}
 
 	#if sys

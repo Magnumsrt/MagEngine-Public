@@ -34,11 +34,9 @@ class OptionsMenuState extends MusicBeatState
 		[
 			'misc',
 			[
-				[
-					'FPS Counter',
-					'Shows the FPS counter at the top-left of the screen.',
-					'fpsCounter'
-				]
+				['FPS Display', 'Shows the current FPS.', 'fps'],
+				['Memory Display', 'Shows the current memory usage.', 'mem'],
+				['Memory Peak Display', 'Shows the current memory peak.', 'memPeak']
 			]
 		]
 	];
@@ -192,9 +190,13 @@ class OptionsMenuState extends MusicBeatState
 			}
 			else
 			{
-				var setting:Setting = MagPrefs.getSetting(curOptions[curSelected][2]);
+				var name:String = curOptions[curSelected][2];
+				var setting:Setting = MagPrefs.getSetting(name);
 				if (setting.type == Boolean)
-					MagPrefs.setSetting(curOptions[curSelected][2], !setting.value);
+					MagPrefs.setSetting(name, !setting.value);
+
+				if (name == 'fps' || name == 'mem' || name == 'memPeak')
+					Main.setFPSDisplay();
 
 				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 				changeSelection();

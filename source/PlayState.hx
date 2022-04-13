@@ -1643,10 +1643,13 @@ class PlayState extends MusicBeatState
 					if (SONG.needsVoices)
 						vocals.volume = 1;
 
-					var time:Float = 0.15;
-					if (daNote.isSustainNote && !daNote.animation.curAnim.name.endsWith('end'))
-						time += 0.15;
-					strumPlayAnim(true, Std.int(Math.abs(daNote.noteData)) % 4, time);
+					if (MagPrefs.getValue('cpuNotesGlow'))
+					{
+						var time:Float = 0.15;
+						if (daNote.isSustainNote && !daNote.animation.curAnim.name.endsWith('end'))
+							time += 0.15;
+						strumPlayAnim(true, Std.int(Math.abs(daNote.noteData)) % 4, time);
+					}
 
 					daNote.kill();
 					notes.remove(daNote, true);
