@@ -876,7 +876,7 @@ class PlayState extends MusicBeatState
 		// cache note splash
 		if (MagPrefs.getValue('noteSplashes'))
 		{
-			var sploosh = new NoteSplash(2000, 2000, 0);
+			var sploosh:NoteSplash = new NoteSplash(2000, 2000, 0);
 			sploosh.animation.finishCallback = function(name) sploosh.kill();
 			add(sploosh);
 		}
