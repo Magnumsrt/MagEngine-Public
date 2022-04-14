@@ -873,6 +873,14 @@ class PlayState extends MusicBeatState
 
 		Paths.clearUnusedMemory();
 
+		// cache note splash
+		if (MagPrefs.getValue('noteSplashes'))
+		{
+			var sploosh = new NoteSplash(2000, 2000, 0);
+			sploosh.animation.finishCallback = function(name) sploosh.kill();
+			add(sploosh);
+		}
+
 		CustomFadeTransition.nextCamera = camHUD;
 	}
 
@@ -1778,7 +1786,7 @@ class PlayState extends MusicBeatState
 
 	var endingSong:Bool = false;
 
-	private function popUpScore(strumtime:Float):Void
+	private function popUpScore(note:Note):Void
 	{
 		// boyfriend.playAnim('hey');
 		vocals.volume = 1;
@@ -1792,7 +1800,7 @@ class PlayState extends MusicBeatState
 		var rating:FlxSprite = new FlxSprite();
 		var score:Int = 350;
 
-		var daRating:String = Conductor.judgeNote(Math.abs(strumtime - Conductor.songPosition));
+		var daRating:String = Conductor.judgeNote(Math.abs(note.strumTime - Conductor.songPosition));
 
 		switch (daRating)
 		{
@@ -1807,6 +1815,13 @@ class PlayState extends MusicBeatState
 				goods++;
 			case 'sick':
 				sicks++;
+				if (MagPrefs.getValue('noteSplashes'))
+				{
+					var sploosh:NoteSplash = new NoteSplash(note.x, playerStrums.members[note.noteData].y, note.noteData);
+					sploosh.animation.finishCallback = function(name) sploosh.kill();
+					sploosh.cameras = [camHUD];
+					add(sploosh);
+				}
 		}
 
 		songScore += score;
@@ -2168,7 +2183,7 @@ class PlayState extends MusicBeatState
 		{
 			if (!note.isSustainNote)
 			{
-				popUpScore(note.strumTime);
+				popUpScore(note);
 				combo += 1;
 			}
 

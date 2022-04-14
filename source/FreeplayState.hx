@@ -198,12 +198,12 @@ class FreeplayState extends MusicBeatState
 
 		if (controls.UI_UP_P)
 		{
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+			FlxG.sound.play(Paths.sound('scrollMenu'));
 			changeSelection(-1);
 		}
 		if (controls.UI_DOWN_P)
 		{
-			FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+			FlxG.sound.play(Paths.sound('scrollMenu'));
 			changeSelection(1);
 		}
 

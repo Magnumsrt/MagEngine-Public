@@ -1,5 +1,6 @@
 package;
 
+import flixel.math.FlxMath;
 import MagPrefs.Setting;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
@@ -31,11 +32,20 @@ class OptionsMenuState extends MusicBeatState
 		],
 		[
 			'notes',
-			[['Opponent Notes Glow', 'Makes the opponent notes glow on hit.', 'cpuNotesGlow']]
+			[
+				[
+					'Note Splashes',
+					'Spawns a splash when getting a "Sick!" hit rating.',
+					'noteSplashes'
+				],
+				['Opponent Notes Glow', 'Makes the opponent notes glow on hit.', 'cpuNotesGlow']
+			],
 		],
 		[
-			'misc',
+			'graphics',
 			[
+				#if !html5 ['Framerate', 'How much images the game must display per second?', 'framerate'],
+				#end
 				['FPS Display', 'Shows the current FPS.', 'fps'],
 				['Memory Display', 'Shows the current memory usage.', 'mem'],
 				['Memory Peak Display', 'Shows the current memory peak.', 'memPeak']
@@ -74,17 +84,22 @@ class OptionsMenuState extends MusicBeatState
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuBGBlue'));
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		add(bg);
 
 		grpSections = new FlxTypedGroup<Alphabet>();
 		add(grpSections);
 
-		var coolY:Int = 50;
+		var coolY:Int = 40;
 
-		optionsText = new FlxText(50, coolY + 90, 0, "", 12);
+		var optionsBG:FlxSprite = new FlxSprite(0, coolY + 110).makeGraphic(Std.int(FlxG.width * 0.825), Std.int(FlxG.height * 0.7), 0xFF000000);
+		optionsBG.alpha = 0.75;
+		optionsBG.screenCenter(X);
+		add(optionsBG);
+
+		optionsText = new FlxText(125, optionsBG.y + 10, 0, "", 12);
 		optionsText.setFormat("VCR OSD Mono", 24, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		optionsText.borderSize = 1.75;
+		optionsText.borderSize = 1.65;
 		add(optionsText);
 
 		for (i in 0...options.length)
@@ -98,8 +113,9 @@ class OptionsMenuState extends MusicBeatState
 			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
 		}
 
-		descText = new FlxText(0, FlxG.height - 20, FlxG.width, "", 14);
-		descText.setFormat("VCR OSD Mono", 19, FlxColor.YELLOW, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		descText = new FlxText(0, 0, FlxG.width, "", 14);
+		descText.setFormat("VCR OSD Mono", 20, FlxColor.YELLOW, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		descText.borderSize = 1.5;
 		descText.visible = false;
 		add(descText);
 
@@ -128,6 +144,9 @@ class OptionsMenuState extends MusicBeatState
 		super.create();
 	}
 
+	var holdTime:Float = 0;
+	var holdValue:Float = 0;
+
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -141,12 +160,12 @@ class OptionsMenuState extends MusicBeatState
 
 			if (controls.UI_LEFT_P)
 			{
-				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeSection(-1);
 			}
 			if (controls.UI_RIGHT_P)
 			{
-				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeSection(1);
 			}
 		}
@@ -156,55 +175,143 @@ class OptionsMenuState extends MusicBeatState
 
 			if (controls.UI_UP_P)
 			{
-				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeSelection(-1);
 			}
 			if (controls.UI_DOWN_P)
 			{
-				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
+				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeSelection(1);
 			}
+
+			if (controls.UI_LEFT || controls.UI_RIGHT)
+			{
+				var name:String = curOptions[curSelected][2];
+				var setting:Setting = MagPrefs.getSetting(name);
+
+				var pressed = (controls.UI_LEFT_P || controls.UI_RIGHT_P);
+				if (holdTime > 0.5 || pressed)
+				{
+					if (pressed)
+					{
+						switch (setting.type)
+						{
+							case Integer | Float | Percent:
+								holdValue = setting.value + (controls.UI_LEFT ? -1 : 1);
+
+								var min:Float = MagPrefs.getMinValue(name);
+								var max:Float = MagPrefs.getMaxValue(name);
+								if (min != Math.NaN && holdValue < min)
+									holdValue = min;
+								else if (max != Math.NaN && holdValue > max)
+									holdValue = max;
+
+								if (setting.type == Integer)
+									holdValue = Math.round(holdValue);
+								else
+									holdValue = FlxMath.roundDecimal(holdValue, setting.decimals != null ? setting.decimals : 1);
+								MagPrefs.setSetting(name, holdValue);
+
+							case Boolean | String:
+								if (setting.type == Boolean)
+									MagPrefs.setSetting(name, !setting.value);
+								else
+								{
+									var num:Int = MagPrefs.getCurOption(name);
+									if (controls.UI_LEFT_P)
+										--num;
+									else
+										num++;
+									if (num < 0)
+										num = setting.options.length - 1;
+									else if (num >= setting.options.length)
+										num = 0;
+									MagPrefs.setOption(name, num);
+								}
+						}
+						if (name == 'framerate')
+							onChangeFramerate();
+						else if (name == 'fps' || name == 'mem' || name == 'memPeak')
+							Main.setFPSDisplay();
+						changeSelection();
+						FlxG.sound.play(Paths.sound('scrollMenu'));
+					}
+					else if (setting.type != String)
+					{
+						holdValue += 50 * elapsed * (controls.UI_LEFT ? -1 : 1);
+
+						var min:Float = MagPrefs.getMinValue(name);
+						var max:Float = MagPrefs.getMaxValue(name);
+						if (min != Math.NaN && holdValue < min)
+							holdValue = min;
+						else if (max != Math.NaN && holdValue > max)
+							holdValue = max;
+
+						if (setting.type == Integer)
+							MagPrefs.setSetting(name, Math.round(holdValue));
+						else if (setting.type == Float || setting.type == Percent)
+							MagPrefs.setSetting(name, Math.round(FlxMath.roundDecimal(holdValue, setting.decimals != null ? setting.decimals : 1)));
+						else
+							MagPrefs.setSetting(name, !setting.value);
+
+						if (name == 'framerate')
+							onChangeFramerate();
+						else if (name == 'fps' || name == 'mem' || name == 'memPeak')
+							Main.setFPSDisplay();
+
+						changeSelection();
+					}
+				}
+
+				if (setting.type != String)
+					holdTime += elapsed;
+			}
+			else if (controls.UI_LEFT_R || controls.UI_RIGHT_R)
+			{
+				if (holdTime > 0.5)
+					FlxG.sound.play(Paths.sound('scrollMenu'));
+				holdTime = 0;
+			}
+		}
+
+		if (controls.RESET)
+		{
+			FlxG.sound.play(Paths.sound('cancelMenu'));
+			for (option in curOptions)
+				MagPrefs.resetSetting(option[2]);
+			onChangeFramerate();
+			Main.setFPSDisplay();
+			changeSelection();
 		}
 
 		if (controls.BACK)
 		{
 			FlxG.sound.play(Paths.sound('cancelMenu'));
-			if (!selectinSection)
+			if (selectinSection)
+			{
+				MagPrefs.save();
+				MusicBeatState.switchState(new MainMenuState());
+			}
+			else
 			{
 				selectinSection = true;
 				descText.visible = false;
 				changeSelection();
 			}
-			else
-			{
-				MagPrefs.save();
-				MusicBeatState.switchState(new MainMenuState());
-			}
 		}
 
-		if (controls.ACCEPT)
+		if (selectinSection && controls.ACCEPT)
 		{
-			if (selectinSection)
-			{
-				FlxG.sound.play(Paths.sound('confirmMenu'));
-				selectinSection = false;
-				descText.visible = true;
-				changeSelection();
-			}
-			else
-			{
-				var name:String = curOptions[curSelected][2];
-				var setting:Setting = MagPrefs.getSetting(name);
-				if (setting.type == Boolean)
-					MagPrefs.setSetting(name, !setting.value);
-
-				if (name == 'fps' || name == 'mem' || name == 'memPeak')
-					Main.setFPSDisplay();
-
-				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
-				changeSelection();
-			}
+			FlxG.sound.play(Paths.sound('confirmMenu'));
+			selectinSection = false;
+			descText.visible = true;
+			changeSelection();
 		}
+	}
+
+	function onChangeFramerate()
+	{
+		Main.setFramerate(MagPrefs.getValue('framerate'));
 	}
 
 	function getSectionX(index:Int)
@@ -224,7 +331,7 @@ class OptionsMenuState extends MusicBeatState
 			curSelected = 0;
 
 		descText.text = curOptions[curSelected][1];
-		descText.y = FlxG.height - descText.height;
+		descText.y = FlxG.height - descText.height * 2;
 
 		optionsText.text = '';
 
@@ -246,7 +353,7 @@ class OptionsMenuState extends MusicBeatState
 					value = setting.value;
 			}
 
-			optionsText.text += selector + curOptions[i][0] + ' - ' + value + '\n';
+			optionsText.text += selector + curOptions[i][0] + '  < ' + value + ' >\n';
 		}
 	}
 

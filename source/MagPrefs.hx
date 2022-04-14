@@ -9,7 +9,11 @@ typedef Setting =
 {
 	var type:SettingType;
 	var value:Dynamic;
-	// for percent and numbers types
+
+	// for string, percent and numbers types
+	@:optional var options:Array<String>;
+	@:optional var curOption:Int;
+	@:optional var decimals:Int;
 	@:optional var min:Float;
 	@:optional var max:Float;
 }
@@ -70,7 +74,14 @@ class MagPrefs
 			type: Boolean,
 			value: true
 		},
-		// other settings idk
+		'noteSplashes' => {
+			type: Boolean,
+			value: true
+		},
+		// graphics settings
+		#if !html5
+		'framerate' => {type: Integer, value: 60, max: 240},
+		#end
 		'fps' => {
 			type: Boolean,
 			value: true
@@ -84,6 +95,7 @@ class MagPrefs
 			value: true
 		}
 	];
+	private static var defaultSettings:Map<String, Setting>;
 
 	public static var keyBinds:Map<String, Array<FlxKey>> = [
 		'note_left' => [A, LEFT],
@@ -107,8 +119,10 @@ class MagPrefs
 
 	public static function load()
 	{
-		// place shit in a separate save since this is better for don't erase score stuff
+		if (defaultSettings == null)
+			defaultSettings = settings.copy();
 
+		// place shit in a separate save since this is better for don't erase score stuff
 		var save:FlxSave = new FlxSave();
 		save.bind('settings', 'ninjamuffin99');
 
@@ -193,6 +207,54 @@ class MagPrefs
 		return getSetting(setting).value;
 	}
 
+	public static function getMinValue(setting:String)
+	{
+		var leSetting:Setting = getSetting(setting);
+		var defaultSetting:Setting = defaultSettings.get(setting);
+		if (leSetting != null && leSetting.min != null)
+			return leSetting.min;
+		else if (defaultSetting != null && defaultSetting.min != null)
+			return defaultSetting.min;
+		else
+			return Math.NaN;
+	}
+
+	public static function getMaxValue(setting:String)
+	{
+		var leSetting:Setting = getSetting(setting);
+		var defaultSetting:Setting = defaultSettings.get(setting);
+		if (leSetting != null && leSetting.max != null)
+			return leSetting.max;
+		else if (defaultSetting != null && defaultSetting.max != null)
+			return defaultSetting.max;
+		else
+			return Math.NaN;
+	}
+
+	public static function getCurOption(setting:String)
+	{
+		var leSetting:Setting = getSetting(setting);
+		var defaultSetting:Setting = defaultSettings.get(setting);
+		if (leSetting != null && leSetting.curOption != null)
+			return leSetting.curOption;
+		else if (defaultSetting != null && defaultSetting.curOption != null)
+			return defaultSetting.curOption;
+		else
+			return 0;
+	}
+
+	public static function getOptions(setting:String)
+	{
+		var leSetting:Setting = getSetting(setting);
+		var defaultSetting:Setting = defaultSettings.get(setting);
+		if (leSetting != null && leSetting.options != null)
+			return leSetting.options;
+		else if (defaultSetting != null && defaultSetting.options != null)
+			return defaultSetting.options;
+		else
+			return null;
+	}
+
 	public static function setSetting(setting:String, value:Dynamic, ?type:SettingType, ?min:Float, ?max:Float)
 	{
 		// this is so awesome
@@ -200,20 +262,40 @@ class MagPrefs
 			type: Boolean,
 			value: value
 		};
-		var originalSetting:Setting = settings.get(setting);
+		var defaultSetting:Setting = defaultSettings.get(setting);
 
-		if (type == null && originalSetting != null)
-			leSetting.type = originalSetting.type;
+		if (type == null && defaultSetting != null)
+			leSetting.type = defaultSetting.type;
+
+		if (type == null && defaultSetting != null && defaultSetting.decimals != null)
+			leSetting.decimals = defaultSetting.decimals;
 
 		if (min != null)
 			leSetting.min = min;
-		else if (originalSetting != null)
-			leSetting.min = originalSetting.min;
+		else if (defaultSetting != null && defaultSetting.min != null)
+			leSetting.min = defaultSetting.min;
 		if (max != null)
 			leSetting.max = max;
-		else if (originalSetting != null)
-			leSetting.max = originalSetting.max;
+		else if (defaultSetting != null && defaultSetting.max != null)
+			leSetting.max = defaultSetting.max;
 
 		settings.set(setting, leSetting);
+	}
+
+	public static function resetSetting(setting:String)
+	{
+		var defaultSetting:Setting = defaultSettings.get(setting);
+		if (defaultSetting != null)
+			settings.set(setting, defaultSetting);
+	}
+
+	public static function setOption(setting:String, index:Int)
+	{
+		var leSetting:Setting = getSetting(setting);
+		if (leSetting != null && leSetting.type == String && leSetting.options != null && leSetting.options[index] != null)
+		{
+			leSetting.curOption = index;
+			settings.set(setting, leSetting);
+		}
 	}
 }

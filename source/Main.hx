@@ -1,5 +1,6 @@
 package;
 
+import lime.app.Application;
 import flixel.FlxG;
 import haxe.CallStack;
 import haxe.CallStack.StackItem;
@@ -17,12 +18,12 @@ class Main extends Sprite
 	var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).
 	var initialState:Class<FlxState> = TitleState; // The FlxState the game starts with.
 	var zoom:Float = -1; // If -1, zoom is automatically calculated to fit the window dimensions.
-	var framerate:Int = 120; // How many frames per second the game should run at.
+	var framerate:Int = 60; // How many frames per second the game should run at.
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
-	public static var fpsCounter:FPSCounter;
+	var fpsCounter:FPSCounter;
 
 	public static function main():Void
 	{
@@ -34,21 +35,15 @@ class Main extends Sprite
 		super();
 
 		if (stage != null)
-		{
 			init();
-		}
 		else
-		{
 			addEventListener(Event.ADDED_TO_STAGE, init);
-		}
 	}
 
 	private function init(?E:Event):Void
 	{
 		if (hasEventListener(Event.ADDED_TO_STAGE))
-		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-		}
 
 		setupGame();
 	}
@@ -71,10 +66,6 @@ class Main extends Sprite
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
 		#end
 
-		#if html5
-		framerate = 60;
-		#end
-
 		#if !debug
 		initialState = TitleState;
 		#end
@@ -85,6 +76,10 @@ class Main extends Sprite
 
 		MagPrefs.load();
 
+		#if !html5
+		setFramerate(MagPrefs.getValue('framerate'));
+		#end
+
 		#if !mobile
 		fpsCounter = new FPSCounter(10, 3, 0xffffff);
 		addChild(fpsCounter);
@@ -92,6 +87,20 @@ class Main extends Sprite
 		#end
 
 		FlxG.mouse.visible = false;
+	}
+
+	public static function setFramerate(input:Int)
+	{
+		if (input > FlxG.drawFramerate)
+		{
+			FlxG.updateFramerate = input;
+			FlxG.drawFramerate = input;
+		}
+		else
+		{
+			FlxG.drawFramerate = input;
+			FlxG.updateFramerate = input;
+		}
 	}
 
 	public static function setFPSDisplay()
@@ -140,6 +149,8 @@ class Main extends Sprite
 		errMsg += "\nUncaught Error: " + e.error;
 
 		Sys.println(errMsg);
+
+		Application.current.window.alert(errMsg, 'Error!');
 
 		Sys.exit(1);
 	}
