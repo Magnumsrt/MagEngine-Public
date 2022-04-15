@@ -266,7 +266,7 @@ class OptionsMenuState extends MusicBeatState
 				if (setting.type != String)
 					holdTime += elapsed;
 			}
-			else if (controls.UI_LEFT_R || controls.UI_RIGHT_R)
+			else if ((controls.UI_LEFT_R || controls.UI_RIGHT_R) || (!controls.UI_LEFT || !controls.UI_RIGHT))
 			{
 				if (holdTime > 0.5)
 					FlxG.sound.play(Paths.sound('scrollMenu'));
@@ -289,7 +289,7 @@ class OptionsMenuState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			if (selectinSection)
 			{
-				MagPrefs.save();
+				MagPrefs.flush();
 				MusicBeatState.switchState(new MainMenuState());
 			}
 			else

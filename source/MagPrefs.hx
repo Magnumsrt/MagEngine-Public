@@ -30,7 +30,7 @@ enum SettingType
 // my awesome oop take on haxe :O
 class MagPrefs
 {
-	private static var settings:Map<String, Setting> = [
+	static final settings:Map<String, Setting> = [
 		// gampeplay settings
 		'ghostTapping' => {
 			type: Boolean,
@@ -95,8 +95,8 @@ class MagPrefs
 			value: true
 		}
 	];
-	private static var defaultSettings:Map<String, Setting>;
 
+	// DON'T SET SOMETHING ON CUSTOMCONTROLS SINCE ITS AUTOMATICALLY USED BY KEYBINDS SHIT!!
 	public static var keyBinds:Map<String, Array<FlxKey>> = [
 		'note_left' => [A, LEFT],
 		'note_down' => [S, DOWN],
@@ -117,25 +117,20 @@ class MagPrefs
 		'debug_2' => [EIGHT, NONE]
 	];
 
+	static var save:FlxSave;
+
 	public static function load()
 	{
-		if (defaultSettings == null)
-			defaultSettings = settings.copy();
-
 		// place shit in a separate save since this is better for don't erase score stuff
-		var save:FlxSave = new FlxSave();
-		save.bind('settings', 'ninjamuffin99');
-
-		if (save.data.settings == null)
-			save.data.settings = settings;
-		else
+		if (save == null)
 		{
-			var savedSettings:Map<String, Setting> = save.data.settings;
-			for (setting => data in settings)
-				if (!savedSettings.exists(setting))
-					savedSettings.set(setting, data);
-			settings = savedSettings;
+			save = new FlxSave();
+			save.bind('settings', 'ninjamuffin99');
 		}
+
+		for (key => setting in settings)
+			if (key != 'customControls' && Reflect.getProperty(save.data, key) == null)
+				Reflect.setProperty(save.data, key, setting);
 
 		if (save.data.customControls != null)
 		{
@@ -171,88 +166,20 @@ class MagPrefs
 	public static function reloadControls()
 	{
 		PlayerSettings.player1.controls.setKeyboardScheme(KeyboardScheme.Solo);
-
 		FlxG.sound.muteKeys = copyKey(keyBinds.get('volume_mute'));
 		FlxG.sound.volumeDownKeys = copyKey(keyBinds.get('volume_down'));
 		FlxG.sound.volumeUpKeys = copyKey(keyBinds.get('volume_up'));
 	}
 
-	public static function save()
+	public static function flush()
 	{
-		var save:FlxSave = new FlxSave();
-		save.bind('settings', 'ninjamuffin99');
-		save.data.settings = settings;
 		save.data.customControls = keyBinds;
 		save.flush();
 	}
 
-	public static function getSettingsList()
+	public static function getSetting(setting:String):Setting
 	{
-		var dogshet:Array<String> = [];
-		for (k in settings.keys())
-			dogshet.push(k);
-		return dogshet;
-	}
-
-	public static function getSetting(setting:String):Dynamic
-	{
-		if (settings.exists(setting))
-			return settings.get(setting)
-		else
-			return null;
-	}
-
-	public static function getValue(setting:String):Dynamic
-	{
-		return getSetting(setting).value;
-	}
-
-	public static function getMinValue(setting:String)
-	{
-		var leSetting:Setting = getSetting(setting);
-		var defaultSetting:Setting = defaultSettings.get(setting);
-		if (leSetting != null && leSetting.min != null)
-			return leSetting.min;
-		else if (defaultSetting != null && defaultSetting.min != null)
-			return defaultSetting.min;
-		else
-			return Math.NaN;
-	}
-
-	public static function getMaxValue(setting:String)
-	{
-		var leSetting:Setting = getSetting(setting);
-		var defaultSetting:Setting = defaultSettings.get(setting);
-		if (leSetting != null && leSetting.max != null)
-			return leSetting.max;
-		else if (defaultSetting != null && defaultSetting.max != null)
-			return defaultSetting.max;
-		else
-			return Math.NaN;
-	}
-
-	public static function getCurOption(setting:String)
-	{
-		var leSetting:Setting = getSetting(setting);
-		var defaultSetting:Setting = defaultSettings.get(setting);
-		if (leSetting != null && leSetting.curOption != null)
-			return leSetting.curOption;
-		else if (defaultSetting != null && defaultSetting.curOption != null)
-			return defaultSetting.curOption;
-		else
-			return 0;
-	}
-
-	public static function getOptions(setting:String)
-	{
-		var leSetting:Setting = getSetting(setting);
-		var defaultSetting:Setting = defaultSettings.get(setting);
-		if (leSetting != null && leSetting.options != null)
-			return leSetting.options;
-		else if (defaultSetting != null && defaultSetting.options != null)
-			return defaultSetting.options;
-		else
-			return null;
+		return Reflect.getProperty(save.data, setting);
 	}
 
 	public static function setSetting(setting:String, value:Dynamic, ?type:SettingType, ?min:Float, ?max:Float)
@@ -262,7 +189,7 @@ class MagPrefs
 			type: Boolean,
 			value: value
 		};
-		var defaultSetting:Setting = defaultSettings.get(setting);
+		var defaultSetting:Setting = settings.get(setting);
 
 		if (type == null && defaultSetting != null)
 			leSetting.type = defaultSetting.type;
@@ -279,14 +206,14 @@ class MagPrefs
 		else if (defaultSetting != null && defaultSetting.max != null)
 			leSetting.max = defaultSetting.max;
 
-		settings.set(setting, leSetting);
+		Reflect.setProperty(save.data, setting, leSetting);
 	}
 
 	public static function resetSetting(setting:String)
 	{
-		var defaultSetting:Setting = defaultSettings.get(setting);
+		var defaultSetting:Setting = settings.get(setting);
 		if (defaultSetting != null)
-			settings.set(setting, defaultSetting);
+			Reflect.setProperty(save.data, setting, defaultSetting);
 	}
 
 	public static function setOption(setting:String, index:Int)
@@ -295,7 +222,60 @@ class MagPrefs
 		if (leSetting != null && leSetting.type == String && leSetting.options != null && leSetting.options[index] != null)
 		{
 			leSetting.curOption = index;
-			settings.set(setting, leSetting);
+			Reflect.setProperty(save.data, setting, leSetting);
 		}
+	}
+
+	inline public static function getValue(setting:String):Dynamic
+	{
+		return getSetting(setting).value;
+	}
+
+	public static function getMinValue(setting:String)
+	{
+		var leSetting:Setting = getSetting(setting);
+		var defaultSetting:Setting = settings.get(setting);
+		if (leSetting != null && leSetting.min != null)
+			return leSetting.min;
+		else if (defaultSetting != null && defaultSetting.min != null)
+			return defaultSetting.min;
+		else
+			return Math.NaN;
+	}
+
+	public static function getMaxValue(setting:String)
+	{
+		var leSetting:Setting = getSetting(setting);
+		var defaultSetting:Setting = settings.get(setting);
+		if (leSetting != null && leSetting.max != null)
+			return leSetting.max;
+		else if (defaultSetting != null && defaultSetting.max != null)
+			return defaultSetting.max;
+		else
+			return Math.NaN;
+	}
+
+	public static function getCurOption(setting:String)
+	{
+		var leSetting:Setting = getSetting(setting);
+		var defaultSetting:Setting = settings.get(setting);
+		if (leSetting != null && leSetting.curOption != null)
+			return leSetting.curOption;
+		else if (defaultSetting != null && defaultSetting.curOption != null)
+			return defaultSetting.curOption;
+		else
+			return 0;
+	}
+
+	public static function getOptions(setting:String)
+	{
+		var leSetting:Setting = getSetting(setting);
+		var defaultSetting:Setting = settings.get(setting);
+		if (leSetting != null && leSetting.options != null)
+			return leSetting.options;
+		else if (defaultSetting != null && defaultSetting.options != null)
+			return defaultSetting.options;
+		else
+			return null;
 	}
 }

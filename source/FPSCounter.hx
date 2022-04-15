@@ -1,5 +1,6 @@
 package;
 
+import flixel.math.FlxMath;
 import haxe.Timer;
 import openfl.events.Event;
 import openfl.system.System;
@@ -12,7 +13,11 @@ import openfl.text.TextFormat;
  */
 class FPSCounter extends TextField
 {
-	private var times:Array<Float>;
+	private var currentFPS:Int;
+
+	private var cacheCount:Int = 0;
+	private var currentTime:Float = 0;
+	private var times:Array<Float> = [];
 
 	private var memPeak:Float = 0;
 
@@ -30,35 +35,44 @@ class FPSCounter extends TextField
 		selectable = false;
 		defaultTextFormat = new TextFormat("_sans", 12, inCol);
 		text = "FPS: ";
-		times = [];
-
-		addEventListener(Event.ENTER_FRAME, onEnter);
 
 		width = 150;
 		height = 70;
 	}
 
-	private function onEnter(_)
+	@:noCompletion
+	private #if !flash override #end function __enterFrame(deltaTime:Float):Void
 	{
-		var now = Timer.stamp();
-		times.push(now);
+		currentTime += deltaTime;
+		times.push(currentTime);
 
-		while (times[0] < now - 1)
+		while (times[0] < currentTime - 1000)
 			times.shift();
 
-		var mem:Float = Math.round(System.totalMemory / 1024 / 1024 * 100) / 100;
-		if (mem > memPeak)
-			memPeak = mem;
+		var currentCount = times.length;
+		currentFPS = Math.round((currentCount + cacheCount) / 2);
+		var framerate:Int = MagPrefs.getValue('framerate');
+		if (currentFPS > framerate)
+			currentFPS = framerate;
 
-		if (visible)
+		if (visible && currentCount != cacheCount)
 		{
 			text = "";
 			if (showFPS)
 				text += "FPS: " + times.length + "\n";
+
+			#if openfl
+			var mem:Float = Math.abs(FlxMath.roundDecimal(System.totalMemory / 1000000, 1));
+			if (mem > memPeak)
+				memPeak = mem;
+
 			if (showMEM)
 				text += "MEM: " + mem + " MB\n";
 			if (showMEMPeak)
 				text += "MEM peak: " + memPeak + " MB";
+			#end
 		}
+
+		cacheCount = currentCount;
 	}
 }

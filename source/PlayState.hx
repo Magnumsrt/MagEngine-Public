@@ -877,7 +877,7 @@ class PlayState extends MusicBeatState
 		if (MagPrefs.getValue('noteSplashes'))
 		{
 			var sploosh:NoteSplash = new NoteSplash(2000, 2000, 0);
-			sploosh.animation.finishCallback = function(name) sploosh.kill();
+			sploosh.animation.finishCallback = function(name) sploosh.destroy();
 			add(sploosh);
 		}
 
@@ -1353,13 +1353,14 @@ class PlayState extends MusicBeatState
 
 		super.update(elapsed);
 
-		scoreTxt.text = "Score: " + songScore;
+		var scText:String = "Score: " + songScore;
 		if (MagPrefs.getValue('missesDisplay'))
-			scoreTxt.text += " | Misses: " + songMisses;
+			scText += " | Misses: " + songMisses;
 		if (MagPrefs.getValue('accDisplay'))
-			scoreTxt.text += " | Accuracy: 0%";
+			scText += " | Accuracy: 0%";
+		scoreTxt.text = scText;
 
-		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause)
+		if (controls.PAUSE && startedCountdown && canPause)
 		{
 			persistentUpdate = false;
 			persistentDraw = true;
@@ -1817,8 +1818,9 @@ class PlayState extends MusicBeatState
 				sicks++;
 				if (MagPrefs.getValue('noteSplashes'))
 				{
-					var sploosh:NoteSplash = new NoteSplash(note.x, playerStrums.members[note.noteData].y, note.noteData);
-					sploosh.animation.finishCallback = function(name) sploosh.kill();
+					var coolStrum:StrumNote = playerStrums.members[note.noteData];
+					var sploosh:NoteSplash = new NoteSplash(coolStrum.x, coolStrum.y, note.noteData);
+					sploosh.animation.finishCallback = function(name) sploosh.destroy();
 					sploosh.cameras = [camHUD];
 					add(sploosh);
 				}
