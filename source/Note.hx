@@ -16,7 +16,22 @@ class Note extends FlxSprite
 	public var canBeHit:Bool = false;
 	public var tooLate:Bool = false;
 	public var wasGoodHit:Bool = false;
+	public var hitByOpponent:Bool = false;
 	public var prevNote:Note;
+
+	private var earlyHitMult:Float = 0.5;
+
+	public var distance:Float = 0;
+
+	public var offsetX:Float = 0;
+	public var offsetY:Float = 0;
+	public var offsetAngle:Float = 0;
+	public var multAlpha:Float = 1;
+
+	public var copyX:Bool = true;
+	public var copyY:Bool = true;
+	public var copyAngle:Bool = true;
+	public var copyAlpha:Bool = true;
 
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
@@ -72,10 +87,12 @@ class Note extends FlxSprite
 			}
 
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
-			updateHitbox();
+			antialiasing = false;
 		}
 		else
 		{
+			var lastScaleY:Float = scale.y;
+
 			frames = Paths.getSparrowAtlas('NOTE_assets');
 
 			animation.addByPrefix('greenScroll', 'green0');
@@ -94,9 +111,12 @@ class Note extends FlxSprite
 			animation.addByPrefix('bluehold', 'blue hold piece');
 
 			setGraphicSize(Std.int(width * 0.7));
-			updateHitbox();
 			antialiasing = true;
+
+			if (isSustainNote)
+				scale.y = lastScaleY;
 		}
+		updateHitbox();
 
 		switch (noteData)
 		{
@@ -118,7 +138,12 @@ class Note extends FlxSprite
 
 		if (isSustainNote && prevNote != null)
 		{
-			alpha = 0.6;
+			multAlpha = 0.6;
+			if (MagPrefs.getValue('downScroll'))
+				flipY = true;
+
+			offsetX += width / 2;
+			copyAngle = false;
 
 			x += width / 2;
 
@@ -136,10 +161,10 @@ class Note extends FlxSprite
 
 			updateHitbox();
 
-			x -= width / 2;
+			offsetX -= width / 2;
 
 			if (PlayState.isPixelStage)
-				x += 30;
+				offsetX += 30;
 
 			if (prevNote.isSustainNote)
 			{
@@ -155,11 +180,17 @@ class Note extends FlxSprite
 						prevNote.animation.play('redhold');
 				}
 
-				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed;
+				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05 * PlayState.songSpeed;
+
+				if (PlayState.isPixelStage)
+					prevNote.scale.y *= 1.19;
 				prevNote.updateHitbox();
 				// prevNote.setGraphicSize();
 			}
 		}
+		else if (!isSustainNote)
+			earlyHitMult = 1;
+		x += offsetX;
 	}
 
 	override function update(elapsed:Float)
@@ -168,9 +199,8 @@ class Note extends FlxSprite
 
 		if (mustPress)
 		{
-			// The * 0.5 is so that it's easier to hit them too late, instead of too early
 			if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset
-				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.5))
+				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * earlyHitMult))
 				canBeHit = true;
 			else
 				canBeHit = false;
@@ -182,8 +212,11 @@ class Note extends FlxSprite
 		{
 			canBeHit = false;
 
-			if (strumTime <= Conductor.songPosition)
-				wasGoodHit = true;
+			if (strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * earlyHitMult))
+			{
+				if ((isSustainNote && prevNote.wasGoodHit) || strumTime <= Conductor.songPosition)
+					wasGoodHit = true;
+			}
 		}
 
 		if (tooLate)

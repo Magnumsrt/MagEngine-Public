@@ -18,6 +18,19 @@ class CoolUtil
 		return Math.max(min, Math.min(max, value));
 	}
 
+	public static function floorDecimal(value:Float, decimals:Int):Float
+	{
+		if (decimals < 1)
+			return Math.floor(value);
+
+		var tempMult:Float = 1;
+		for (i in 0...decimals)
+			tempMult *= 10;
+
+		var newValue:Float = Math.floor(value * tempMult);
+		return newValue / tempMult;
+	}
+
 	public static function coolTextFile(path:String):Array<String>
 	{
 		var daList:Array<String> = Assets.getText(path).trim().split('\n');

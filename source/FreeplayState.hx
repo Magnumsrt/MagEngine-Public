@@ -21,6 +21,7 @@ class FreeplayState extends MusicBeatState
 	static var curDifficulty:Int = 1;
 
 	var scoreText:FlxText;
+	var scoreBG:FlxSprite;
 	var diffText:FlxText;
 	var lerpScore:Int = 0;
 	var intendedScore:Int = 0;
@@ -29,10 +30,9 @@ class FreeplayState extends MusicBeatState
 
 	static var vocals:FlxSound;
 
-	private var grpSongs:FlxTypedGroup<Alphabet>;
+	var grpSongs:FlxTypedGroup<Alphabet>;
 
-	// private var curPlaying:Bool = false;
-	private var iconArray:Array<HealthIcon> = [];
+	var iconArray:Array<HealthIcon> = [];
 
 	override function create()
 	{
@@ -58,9 +58,6 @@ class FreeplayState extends MusicBeatState
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
-
-		if (!FlxG.sound.music.playing)
-			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
 		var isDebug:Bool = false;
 
@@ -117,19 +114,19 @@ class FreeplayState extends MusicBeatState
 		scoreText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, RIGHT);
 		// scoreText.alignment = RIGHT;
 
-		var scoreBG:FlxSprite = new FlxSprite(scoreText.x - 6, 0).makeGraphic(Std.int(FlxG.width * 0.35), 66, 0xFF000000);
+		scoreBG = new FlxSprite(scoreText.x - 6, 0).makeGraphic(Std.int(FlxG.width * 0.35), 66, 0xFF000000);
 		scoreBG.alpha = 0.6;
 		add(scoreBG);
 
 		#if PRELOAD_ALL
-		var infoBG:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, 23, 0xFF000000);
+		var infoBG:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, 26, 0xFF000000);
 		infoBG.y = FlxG.height - infoBG.height;
 		infoBG.alpha = 0.6;
 		add(infoBG);
 
-		var infoText:FlxText = new FlxText(5, FlxG.height - infoBG.height + 2, 0, "Press P for play the song", 12);
+		var infoText:FlxText = new FlxText(5, FlxG.height - infoBG.height + 4, 0, "Press P to listen to this song.", 12);
 		infoText.scrollFactor.set();
-		infoText.setFormat("VCR OSD Mono", 18, FlxColor.WHITE, LEFT);
+		infoText.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT);
 		add(infoText);
 		#end
 
@@ -189,15 +186,16 @@ class FreeplayState extends MusicBeatState
 	{
 		super.update(elapsed);
 
-		if (FlxG.sound.music.volume < 0.7)
-			FlxG.sound.music.volume += 0.5 * elapsed;
-
-		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, 0.4));
+		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, CoolUtil.boundTo(elapsed * 24, 0, 1)));
 
 		if (Math.abs(lerpScore - intendedScore) <= 10)
 			lerpScore = intendedScore;
 
-		scoreText.text = "PERSONAL BEST:" + lerpScore;
+		scoreText.text = 'PERSONAL BEST: ' + lerpScore;
+		scoreText.x = FlxG.width - scoreText.width - 5;
+		scoreBG.width = scoreText.width + 8;
+		scoreBG.x = FlxG.width - scoreBG.width;
+		diffText.x = scoreBG.x + scoreBG.width / 2 - diffText.width / 2;
 
 		if (controls.UI_UP_P)
 		{
@@ -218,6 +216,11 @@ class FreeplayState extends MusicBeatState
 		if (controls.BACK)
 		{
 			FlxG.sound.play(Paths.sound('cancelMenu'));
+			if (instPlaying != -1)
+			{
+				destroyVocals();
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+			}
 			MusicBeatState.switchState(new MainMenuState());
 		}
 
