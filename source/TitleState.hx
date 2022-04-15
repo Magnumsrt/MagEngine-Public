@@ -1,5 +1,6 @@
 package;
 
+import modloader.*;
 import haxe.Http;
 #if desktop
 import Discord.DiscordClient;
@@ -57,6 +58,10 @@ class TitleState extends MusicBeatState
 			PlayerSettings.init();
 
 			FlxG.save.bind('funkin', 'ninjamuffin99');
+
+			#if MODS
+			PolymodHandler.init();
+			#end
 
 			Highscore.load();
 
