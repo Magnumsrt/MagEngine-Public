@@ -1,6 +1,6 @@
 package;
 
-import openfl.Lib;
+import haxe.Http;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -34,8 +34,8 @@ class TitleState extends MusicBeatState
 	var blackScreen:FlxSprite;
 	var credGroup:FlxGroup;
 	var textGroup:FlxGroup;
-	var ngSpr:FlxSprite;
 
+	// var ngSpr:FlxSprite;
 	var curWacky:Array<String> = [];
 
 	var wackyImage:FlxSprite;
@@ -133,7 +133,7 @@ class TitleState extends MusicBeatState
 		Conductor.changeBPM(102);
 		persistentUpdate = true;
 
-		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('titlebg'));
 		// bg.antialiasing = true;
 		// bg.setGraphicSize(Std.int(bg.width * 0.6));
 		// bg.updateHitbox();
@@ -181,13 +181,13 @@ class TitleState extends MusicBeatState
 		blackScreen = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		credGroup.add(blackScreen);
 
-		ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('newgrounds_logo'));
-		add(ngSpr);
-		ngSpr.visible = false;
-		ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
-		ngSpr.updateHitbox();
-		ngSpr.screenCenter(X);
-		ngSpr.antialiasing = true;
+		// ngSpr = new FlxSprite(0, FlxG.height * 0.52).loadGraphic(Paths.image('newgrounds_logo'));
+		// add(ngSpr);
+		// ngSpr.visible = false;
+		// ngSpr.setGraphicSize(Std.int(ngSpr.width * 0.8));
+		// ngSpr.updateHitbox();
+		// ngSpr.screenCenter(X);
+		// ngSpr.antialiasing = true;
 
 		if (initialized)
 			skipIntro();
@@ -261,22 +261,29 @@ class TitleState extends MusicBeatState
 			new FlxTimer().start(2, function(tmr:FlxTimer)
 			{
 				// Check if version is outdated
-
-				// var version:String = "v" + Application.current.meta.get('version');
-
-				// if (version.trim() != NGio.GAME_VER_NUMS.trim() && !OutdatedSubState.leftState)
-				// {
-				// 	MusicBeatState.switchState(new OutdatedSubState());
-				// 	trace('OLD VERSION!');
-				// 	trace('old ver');
-				// 	trace(version.trim());
-				// 	trace('cur ver');
-				// 	trace(NGio.GAME_VER_NUMS.trim());
-				// }
-				// else
-				// {
-				MusicBeatState.switchState(new MainMenuState());
-				// }
+				if (MagPrefs.getValue('versionCheck') && !OutdatedSubState.leftState)
+				{
+					var http:Http = new Http('https://raw.githubusercontent.com/magnumsrtisswag/MagEngine-Public/main/gameVersion.txt');
+					http.onData = function(data:String)
+					{
+						var updateVersion:String = data.split('\n')[0].trim();
+						var curVersion:String = Application.current.meta.get('version');
+						if (updateVersion != curVersion)
+						{
+							trace('outdated version: ' + updateVersion + ' != ' + curVersion);
+							OutdatedSubState.newVersion = updateVersion;
+							MusicBeatState.switchState(new OutdatedSubState());
+						}
+					}
+					http.onError = function(msg:String)
+					{
+						trace('can\'t fetch the version: ' + msg);
+						MusicBeatState.switchState(new MainMenuState());
+					}
+					http.request();
+				}
+				else
+					MusicBeatState.switchState(new MainMenuState());
 			});
 			// FlxG.sound.play(Paths.music('titleShoot'), 0.7);
 		}
@@ -345,14 +352,21 @@ class TitleState extends MusicBeatState
 				addMoreText('present');
 			case 4:
 				deleteCoolText();
+			// case 5:
+			// 	createCoolText(['In association', 'with']);
+			// case 7:
+			// 	addMoreText('newgrounds');
+			// 	ngSpr.visible = true;
+			// case 8:
+			// 	deleteCoolText();
+			// 	ngSpr.visible = false;
 			case 5:
-				createCoolText(['In association', 'with']);
+				createCoolText(['mag engine', 'by']);
 			case 7:
-				addMoreText('newgrounds');
-				ngSpr.visible = true;
+				addMoreText('magnumsrt');
+				addMoreText('stilic');
 			case 8:
 				deleteCoolText();
-				ngSpr.visible = false;
 			case 9:
 				createCoolText([curWacky[0]]);
 			case 11:
@@ -376,7 +390,7 @@ class TitleState extends MusicBeatState
 	{
 		if (!skippedIntro)
 		{
-			remove(ngSpr);
+			// remove(ngSpr);
 
 			FlxG.camera.flash(FlxColor.WHITE, 4);
 			remove(credGroup);

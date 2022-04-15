@@ -50,6 +50,16 @@ class OptionsMenuState extends MusicBeatState
 				['Memory Display', 'Shows the current memory usage.', 'mem'],
 				['Memory Peak Display', 'Shows the current memory peak.', 'memPeak']
 			]
+		],
+		[
+			'misc',
+			[
+				[
+					'Version Check',
+					'Checks on start if the current version is outdated',
+					'versionCheck'
+				]
+			]
 		]
 	];
 
@@ -316,7 +326,7 @@ class OptionsMenuState extends MusicBeatState
 
 	function getSectionX(index:Int)
 	{
-		return -(FlxG.width / options.length) + index * (FlxG.width / 2) - 125;
+		return -(FlxG.width / 3) + index * (FlxG.width / 2) - 150;
 	}
 
 	function changeSelection(change:Int = 0)

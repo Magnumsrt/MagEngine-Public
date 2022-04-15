@@ -93,6 +93,11 @@ class MagPrefs
 		'memPeak' => {
 			type: Boolean,
 			value: true
+		},
+		// other funni shit
+		'versionCheck' => {
+			type: Boolean,
+			value: true
 		}
 	];
 
