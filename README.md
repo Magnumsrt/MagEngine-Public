@@ -9,7 +9,9 @@ Ever wanted to make a full week mod with phases, custom characters, custom stage
 The engine is based of the source code of Friday Night Funkin, a game originally made for Ludum Dare 47 "Stuck In a Loop".
 
 Play the Ludum Dare prototype here: https://ninja-muffin24.itch.io/friday-night-funkin
+
 Play the Newgrounds one here: https://www.newgrounds.com/portal/view/770371
+
 Support the project on the itch.io page: https://ninja-muffin24.itch.io/funkin
 
 IF YOU MAKE A MOD AND DISTRIBUTE A MODIFIED / RECOMPILED VERSION, YOU MUST OPEN SOURCE YOUR MOD AS WELL
@@ -33,13 +35,13 @@ This game was made with love to Newgrounds and its community. Extra love to Tom 
 
 ## Build instructions
 
-THESE INSTRUCTIONS ARE FOR COMPILING THE GAME'S SOURCE CODE!!!
+THESE INSTRUCTIONS ARE FOR COMPILING THE ENGINE'S SOURCE CODE!!!
 
-IF YOU WANT TO JUST DOWNLOAD AND INSTALL AND PLAY THE GAME NORMALLY, GO TO ITCH.IO TO DOWNLOAD THE GAME FOR PC, MAC, AND LINUX!!
+IF YOU WANT TO JUST DOWNLOAD AND INSTALL AND USE THE ENGINE NORMALLY, GO TO GITHUB RELEASES TO DOWNLOAD THE ENGINE FOR PC, MAC, AND LINUX!!
 
-https://ninja-muffin24.itch.io/funkin
+https://github.com/magnumsrtisswag/MagEngine-Public/releases
 
-IF YOU WANT TO COMPILE THE GAME YOURSELF, CONTINUE READING!!!
+IF YOU WANT TO COMPILE THE ENGINE YOURSELF, CONTINUE READING!!!
 
 ### Installing the Required Programs
 
