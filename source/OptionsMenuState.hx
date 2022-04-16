@@ -26,6 +26,11 @@ class OptionsMenuState extends MusicBeatState
 					'Centers the player strumline and hides the opponent strumline.',
 					'middleScroll'
 				],
+				[
+					'Camera Movement',
+					'Makes the camera follows the character on note hit.',
+					'cameraMove'
+				],
 				['Misses Display', 'Shows your misses.', 'missesDisplay'],
 				['Accuracy Display', 'Shows your accuracy.', 'accDisplay'],
 			]

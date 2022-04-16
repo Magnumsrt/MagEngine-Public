@@ -13,25 +13,54 @@ class StrumNote extends FlxSprite
 	var noteData:Int = 0;
 	var player:Int = 0;
 
-	override public function new(x:Float, y:Float, noteData:Int, player:Int)
+	public var texture(default, set):String;
+
+	private function set_texture(value:String):String
+	{
+		if (texture != value)
+			reloadNote(value);
+		texture = value;
+		return value;
+	}
+
+	public function new(x:Float, y:Float, noteData:Int, player:Int)
 	{
 		super(x, y);
 
 		this.noteData = noteData;
 		this.player = player;
 
+		texture = '';
+
+		updateHitbox();
+	}
+
+	public function reloadNote(texture:String, ?prefix:String = '', ?suffix:String = '')
+	{
+		if (texture == null || texture.length < 1)
+			texture = 'NOTE_assets';
+
+		var arraySkin:Array<String> = texture.split('/');
+		arraySkin[arraySkin.length - 1] = prefix + arraySkin[arraySkin.length - 1] + suffix;
+		var boringPath:String = arraySkin.join('/');
+
+		var lastAnim:String = null;
+		if (animation.curAnim != null)
+			lastAnim = animation.curAnim.name;
+
 		if (PlayState.isPixelStage)
 		{
-			loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
+			loadGraphic(Paths.image('pixelUI/' + boringPath));
+			width = width / 4;
+			height = height / 5;
+			loadGraphic(Paths.image('pixelUI/' + boringPath), true, Math.floor(width), Math.floor(height));
+
 			animation.add('green', [6]);
 			animation.add('red', [7]);
 			animation.add('blue', [5]);
-			animation.add('purplel', [4]);
+			animation.add('purple', [4]);
 
-			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
-			antialiasing = false;
-
-			switch (noteData)
+			switch (Math.abs(noteData))
 			{
 				case 0:
 					animation.add('static', [0]);
@@ -50,19 +79,20 @@ class StrumNote extends FlxSprite
 					animation.add('pressed', [7, 11], 12, false);
 					animation.add('confirm', [15, 19], 24, false);
 			}
+
+			antialiasing = false;
+			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 		}
 		else
 		{
-			frames = Paths.getSparrowAtlas('NOTE_assets');
+			frames = Paths.getSparrowAtlas(boringPath);
+
 			animation.addByPrefix('green', 'arrowUP');
 			animation.addByPrefix('blue', 'arrowDOWN');
 			animation.addByPrefix('purple', 'arrowLEFT');
 			animation.addByPrefix('red', 'arrowRIGHT');
 
-			antialiasing = true;
-			setGraphicSize(Std.int(width * 0.7));
-
-			switch (noteData)
+			switch (Math.abs(noteData))
 			{
 				case 0:
 					animation.addByPrefix('static', 'arrowLEFT');
@@ -81,9 +111,14 @@ class StrumNote extends FlxSprite
 					animation.addByPrefix('pressed', 'right press', 24, false);
 					animation.addByPrefix('confirm', 'right confirm', 24, false);
 			}
-		}
 
+			antialiasing = true;
+			setGraphicSize(Std.int(width * 0.7));
+		}
 		updateHitbox();
+
+		if (lastAnim != null)
+			playAnim(lastAnim, true);
 	}
 
 	public function postAddedToGroup()

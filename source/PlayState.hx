@@ -67,11 +67,15 @@ class PlayState extends MusicBeatState
 	public var curSection:Int = 0;
 
 	public static var cameraSpeed:Float = 1;
+	public static var allowCamMove:Bool = true;
+
+	var coolCamPos:Array<Int> = [0, 0];
 
 	public var camFollow:FlxPoint;
 	public var camFollowPos:FlxObject;
 
-	public static var prevCamFollow:FlxPoint;
+	private static var prevCamFollow:FlxPoint;
+	private static var prevCamFollowPos:FlxObject;
 
 	public var strumLineNotes:FlxTypedGroup<StrumNote>;
 	public var playerStrums:FlxTypedGroup<StrumNote>;
@@ -670,6 +674,7 @@ class PlayState extends MusicBeatState
 		{
 			case 'gf':
 				dad.setPosition(gf.x, gf.y);
+				dad.danceEveryNumBeats = 2;
 				gf.visible = false;
 				if (isStoryMode)
 				{
@@ -776,16 +781,24 @@ class PlayState extends MusicBeatState
 
 		// add(strumLine);
 
-		camFollow = new FlxPoint(camPos.x, camPos.y);
-		camFollowPos = new FlxObject(camPos.x, camPos.y);
-		camFollowPos.setPosition(camPos.x, camPos.y);
+		camFollow = new FlxPoint();
+		camFollowPos = new FlxObject(0, 0, 1, 1);
+		snapCamFollowToPos(camPos.x, camPos.y);
+
 		if (prevCamFollow != null)
 		{
 			camFollow = prevCamFollow;
 			prevCamFollow = null;
 		}
+		if (prevCamFollowPos != null)
+		{
+			camFollowPos = prevCamFollowPos;
+			prevCamFollowPos = null;
+		}
 
 		add(camFollowPos);
+
+		allowCamMove = MagPrefs.getValue('cameraMove');
 
 		FlxG.camera.follow(camFollowPos, LOCKON, 1);
 		FlxG.camera.zoom = defaultCamZoom;
@@ -862,8 +875,7 @@ class PlayState extends MusicBeatState
 					{
 						remove(blackScreen);
 						FlxG.sound.play(Paths.sound('Lights_Turn_On'));
-						camFollow.y = -2050;
-						camFollow.x += 200;
+						snapCamFollowToPos(400, -2050);
 						FlxG.camera.focusOn(camFollow);
 						FlxG.camera.zoom = 1.5;
 
@@ -1053,20 +1065,26 @@ class PlayState extends MusicBeatState
 					&& boyfriend.animation.curAnim != null
 					&& !boyfriend.animation.curAnim.name.startsWith('sing')
 					&& !boyfriend.stunned)
+				{
 					boyfriend.dance();
+					rollCamera(false);
+				}
 
 				if (tmr.loopsLeft % dad.danceEveryNumBeats == 0
 					&& dad.animation.curAnim != null
 					&& !dad.animation.curAnim.name.startsWith('sing')
 					&& !dad.stunned)
+				{
 					dad.dance();
+					rollCamera(true);
+				}
 
 				var introAssets:Array<String> = ['ready', 'set', 'go'];
 				var altSuffix:String = "";
 
 				if (isPixelStage)
 				{
-					introAssets = ['weeb/pixelUI/ready-pixel', 'weeb/pixelUI/set-pixel', 'weeb/pixelUI/date-pixel'];
+					introAssets = ['pixelUI/ready-pixel', 'pixelUI/set-pixel', 'pixelUI/date-pixel'];
 					altSuffix = '-pixel';
 				}
 
@@ -1303,6 +1321,36 @@ class PlayState extends MusicBeatState
 		FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
 	}
 
+	function snapCamFollowToPos(x:Float, y:Float)
+	{
+		camFollow.set(x, y);
+		camFollowPos.setPosition(x, y);
+	}
+
+	final camAdd:Int = 15;
+
+	function rollCamera(isDad:Bool, direction:Int = -1)
+	{
+		if (allowCamMove
+			&& SONG.notes[Std.int(curStep / 16)] != null
+			&& ((!SONG.notes[Std.int(curStep / 16)].mustHitSection && isDad)
+				|| (SONG.notes[Std.int(curStep / 16)].mustHitSection && !isDad)))
+		{
+			coolCamPos = [0, 0];
+			switch (direction)
+			{
+				case 0:
+					coolCamPos = [-camAdd, 0];
+				case 1:
+					coolCamPos = [0, camAdd];
+				case 2:
+					coolCamPos = [0, -camAdd];
+				case 3:
+					coolCamPos = [camAdd, 0];
+			}
+		}
+	}
+
 	override function openSubState(SubState:FlxSubState)
 	{
 		if (paused)
@@ -1454,6 +1502,9 @@ class PlayState extends MusicBeatState
 			if (SONG.song.toLowerCase() == 'tutorial')
 				FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
 		}
+
+		camFollow.x += coolCamPos[0];
+		camFollow.y += coolCamPos[1];
 	}
 
 	public var paused:Bool = false;
@@ -1796,6 +1847,8 @@ class PlayState extends MusicBeatState
 
 					daNote.hitByOpponent = true;
 
+					rollCamera(true, daNote.noteData);
+
 					callScripts('opponentNoteHit', [
 						notes.members.indexOf(daNote),
 						Math.abs(daNote.noteData),
@@ -1836,7 +1889,10 @@ class PlayState extends MusicBeatState
 				else if (boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
 					&& boyfriend.animation.curAnim.name.startsWith('sing')
 					&& !boyfriend.animation.curAnim.name.endsWith('miss'))
+				{
 					boyfriend.dance();
+					rollCamera(false);
+				}
 			}
 		}
 
@@ -1961,7 +2017,9 @@ class PlayState extends MusicBeatState
 
 					FlxTransitionableState.skipNextTransIn = true;
 					FlxTransitionableState.skipNextTransOut = true;
+
 					prevCamFollow = camFollow;
+					prevCamFollowPos = camFollowPos;
 
 					PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + difficulty, PlayState.storyPlaylist[0]);
 					FlxG.sound.music.stop();
@@ -2048,7 +2106,7 @@ class PlayState extends MusicBeatState
 
 		if (isPixelStage)
 		{
-			altPath = 'weeb/pixelUI/';
+			altPath = 'pixelUI/';
 			altSuffix = '-pixel';
 		}
 
@@ -2320,7 +2378,10 @@ class PlayState extends MusicBeatState
 				&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
 				&& boyfriend.animation.curAnim.name.startsWith('sing')
 				&& !boyfriend.animation.curAnim.name.endsWith('miss'))
+			{
 				boyfriend.dance();
+				rollCamera(false);
+			}
 		}
 
 		if (keyPressByController)
@@ -2438,6 +2499,8 @@ class PlayState extends MusicBeatState
 
 			note.wasGoodHit = true;
 			vocals.volume = 1;
+
+			rollCamera(false, note.noteData);
 
 			callScripts('goodNoteHit', [
 				notes.members.indexOf(note),
@@ -2641,13 +2704,19 @@ class PlayState extends MusicBeatState
 			&& boyfriend.animation.curAnim != null
 			&& !boyfriend.animation.curAnim.name.startsWith('sing')
 			&& !boyfriend.stunned)
+		{
 			boyfriend.dance();
+			rollCamera(false);
+		}
 
 		if (curBeat % dad.danceEveryNumBeats == 0
 			&& dad.animation.curAnim != null
 			&& !dad.animation.curAnim.name.startsWith('sing')
 			&& !dad.stunned)
+		{
 			dad.dance();
+			rollCamera(true);
+		}
 
 		if (curBeat % 8 == 7 && curSong == 'Bopeebo')
 		{

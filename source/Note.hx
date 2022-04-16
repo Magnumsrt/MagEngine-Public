@@ -43,7 +43,6 @@ class Note extends FlxSprite
 	public static var BLUE_NOTE:Int = 1;
 	public static var RED_NOTE:Int = 3;
 
-	// stuff for modders like us ;)
 	public var texture(default, set):String;
 
 	private function set_texture(value:String):String
@@ -158,13 +157,27 @@ class Note extends FlxSprite
 		arraySkin[arraySkin.length - 1] = prefix + arraySkin[arraySkin.length - 1] + suffix;
 		var boringPath:String = arraySkin.join('/');
 
-		var animName:String = null;
+		var lastAnim:String = null;
 		if (animation.curAnim != null)
-			animName = animation.curAnim.name;
+			lastAnim = animation.curAnim.name;
 
 		if (PlayState.isPixelStage)
 		{
-			loadGraphic(Paths.image('weeb/pixelUI/' + boringPath), true, 17, 17);
+			if (isSustainNote)
+			{
+				loadGraphic(Paths.image('pixelUI/' + boringPath + 'ENDS'));
+				width = width / 4;
+				height = height / 2;
+				loadGraphic(Paths.image('pixelUI/' + boringPath + 'ENDS'), true, Math.floor(width), Math.floor(height));
+			}
+			else
+			{
+				loadGraphic(Paths.image('pixelUI/' + boringPath));
+				width = width / 4;
+				height = height / 5;
+				loadGraphic(Paths.image('pixelUI/' + boringPath), true, Math.floor(width), Math.floor(height));
+			}
+
 			loadPixelAnims();
 
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
@@ -185,8 +198,8 @@ class Note extends FlxSprite
 		}
 		updateHitbox();
 
-		if (animName != null)
-			animation.play(animName, true);
+		if (lastAnim != null)
+			animation.play(lastAnim, true);
 	}
 
 	public function loadAnims()

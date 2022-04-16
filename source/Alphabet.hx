@@ -397,7 +397,7 @@ class Alphabet extends FlxSpriteGroup
 		}
 		else if (horizontalScroll)
 			x = FlxMath.lerp(x, targetX, lerpVal);
-			super.update(elapsed);
+		super.update(elapsed);
 	}
 
 	inline static public function getLerpVal()

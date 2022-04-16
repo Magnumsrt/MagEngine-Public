@@ -44,6 +44,10 @@ class MagPrefs
 			type: Boolean,
 			value: false
 		},
+		'cameraMove' => {
+			type: Boolean,
+			value: true
+		},
 		'missesDisplay' => {
 			type: Boolean,
 			value: true
@@ -135,8 +139,14 @@ class MagPrefs
 		}
 
 		if (save.data.settings == null)
-			save.data.settings = defaultSettings;
-		settings = save.data.settings;
+			settings = defaultSettings;
+		else
+		{
+			settings = save.data.settings;
+			for (key => setting in defaultSettings)
+				if (!settings.exists(key))
+					settings.set(key, setting);
+		}
 
 		if (save.data.customControls != null)
 		{
