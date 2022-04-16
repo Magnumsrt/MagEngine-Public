@@ -1065,19 +1065,13 @@ class PlayState extends MusicBeatState
 					&& boyfriend.animation.curAnim != null
 					&& !boyfriend.animation.curAnim.name.startsWith('sing')
 					&& !boyfriend.stunned)
-				{
 					boyfriend.dance();
-					rollCamera(false);
-				}
 
 				if (tmr.loopsLeft % dad.danceEveryNumBeats == 0
 					&& dad.animation.curAnim != null
 					&& !dad.animation.curAnim.name.startsWith('sing')
 					&& !dad.stunned)
-				{
 					dad.dance();
-					rollCamera(true);
-				}
 
 				var introAssets:Array<String> = ['ready', 'set', 'go'];
 				var altSuffix:String = "";
