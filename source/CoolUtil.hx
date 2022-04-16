@@ -7,11 +7,14 @@ using StringTools;
 
 class CoolUtil
 {
-	public static var difficultyArray:Array<String> = ['EASY', "NORMAL", "HARD"];
+	public static var difficultyArray:Array<String> = ['Easy', 'Normal', 'Hard'];
 
-	public static function difficultyString():String
+	public static function difficultyString(uppercase:Bool = true):String
 	{
-		return difficultyArray[PlayState.storyDifficulty];
+		var diff:String = difficultyArray[PlayState.storyDifficulty];
+		if (uppercase)
+			diff = diff.toUpperCase();
+		return diff;
 	}
 
 	inline public static function boundTo(value:Float, min:Float, max:Float):Float

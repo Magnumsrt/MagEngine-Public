@@ -11,7 +11,7 @@ class NoteSplash extends FlxSprite
 
 		if (PlayState.isPixelStage)
 		{
-			loadGraphic(Paths.image('weeb/pixelUI/noteSplashes-pixels', 'week6'), true, 50, 50);
+			loadGraphic(Paths.image('weeb/pixelUI/noteSplashes'), true, 50, 50);
 			animation.add('splash 0 0', [0, 1, 2, 3], 24, false);
 			animation.add('splash 1 0', [4, 5, 6, 7], 24, false);
 			animation.add('splash 0 1', [8, 9, 10, 11], 24, false);

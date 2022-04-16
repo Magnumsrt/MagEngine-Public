@@ -1,9 +1,6 @@
 package;
 
 import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.math.FlxMath;
-import flixel.util.FlxColor;
 
 using StringTools;
 
@@ -45,6 +42,17 @@ class Note extends FlxSprite
 	public static var BLUE_NOTE:Int = 1;
 	public static var RED_NOTE:Int = 3;
 
+	// stuff for modders like us ;)
+	public var texture(default, set):String;
+
+	private function set_texture(value:String):String
+	{
+		if (texture != value)
+			reloadNote(value);
+		texture = value;
+		return value;
+	}
+
 	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false)
 	{
 		super();
@@ -55,97 +63,45 @@ class Note extends FlxSprite
 		this.prevNote = prevNote;
 		isSustainNote = sustainNote;
 
-		x += PlayState.STRUM_X + 50;
+		x += (MagPrefs.getValue('middleScroll') ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X) + 50;
 		// MAKE SURE ITS DEFINITELY OFF SCREEN?
 		y -= 2000;
 		this.strumTime = strumTime;
 
 		this.noteData = noteData;
 
-		if (PlayState.isPixelStage)
+		// trigger the famous note reload idk
+		texture = '';
+
+		x += swagWidth * (noteData % 4);
+		if (!isSustainNote)
 		{
-			loadGraphic(Paths.image('weeb/pixelUI/arrows-pixels'), true, 17, 17);
-
-			animation.add('greenScroll', [6]);
-			animation.add('redScroll', [7]);
-			animation.add('blueScroll', [5]);
-			animation.add('purpleScroll', [4]);
-
-			if (isSustainNote)
+			var animToPlay:String = '';
+			switch (noteData % 4)
 			{
-				loadGraphic(Paths.image('weeb/pixelUI/arrowEnds'), true, 7, 6);
-
-				animation.add('purpleholdend', [4]);
-				animation.add('greenholdend', [6]);
-				animation.add('redholdend', [7]);
-				animation.add('blueholdend', [5]);
-
-				animation.add('purplehold', [0]);
-				animation.add('greenhold', [2]);
-				animation.add('redhold', [3]);
-				animation.add('bluehold', [1]);
+				case 0:
+					animToPlay = 'purple';
+				case 1:
+					animToPlay = 'blue';
+				case 2:
+					animToPlay = 'green';
+				case 3:
+					animToPlay = 'red';
 			}
-
-			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
-			antialiasing = false;
-		}
-		else
-		{
-			var lastScaleY:Float = scale.y;
-
-			frames = Paths.getSparrowAtlas('NOTE_assets');
-
-			animation.addByPrefix('greenScroll', 'green0');
-			animation.addByPrefix('redScroll', 'red0');
-			animation.addByPrefix('blueScroll', 'blue0');
-			animation.addByPrefix('purpleScroll', 'purple0');
-
-			animation.addByPrefix('purpleholdend', 'pruple end hold');
-			animation.addByPrefix('greenholdend', 'green hold end');
-			animation.addByPrefix('redholdend', 'red hold end');
-			animation.addByPrefix('blueholdend', 'blue hold end');
-
-			animation.addByPrefix('purplehold', 'purple hold piece');
-			animation.addByPrefix('greenhold', 'green hold piece');
-			animation.addByPrefix('redhold', 'red hold piece');
-			animation.addByPrefix('bluehold', 'blue hold piece');
-
-			setGraphicSize(Std.int(width * 0.7));
-			antialiasing = true;
-
-			if (isSustainNote)
-				scale.y = lastScaleY;
-		}
-		updateHitbox();
-
-		switch (noteData)
-		{
-			case 0:
-				x += swagWidth * 0;
-				animation.play('purpleScroll');
-			case 1:
-				x += swagWidth * 1;
-				animation.play('blueScroll');
-			case 2:
-				x += swagWidth * 2;
-				animation.play('greenScroll');
-			case 3:
-				x += swagWidth * 3;
-				animation.play('redScroll');
+			animation.play(animToPlay + 'Scroll');
 		}
 
 		// trace(prevNote);
 
 		if (isSustainNote && prevNote != null)
 		{
-			multAlpha = 0.6;
+			alpha = 0.6;
+			multAlpha = alpha;
 			if (MagPrefs.getValue('downScroll'))
 				flipY = true;
 
 			offsetX += width / 2;
 			copyAngle = false;
-
-			x += width / 2;
 
 			switch (noteData)
 			{
@@ -162,7 +118,6 @@ class Note extends FlxSprite
 			updateHitbox();
 
 			offsetX -= width / 2;
-
 			if (PlayState.isPixelStage)
 				offsetX += 30;
 
@@ -191,6 +146,90 @@ class Note extends FlxSprite
 		else if (!isSustainNote)
 			earlyHitMult = 1;
 		x += offsetX;
+	}
+
+	public function reloadNote(?texture:String, ?prefix:String = '', ?suffix:String = '')
+	{
+		if (texture == null || texture.length < 1)
+			texture = 'NOTE_assets';
+
+		var arraySkin:Array<String> = texture.split('/');
+		arraySkin[arraySkin.length - 1] = prefix + arraySkin[arraySkin.length - 1] + suffix;
+		var boringPath:String = arraySkin.join('/');
+
+		var animName:String = null;
+		if (animation.curAnim != null)
+			animName = animation.curAnim.name;
+
+		if (PlayState.isPixelStage)
+		{
+			loadGraphic(Paths.image('weeb/pixelUI/' + boringPath), true, 17, 17);
+			loadPixelAnims();
+
+			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
+			antialiasing = false;
+		}
+		else
+		{
+			var lastScaleY:Float = scale.y;
+
+			frames = Paths.getSparrowAtlas(boringPath);
+			loadAnims();
+
+			setGraphicSize(Std.int(width * 0.7));
+			antialiasing = true;
+
+			if (isSustainNote)
+				scale.y = lastScaleY;
+		}
+		updateHitbox();
+
+		if (animName != null)
+			animation.play(animName, true);
+	}
+
+	public function loadAnims()
+	{
+		animation.addByPrefix('greenScroll', 'green0');
+		animation.addByPrefix('redScroll', 'red0');
+		animation.addByPrefix('blueScroll', 'blue0');
+		animation.addByPrefix('purpleScroll', 'purple0');
+
+		if (isSustainNote)
+		{
+			animation.addByPrefix('purpleholdend', 'pruple end hold');
+			animation.addByPrefix('greenholdend', 'green hold end');
+			animation.addByPrefix('redholdend', 'red hold end');
+			animation.addByPrefix('blueholdend', 'blue hold end');
+
+			animation.addByPrefix('purplehold', 'purple hold piece');
+			animation.addByPrefix('greenhold', 'green hold piece');
+			animation.addByPrefix('redhold', 'red hold piece');
+			animation.addByPrefix('bluehold', 'blue hold piece');
+		}
+	}
+
+	public function loadPixelAnims()
+	{
+		if (isSustainNote)
+		{
+			animation.add('purpleholdend', [PURP_NOTE + 4]);
+			animation.add('greenholdend', [GREEN_NOTE + 4]);
+			animation.add('redholdend', [RED_NOTE + 4]);
+			animation.add('blueholdend', [BLUE_NOTE + 4]);
+
+			animation.add('purplehold', [PURP_NOTE]);
+			animation.add('greenhold', [GREEN_NOTE]);
+			animation.add('redhold', [RED_NOTE]);
+			animation.add('bluehold', [BLUE_NOTE]);
+		}
+		else
+		{
+			animation.add('greenScroll', [GREEN_NOTE + 4]);
+			animation.add('redScroll', [RED_NOTE + 4]);
+			animation.add('blueScroll', [BLUE_NOTE + 4]);
+			animation.add('purpleScroll', [PURP_NOTE + 4]);
+		}
 	}
 
 	override function update(elapsed:Float)

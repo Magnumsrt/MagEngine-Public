@@ -1,5 +1,7 @@
 package;
 
+import modloader.ModList;
+import sys.FileSystem;
 import lime.utils.Assets;
 import flixel.graphics.FlxGraphic;
 import openfl.system.System;
@@ -14,6 +16,11 @@ using StringTools;
 class Paths
 {
 	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
+
+	public static var currentModDirectory:String = '';
+	public static final ignoredFolders:Array<String> = [
+		'custom_characters', 'custom_events', 'custom_states', 'data', 'songs', 'stages', 'music', 'sounds', 'fonts', 'videos', 'images', 'weeks', 'scripts'
+	];
 
 	public static function excludeAsset(key:String)
 	{
@@ -89,8 +96,17 @@ class Paths
 		currentLevel = name.toLowerCase();
 	}
 
-	public static function getPath(file:String, type:AssetType, ?library:Null<String> = null)
+	public static function getPath(file:String, type:AssetType, ?library:Null<String> = null, ?ignoreMods:Bool = false)
 	{
+		#if MODS
+		if (!ignoreMods)
+		{
+			var modPath:String = modFolder(file);
+			if (fileExists(modPath, type, false, library))
+				return modPath;
+		}
+		#end
+
 		if (library != null)
 			return getLibraryPath(file, library);
 
@@ -198,6 +214,54 @@ class Paths
 	inline static public function getPackerAtlas(key:String, ?library:String)
 	{
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file('images/$key.txt', library));
+	}
+
+	inline static public function mods(key:String = '')
+	{
+		return 'mods/' + key;
+	}
+
+	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String)
+	{
+		#if MODS
+		if (FileSystem.exists(mods(key)) || FileSystem.exists(mods(key)))
+			return true;
+		#else
+		if (OpenFlAssets.exists(Paths.getPath(key, type, library)))
+			return true;
+		#end
+		return false;
+	}
+
+	public static function modFolder(key:String)
+	{
+		#if MODS
+		var list:Array<String> = [];
+		var modsFolder:String = Paths.mods();
+		if (FileSystem.exists(modsFolder))
+		{
+			for (folder in FileSystem.readDirectory(modsFolder))
+			{
+				var path = haxe.io.Path.join([modsFolder, folder]);
+				if (sys.FileSystem.isDirectory(path) && !ignoredFolders.contains(folder) && !list.contains(folder))
+				{
+					list.push(folder);
+					for (i in 0...list.length)
+						currentModDirectory = list[i];
+				}
+			}
+		}
+		if (currentModDirectory != null && currentModDirectory.length > 0)
+		{
+			var fileToCheck:String = mods(currentModDirectory + '/' + key);
+			if (FileSystem.exists(fileToCheck) && ModList.getModEnabled(currentModDirectory))
+				return fileToCheck;
+		}
+
+		return mods(key);
+		#else
+		return key;
+		#end
 	}
 
 	// completely rewritten asset loading? fuck!

@@ -146,8 +146,10 @@ class PlayState extends MusicBeatState
 	public var totalPlayed:Int = 0;
 	public var totalNotesHit:Float = 0;
 
+	public var infoTxt:FlxText;
+	public var scoreTxt:FlxText;
+
 	var talking:Bool = true;
-	var scoreTxt:FlxText;
 
 	public static var campaignScore:Int = 0;
 
@@ -801,6 +803,14 @@ class PlayState extends MusicBeatState
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		add(iconP2);
 
+		infoTxt = new FlxText(4, 0, 0, SONG.song + " - " + CoolUtil.difficultyString(false), 16);
+		infoTxt.y = FlxG.height - infoTxt.height;
+		infoTxt.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		infoTxt.scrollFactor.set();
+		infoTxt.borderSize = 2;
+		infoTxt.antialiasing = true;
+		add(infoTxt);
+
 		scoreTxt = new FlxText(0, healthBarBG.y + 35, FlxG.width, "", 18);
 		scoreTxt.setFormat(Paths.font("vcr.ttf"), 18, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		scoreTxt.borderSize = 2;
@@ -813,6 +823,7 @@ class PlayState extends MusicBeatState
 		healthBarBG.cameras = [camHUD];
 		iconP1.cameras = [camHUD];
 		iconP2.cameras = [camHUD];
+		infoTxt.cameras = [camHUD];
 		scoreTxt.cameras = [camHUD];
 		doof.cameras = [camHUD];
 
@@ -918,6 +929,7 @@ class PlayState extends MusicBeatState
 
 			if (SONG.song.toLowerCase() == 'thorns')
 			{
+				camHUD.visible = false;
 				add(red);
 			}
 		}
@@ -956,6 +968,7 @@ class PlayState extends MusicBeatState
 									remove(red);
 									FlxG.camera.fade(FlxColor.WHITE, 0.01, true, function()
 									{
+										camHUD.visible = true;
 										add(dialogueBox);
 									}, true);
 								});
@@ -1667,15 +1680,15 @@ class PlayState extends MusicBeatState
 					{
 						if (daNote.animation.curAnim.name.endsWith('end'))
 						{
-							daNote.y += 10.5 * (fakeCrochet / 400) * 1.5 * songSpeed + (46 * (songSpeed - 1));
-							daNote.y -= 46 * (1 - (fakeCrochet / 600)) * songSpeed;
+							daNote.y += 10.5 * fakeCrochet / 400 * 1.5 * songSpeed + 46 * (songSpeed - 1);
+							daNote.y -= 46 * (1 - fakeCrochet / 600) * songSpeed;
 							if (PlayState.isPixelStage)
 								daNote.y += 8;
 							else
 								daNote.y -= 19;
 						}
-						daNote.y += (Note.swagWidth / 2) - (60.5 * (songSpeed - 1));
-						daNote.y += 27.5 * ((SONG.bpm / 100) - 1) * (songSpeed - 1);
+						daNote.y += Note.swagWidth / 2 - 60.5 * (songSpeed - 1);
+						daNote.y += 27.5 * (SONG.bpm / 100 - 1) * (songSpeed - 1);
 					}
 				}
 
