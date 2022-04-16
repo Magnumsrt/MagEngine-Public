@@ -138,7 +138,10 @@ class Note extends FlxSprite
 				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.05 * PlayState.songSpeed;
 
 				if (PlayState.isPixelStage)
+				{
 					prevNote.scale.y *= 1.19;
+					prevNote.scale.y *= (6 / height);
+				}
 				prevNote.updateHitbox();
 				// prevNote.setGraphicSize();
 			}
@@ -147,6 +150,10 @@ class Note extends FlxSprite
 			earlyHitMult = 1;
 		x += offsetX;
 	}
+
+	var lastNoteOffsetXForPixelAutoAdjusting:Float = 0;
+
+	public var originalHeightForCalcs:Float = 6;
 
 	public function reloadNote(?texture:String, ?prefix:String = '', ?suffix:String = '')
 	{
@@ -168,6 +175,7 @@ class Note extends FlxSprite
 				loadGraphic(Paths.image('pixelUI/' + boringPath + 'ENDS'));
 				width = width / 4;
 				height = height / 2;
+				originalHeightForCalcs = height;
 				loadGraphic(Paths.image('pixelUI/' + boringPath + 'ENDS'), true, Math.floor(width), Math.floor(height));
 			}
 			else
@@ -182,6 +190,13 @@ class Note extends FlxSprite
 
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 			antialiasing = false;
+
+			if (isSustainNote)
+			{
+				offsetX += lastNoteOffsetXForPixelAutoAdjusting;
+				lastNoteOffsetXForPixelAutoAdjusting = (width - 7) * (PlayState.daPixelZoom / 2);
+				offsetX -= lastNoteOffsetXForPixelAutoAdjusting;
+			}
 		}
 		else
 		{

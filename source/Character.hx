@@ -342,7 +342,7 @@ class Character extends FlxSprite
 				antialiasing = false;
 
 			case 'spirit':
-				frames = Paths.getSparrowAtlas('characters/spirit');
+				frames = Paths.getPackerAtlas('characters/spirit');
 
 				animation.addByPrefix('idle', "idle spirit_", 24, false);
 				animation.addByPrefix('singUP', "up_", 24, false);

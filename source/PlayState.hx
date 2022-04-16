@@ -125,8 +125,8 @@ class PlayState extends MusicBeatState
 	var santa:FlxSprite;
 
 	var bgGirls:BackgroundGirls;
-	var wiggleShit:WiggleEffect = new WiggleEffect();
 
+	// var wiggleShit:WiggleEffect = new WiggleEffect();
 	public var shits:Int = 0;
 	public var bads:Int = 0;
 	public var goods:Int = 0;
@@ -227,23 +227,23 @@ class PlayState extends MusicBeatState
 
 		switch (SONG.song.toLowerCase())
 		{
-			case 'tutorial':
-				dialogue = ["Hey you're pretty cute.", 'Use the arrow keys to keep up \nwith me singing.'];
-			case 'bopeebo':
-				dialogue = [
-					'HEY!',
-					"You think you can just sing\nwith my daughter like that?",
-					"If you want to date her...",
-					"You're going to have to go \nthrough ME first!"
-				];
-			case 'fresh':
-				dialogue = ["Not too shabby boy.", ""];
-			case 'dadbattle':
-				dialogue = [
-					"gah you think you're hot stuff?",
-					"If you can beat me here...",
-					"Only then I will even CONSIDER letting you\ndate my daughter!"
-				];
+			// case 'tutorial':
+			// 	dialogue = ["Hey you're pretty cute.", 'Use the arrow keys to keep up \nwith me singing.'];
+			// case 'bopeebo':
+			// 	dialogue = [
+			// 		'HEY!',
+			// 		"You think you can just sing\nwith my daughter like that?",
+			// 		"If you want to date her...",
+			// 		"You're going to have to go \nthrough ME first!"
+			// 	];
+			// case 'fresh':
+			// 	dialogue = ["Not too shabby boy.", ""];
+			// case 'dadbattle':
+			// 	dialogue = [
+			// 		"gah you think you're hot stuff?",
+			// 		"If you can beat me here...",
+			// 		"Only then I will even CONSIDER letting you\ndate my daughter!"
+			// 	];
 			case 'senpai':
 				dialogue = CoolUtil.coolTextFile(Paths.txt('senpai/senpaiDialogue'));
 			case 'roses':
@@ -535,9 +535,7 @@ class PlayState extends MusicBeatState
 					bgGirls.scrollFactor.set(0.9, 0.9);
 
 					if (SONG.song.toLowerCase() == 'roses')
-					{
 						bgGirls.getScared();
-					}
 
 					bgGirls.setGraphicSize(Std.int(bgGirls.width * daPixelZoom));
 					bgGirls.updateHitbox();
@@ -547,63 +545,13 @@ class PlayState extends MusicBeatState
 				{
 					curStage = 'schoolEvil';
 
-					var waveEffectBG = new FlxWaveEffect(FlxWaveMode.ALL, 2, -1, 3, 2);
-					var waveEffectFG = new FlxWaveEffect(FlxWaveMode.ALL, 2, -1, 5, 2);
-
-					var posX = 400;
-					var posY = 200;
-
-					var bg:FlxSprite = new FlxSprite(posX, posY);
+					var bg:FlxSprite = new FlxSprite(400, 200);
 					bg.frames = Paths.getSparrowAtlas('weeb/animatedEvilSchool');
 					bg.animation.addByPrefix('idle', 'background 2', 24);
 					bg.animation.play('idle');
 					bg.scrollFactor.set(0.8, 0.9);
 					bg.scale.set(6, 6);
 					add(bg);
-
-					/* 
-						var bg:FlxSprite = new FlxSprite(posX, posY).loadGraphic(Paths.image('weeb/evilSchoolBG'));
-						bg.scale.set(6, 6);
-						// bg.setGraphicSize(Std.int(bg.width * 6));
-						// bg.updateHitbox();
-						add(bg);
-
-						var fg:FlxSprite = new FlxSprite(posX, posY).loadGraphic(Paths.image('weeb/evilSchoolFG'));
-						fg.scale.set(6, 6);
-						// fg.setGraphicSize(Std.int(fg.width * 6));
-						// fg.updateHitbox();
-						add(fg);
-
-						wiggleShit.effectType = WiggleEffectType.DREAMY;
-						wiggleShit.waveAmplitude = 0.01;
-						wiggleShit.waveFrequency = 60;
-						wiggleShit.waveSpeed = 0.8;
-					 */
-
-					// bg.shader = wiggleShit.shader;
-					// fg.shader = wiggleShit.shader;
-
-					/* 
-						var waveSprite = new FlxEffectSprite(bg, [waveEffectBG]);
-						var waveSpriteFG = new FlxEffectSprite(fg, [waveEffectFG]);
-
-						// Using scale since setGraphicSize() doesnt work???
-						waveSprite.scale.set(6, 6);
-						waveSpriteFG.scale.set(6, 6);
-						waveSprite.setPosition(posX, posY);
-						waveSpriteFG.setPosition(posX, posY);
-
-						waveSprite.scrollFactor.set(0.7, 0.8);
-						waveSpriteFG.scrollFactor.set(0.9, 0.8);
-
-						// waveSprite.setGraphicSize(Std.int(waveSprite.width * 6));
-						// waveSprite.updateHitbox();
-						// waveSpriteFG.setGraphicSize(Std.int(fg.width * 6));
-						// waveSpriteFG.updateHitbox();
-
-						add(waveSprite);
-						add(waveSpriteFG);
-					 */
 				}
 			default:
 				{
@@ -636,7 +584,6 @@ class PlayState extends MusicBeatState
 
 		isPixelStage = curStage.startsWith('school');
 
-		// TODO: move this in the switch after unharcoding stages
 		if (isPixelStage)
 		{
 			GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pixel';
@@ -1757,17 +1704,16 @@ class PlayState extends MusicBeatState
 
 					if (strum.downScroll && daNote.isSustainNote)
 					{
-						if (daNote.animation.curAnim.name.endsWith('end'))
-						{
-							daNote.y += 10.5 * fakeCrochet / 400 * 1.5 * songSpeed + 46 * (songSpeed - 1);
-							daNote.y -= 46 * (1 - fakeCrochet / 600) * songSpeed;
-							if (PlayState.isPixelStage)
-								daNote.y += 8;
-							else
+						if (daNote.animation.curAnim.name.endsWith('end')) {
+							daNote.y += 10.5 * (fakeCrochet / 400) * 1.5 * songSpeed + (46 * (songSpeed - 1));
+							daNote.y -= 46 * (1 - (fakeCrochet / 600)) * songSpeed;
+							if(PlayState.isPixelStage)
+								daNote.y += 8 + (6 - daNote.originalHeightForCalcs) * PlayState.daPixelZoom;
+							 else
 								daNote.y -= 19;
-						}
-						daNote.y += Note.swagWidth / 2 - 60.5 * (songSpeed - 1);
-						daNote.y += 27.5 * (SONG.bpm / 100 - 1) * (songSpeed - 1);
+						} 
+						daNote.y += (Note.swagWidth / 2) - (60.5 * (songSpeed - 1));
+						daNote.y += 27.5 * ((SONG.bpm / 100) - 1) * (songSpeed - 1);
 					}
 				}
 
@@ -2665,7 +2611,7 @@ class PlayState extends MusicBeatState
 			FlxG.log.add('CHANGED BPM!');
 		}
 		// FlxG.log.add('change bpm' + SONG.notes[Std.int(curStep / 16)].changeBPM);
-		wiggleShit.update(Conductor.crochet);
+		// wiggleShit.update(Conductor.crochet);
 
 		// HARDCODING FOR MILF ZOOMS!
 		if (curSong.toLowerCase() == 'milf' && curBeat >= 168 && curBeat < 200 && camZooming && FlxG.camera.zoom < 1.35)
