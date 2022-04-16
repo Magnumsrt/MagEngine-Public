@@ -45,6 +45,7 @@
 
 	<!-- MAG ENGINE CUSTOMIZATION -->
 	<define name="MODS" if="desktop" />
+	<define name="SCRIPTS" if="desktop" />
 
 	<!-- <define name="PRELOAD_ALL" /> -->
 	<define name="PRELOAD_ALL" unless="web" />

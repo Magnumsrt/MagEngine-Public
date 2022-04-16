@@ -30,7 +30,7 @@ enum SettingType
 // my awesome oop take on haxe :O
 class MagPrefs
 {
-	static final settings:Map<String, Setting> = [
+	static final defaultSettings:Map<String, Setting> = [
 		// gampeplay settings
 		'ghostTapping' => {
 			type: Boolean,
@@ -100,6 +100,7 @@ class MagPrefs
 			value: true
 		}
 	];
+	static var settings:Map<String, Setting>;
 
 	// DON'T SET SOMETHING ON CUSTOMCONTROLS SINCE ITS AUTOMATICALLY USED BY KEYBINDS SHIT!!
 	public static var keyBinds:Map<String, Array<FlxKey>> = [
@@ -133,9 +134,9 @@ class MagPrefs
 			save.bind('settings', 'ninjamuffin99');
 		}
 
-		for (key => setting in settings)
-			if (key != 'customControls' && Reflect.getProperty(save.data, key) == null)
-				Reflect.setProperty(save.data, key, setting);
+		if (save.data.settings == null)
+			save.data.settings = defaultSettings;
+		settings = save.data.settings;
 
 		if (save.data.customControls != null)
 		{
@@ -178,13 +179,14 @@ class MagPrefs
 
 	public static function flush()
 	{
+		save.data.settings = settings;
 		save.data.customControls = keyBinds;
 		save.flush();
 	}
 
-	public static function getSetting(setting:String):Setting
+	public static function getSetting(setting:String)
 	{
-		return Reflect.getProperty(save.data, setting);
+		return settings.get(setting);
 	}
 
 	public static function setSetting(setting:String, value:Dynamic, ?type:SettingType, ?min:Float, ?max:Float)
@@ -194,7 +196,7 @@ class MagPrefs
 			type: Boolean,
 			value: value
 		};
-		var defaultSetting:Setting = settings.get(setting);
+		var defaultSetting:Setting = defaultSettings.get(setting);
 
 		if (type == null && defaultSetting != null)
 			leSetting.type = defaultSetting.type;
@@ -211,14 +213,14 @@ class MagPrefs
 		else if (defaultSetting != null && defaultSetting.max != null)
 			leSetting.max = defaultSetting.max;
 
-		Reflect.setProperty(save.data, setting, leSetting);
+		settings.set(setting, leSetting);
 	}
 
 	public static function resetSetting(setting:String)
 	{
-		var defaultSetting:Setting = settings.get(setting);
+		var defaultSetting:Setting = defaultSettings.get(setting);
 		if (defaultSetting != null)
-			Reflect.setProperty(save.data, setting, defaultSetting);
+			settings.set(setting, defaultSetting);
 	}
 
 	public static function setOption(setting:String, index:Int)
@@ -227,7 +229,7 @@ class MagPrefs
 		if (leSetting != null && leSetting.type == String && leSetting.options != null && leSetting.options[index] != null)
 		{
 			leSetting.curOption = index;
-			Reflect.setProperty(save.data, setting, leSetting);
+			settings.set(setting, leSetting);
 		}
 	}
 
@@ -239,7 +241,7 @@ class MagPrefs
 	public static function getMinValue(setting:String)
 	{
 		var leSetting:Setting = getSetting(setting);
-		var defaultSetting:Setting = settings.get(setting);
+		var defaultSetting:Setting = defaultSettings.get(setting);
 		if (leSetting != null && leSetting.min != null)
 			return leSetting.min;
 		else if (defaultSetting != null && defaultSetting.min != null)
@@ -251,7 +253,7 @@ class MagPrefs
 	public static function getMaxValue(setting:String)
 	{
 		var leSetting:Setting = getSetting(setting);
-		var defaultSetting:Setting = settings.get(setting);
+		var defaultSetting:Setting = defaultSettings.get(setting);
 		if (leSetting != null && leSetting.max != null)
 			return leSetting.max;
 		else if (defaultSetting != null && defaultSetting.max != null)
@@ -263,7 +265,7 @@ class MagPrefs
 	public static function getCurOption(setting:String)
 	{
 		var leSetting:Setting = getSetting(setting);
-		var defaultSetting:Setting = settings.get(setting);
+		var defaultSetting:Setting = defaultSettings.get(setting);
 		if (leSetting != null && leSetting.curOption != null)
 			return leSetting.curOption;
 		else if (defaultSetting != null && defaultSetting.curOption != null)
@@ -275,7 +277,7 @@ class MagPrefs
 	public static function getOptions(setting:String)
 	{
 		var leSetting:Setting = getSetting(setting);
-		var defaultSetting:Setting = settings.get(setting);
+		var defaultSetting:Setting = defaultSettings.get(setting);
 		if (leSetting != null && leSetting.options != null)
 			return leSetting.options;
 		else if (defaultSetting != null && defaultSetting.options != null)

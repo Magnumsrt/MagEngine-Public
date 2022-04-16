@@ -15,6 +15,7 @@ typedef SwagCharacter =
 	var image:String;
 	var healthbarColor:Array<Int>;
 	var cameraPosition:Array<Float>;
+	var singDuration:Float;
 	var scale:Float;
 	var flipX:Bool;
 	var flipY:Bool;
@@ -38,6 +39,8 @@ class Character extends FlxSprite
 
 	public var hasMissAnimations:Bool = false;
 	public var danceIdle:Bool = false;
+
+	public var singDuration:Float = 4;
 
 	public var barColor:FlxColor = FlxColor.BLACK;
 
@@ -129,6 +132,7 @@ class Character extends FlxSprite
 				animation.addByPrefix('singDOWN', 'Dad Sing Note DOWN', 24);
 				animation.addByPrefix('singLEFT', 'Dad Sing Note LEFT', 24);
 
+				singDuration = 6.1;
 				barColor = 0xFFaf66ce;
 
 			case 'spooky':
@@ -378,7 +382,7 @@ class Character extends FlxSprite
 				updateHitbox();
 
 				cameraPosition = parsedJson.cameraPosition;
-
+				singDuration = parsedJson.singDuration;
 				barColor = FlxColor.fromRGB(parsedJson.healthbarColor[0], parsedJson.healthbarColor[1], parsedJson.healthbarColor[2]);
 
 				if (Paths.fileExists(Paths.modFolder("images/characters/") + parsedJson.image + ".json", TEXT))
@@ -388,14 +392,9 @@ class Character extends FlxSprite
 					frames = Paths.getSparrowAtlas(parsedJson.image);
 					for (anim in parsedJson.animations)
 					{
-						var animAnim:String = '' + anim.anim;
-						var animName:String = '' + anim.name;
-						var animLoop:Bool = !!anim.loop;
 						if (anim.offsets != null && anim.offsets.length > 1)
-						{
 							addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
-						}
-						animation.addByPrefix(animAnim, animName, 24, animLoop);
+						animation.addByPrefix('' + anim.anim, '' + anim.name, 24, !!anim.loop);
 					}
 				}
 

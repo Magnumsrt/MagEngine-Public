@@ -138,7 +138,7 @@ class Paths
 		return '$library:assets/$library/$file';
 	}
 
-	inline static function getPreloadPath(file:String)
+	inline static public function getPreloadPath(file:String)
 	{
 		return 'assets/$file';
 	}
@@ -161,6 +161,11 @@ class Paths
 	inline static public function json(key:String, ?library:String)
 	{
 		return getPath('data/$key.json', TEXT, library);
+	}
+
+	inline static public function hscript(key:String, ?library:String)
+	{
+		return getPath('$key.hscript', TEXT, library);
 	}
 
 	static public function sound(key:String, ?library:String):Sound

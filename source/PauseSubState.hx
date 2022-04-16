@@ -1,12 +1,8 @@
 package;
 
-import Controls.Control;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.FlxSubState;
-import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.input.keyboard.FlxKey;
 import flixel.system.FlxSound;
 import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
@@ -17,10 +13,12 @@ class PauseSubState extends MusicBeatSubstate
 {
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
-	var menuItems:Array<String> = ['Resume', 'Restart Song', 'Exit to menu'];
+	var menuItems:Array<String> = ['Resume', 'Restart Song', 'Toggle Botplay', 'Exit to menu'];
 	var curSelected:Int = 0;
 
 	var pauseMusic:FlxSound;
+
+	var levelBotplay:FlxText;
 
 	public function new(x:Float, y:Float)
 	{
@@ -37,29 +35,42 @@ class PauseSubState extends MusicBeatSubstate
 		bg.scrollFactor.set();
 		add(bg);
 
-		var levelInfo:FlxText = new FlxText(20, 15, 0, "", 32);
+		var levelInfo:FlxText = new FlxText(0, 15, 0, "", 32);
 		levelInfo.text += PlayState.SONG.song;
 		levelInfo.scrollFactor.set();
 		levelInfo.setFormat(Paths.font("vcr.ttf"), 32);
 		levelInfo.updateHitbox();
 		add(levelInfo);
 
-		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, "", 32);
+		var levelDifficulty:FlxText = new FlxText(20, levelInfo.y + 32, 0, "", 32);
 		levelDifficulty.text += CoolUtil.difficultyString();
 		levelDifficulty.scrollFactor.set();
-		levelDifficulty.setFormat(Paths.font('vcr.ttf'), 32);
+		levelDifficulty.font = levelInfo.font;
 		levelDifficulty.updateHitbox();
 		add(levelDifficulty);
 
+		levelBotplay = new FlxText(0, 0, 0, "", 32);
+		levelBotplay.text += CoolUtil.difficultyString();
+		levelBotplay.scrollFactor.set();
+		levelBotplay.visible = PlayState.cpuControlled;
+		levelBotplay.font = levelInfo.font;
+		levelBotplay.updateHitbox();
+		add(levelBotplay);
+
 		levelDifficulty.alpha = 0;
 		levelInfo.alpha = 0;
+		levelBotplay.alpha = 0;
 
-		levelInfo.x = FlxG.width - (levelInfo.width + 20);
-		levelDifficulty.x = FlxG.width - (levelDifficulty.width + 20);
+		levelInfo.x = FlxG.width - (levelInfo.width + 15);
+		levelDifficulty.x = FlxG.width - (levelDifficulty.width + 15);
+
+		levelBotplay.x = FlxG.width - (levelBotplay.width + 15);
+		levelBotplay.y = FlxG.height - (levelBotplay.height + 15);
 
 		FlxTween.tween(bg, {alpha: 0.6}, 0.4, {ease: FlxEase.quartInOut});
 		FlxTween.tween(levelInfo, {alpha: 1, y: 20}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.3});
 		FlxTween.tween(levelDifficulty, {alpha: 1, y: levelDifficulty.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
+		FlxTween.tween(levelBotplay, {alpha: 1, y: levelBotplay.y + 5}, 0.4, {ease: FlxEase.quartInOut, startDelay: 0.5});
 
 		grpMenuShit = new FlxTypedGroup<Alphabet>();
 		add(grpMenuShit);
@@ -84,20 +95,18 @@ class PauseSubState extends MusicBeatSubstate
 
 		super.update(elapsed);
 
-		var upP = controls.UI_UP_P;
-		var downP = controls.UI_DOWN_P;
-		var accepted = controls.ACCEPT;
-
-		if (upP)
+		if (controls.UI_UP_P)
 		{
+			FlxG.sound.play(Paths.sound('scrollMenu'));
 			changeSelection(-1);
 		}
-		if (downP)
+		if (controls.UI_DOWN_P)
 		{
+			FlxG.sound.play(Paths.sound('scrollMenu'));
 			changeSelection(1);
 		}
 
-		if (accepted)
+		if (controls.ACCEPT)
 		{
 			var daSelected:String = menuItems[curSelected];
 
@@ -107,12 +116,16 @@ class PauseSubState extends MusicBeatSubstate
 					close();
 				case "Restart Song":
 					MusicBeatState.resetState();
+				case "Toggle Botplay":
+					FlxG.sound.play(Paths.sound('scrollMenu'));
+					PlayState.cpuControlled = !PlayState.cpuControlled;
+					levelBotplay.visible = PlayState.cpuControlled;
 				case "Exit to menu":
-					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 					if (PlayState.isStoryMode)
 						MusicBeatState.switchState(new StoryMenuState());
 					else
 						MusicBeatState.switchState(new FreeplayState());
+					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			}
 		}
 
