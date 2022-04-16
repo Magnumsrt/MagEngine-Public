@@ -1,0 +1,2 @@
+Mag Engine uses hscript to handle scripting, not lua.
+You can get a basic gist of what hscript is, here: https://lib.haxe.org/p/hscript/
