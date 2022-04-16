@@ -60,7 +60,7 @@ class TitleState extends MusicBeatState
 			FlxG.save.bind('funkin', 'ninjamuffin99');
 
 			#if MODS
-			PolymodHandler.init();
+			PolymodHandler.loadMods();
 			#end
 
 			Highscore.load();

@@ -13,6 +13,7 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	var camFollow:FlxPoint;
 	var camFollowPos:FlxObject;
+
 	var updateCamera:Bool = false;
 	var isFollowingAlready:Bool = false;
 

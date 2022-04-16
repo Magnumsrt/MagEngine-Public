@@ -5,26 +5,25 @@ import polymod.Polymod;
 
 class PolymodHandler
 {
-	static var metadataArrays:Array<String> = [];
+	public static var metadataArrays:Array<String> = [];
 
-	public static function init()
+	public static function loadMods()
 	{
-		ModList.load();
 		loadModMetadata();
 		Polymod.init({
-			modRoot: "mods/",
+			modRoot: 'mods/',
 			dirs: ModList.getActiveMods(metadataArrays),
 			errorCallback: onError,
 			frameworkParams: {
 				assetLibraryPaths: [
-					"shared" => "shared",
-					"songs" => "songs",
-					"fonts" => "fonts",
-					"week2" => "week2",
-					"week3" => "week3",
-					"week4" => "week4",
-					"week5" => "week5",
-					"week6" => "week6"
+					'shared' => 'shared',
+					'songs' => 'songs',
+					'fonts' => 'fonts',
+					'week2' => 'week2',
+					'week3' => 'week3',
+					'week4' => 'week4',
+					'week5' => 'week5',
+					'week6' => 'week6'
 				]
 			}
 		});
@@ -33,10 +32,9 @@ class PolymodHandler
 	public static function loadModMetadata()
 	{
 		metadataArrays = [];
-		var tempArray = Polymod.scan("mods/", "*.*.*", onError);
+		var tempArray:Array<ModMetadata> = Polymod.scan('mods/', '*.*.*', onError);
 		for (metadata in tempArray)
 		{
-			trace("found mod: " + metadata.id);
 			metadataArrays.push(metadata.id);
 			ModList.modMetadatas.set(metadata.id, metadata);
 		}

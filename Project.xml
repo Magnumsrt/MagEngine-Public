@@ -43,12 +43,6 @@
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web" />
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web" />
 
-	<!-- POLYMOD CUSTOMIZATION -->
-	<haxedef name="POLYMOD_SCRIPT_EXT" value=".hscript" />
-	<haxedef name="POLYMOD_MOD_METADATA_FILE" value="meta.json" />
-	<haxedef name="POLYMOD_MOD_ICON_FILE" value="meta.png" />
-	<haxedef name="POLYMOD_MOD_PACK_FILE" value="pack.json" />
-
 	<!-- MAG ENGINE CUSTOMIZATION -->
 	<define name="MODS" if="desktop" />
 
