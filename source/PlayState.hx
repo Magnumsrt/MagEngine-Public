@@ -177,7 +177,11 @@ class PlayState extends MusicBeatState
 
 		#if SCRIPTS
 		var filesInserted:Array<String> = [];
-		var folders:Array<String> = [#if MODS Paths.modFolder('scripts/') #end, Paths.getPreloadPath('scripts/')];
+		var folders:Array<String> = [
+			#if MODS Paths.modFolder('scripts/') #end,
+			Paths.getPreloadPath('scripts/'),
+			Paths.getPreloadPath('data/' + Paths.formatToSongPath(SONG.song) + '/')
+		];
 		for (folder in folders)
 		{
 			if (FileSystem.exists(folder))
@@ -192,7 +196,6 @@ class PlayState extends MusicBeatState
 				}
 			}
 		}
-		callScripts('create');
 		#end
 
 		keysArray = [
@@ -225,7 +228,9 @@ class PlayState extends MusicBeatState
 		Conductor.mapBPMChanges(SONG);
 		Conductor.changeBPM(SONG.bpm);
 
-		switch (SONG.song.toLowerCase())
+		var songName:String = Paths.formatToSongPath(SONG.song);
+
+		switch (songName)
 		{
 			// case 'tutorial':
 			// 	dialogue = ["Hey you're pretty cute.", 'Use the arrow keys to keep up \nwith me singing.'];
@@ -238,7 +243,7 @@ class PlayState extends MusicBeatState
 			// 	];
 			// case 'fresh':
 			// 	dialogue = ["Not too shabby boy.", ""];
-			// case 'dadbattle':
+			// case 'dad-battle':
 			// 	dialogue = [
 			// 		"gah you think you're hot stuff?",
 			// 		"If you can beat me here...",
@@ -292,11 +297,36 @@ class PlayState extends MusicBeatState
 
 		GameOverSubstate.resetVariables();
 
-		switch (SONG.song.toLowerCase())
+		if (PlayState.SONG.stage == null || PlayState.SONG.stage.length < 1)
 		{
-			case 'spookeez' | 'monster' | 'south':
-				{
+			switch (songName)
+			{
+				case 'spookeez' | 'south' | 'monster':
 					curStage = 'spooky';
+				case 'pico' | 'blammed' | 'philly-nice':
+					curStage = 'philly';
+				case 'milf' | 'satin-panties' | 'high':
+					curStage = 'limo';
+				case 'cocoa' | 'eggnog':
+					curStage = 'mall';
+				case 'winter-horrorland':
+					curStage = 'mallEvil';
+				case 'senpai' | 'roses':
+					curStage = 'school';
+				case 'thorns':
+					curStage = 'schoolEvil';
+				default:
+					curStage = 'stage';
+			}
+			PlayState.SONG.stage = curStage;
+		}
+		else
+			curStage = PlayState.SONG.stage;
+
+		switch (curStage)
+		{
+			case 'spooky':
+				{
 					halloweenLevel = true;
 
 					var hallowTex = Paths.getSparrowAtlas('halloween_bg');
@@ -311,10 +341,8 @@ class PlayState extends MusicBeatState
 
 					isHalloween = true;
 				}
-			case 'pico' | 'blammed' | 'philly':
+			case 'philly':
 				{
-					curStage = 'philly';
-
 					var bg:FlxSprite = new FlxSprite(-100).loadGraphic(Paths.image('philly/sky'));
 					bg.scrollFactor.set(0.1, 0.1);
 					add(bg);
@@ -353,9 +381,8 @@ class PlayState extends MusicBeatState
 					var street:FlxSprite = new FlxSprite(-40, streetBehind.y).loadGraphic(Paths.image('philly/street'));
 					add(street);
 				}
-			case 'milf' | 'satin-panties' | 'high':
+			case 'limo':
 				{
-					curStage = 'limo';
 					defaultCamZoom = 0.90;
 
 					var skyBG:FlxSprite = new FlxSprite(-120, -50).loadGraphic(Paths.image('limo/limoSunset'));
@@ -400,10 +427,8 @@ class PlayState extends MusicBeatState
 					fastCar = new FlxSprite(-300, 160).loadGraphic(Paths.image('limo/fastCarLol'));
 					// add(limo);
 				}
-			case 'cocoa' | 'eggnog':
+			case 'mall':
 				{
-					curStage = 'mall';
-
 					defaultCamZoom = 0.80;
 
 					var bg:FlxSprite = new FlxSprite(-1000, -500).loadGraphic(Paths.image('christmas/bgWalls'));
@@ -456,9 +481,8 @@ class PlayState extends MusicBeatState
 					santa.antialiasing = true;
 					add(santa);
 				}
-			case 'winter-horrorland':
+			case 'mallEvil':
 				{
-					curStage = 'mallEvil';
 					var bg:FlxSprite = new FlxSprite(-400, -500).loadGraphic(Paths.image('christmas/evilBG'));
 					bg.antialiasing = true;
 					bg.scrollFactor.set(0.2, 0.2);
@@ -476,10 +500,8 @@ class PlayState extends MusicBeatState
 					evilSnow.antialiasing = true;
 					add(evilSnow);
 				}
-			case 'senpai' | 'roses':
+			case 'school':
 				{
-					curStage = 'school';
-
 					// defaultCamZoom = 0.9;
 
 					var bgSky = new FlxSprite().loadGraphic(Paths.image('weeb/weebSky'));
@@ -534,17 +556,15 @@ class PlayState extends MusicBeatState
 					bgGirls = new BackgroundGirls(-100, 190);
 					bgGirls.scrollFactor.set(0.9, 0.9);
 
-					if (SONG.song.toLowerCase() == 'roses')
+					if (songName == 'roses')
 						bgGirls.getScared();
 
 					bgGirls.setGraphicSize(Std.int(bgGirls.width * daPixelZoom));
 					bgGirls.updateHitbox();
 					add(bgGirls);
 				}
-			case 'thorns':
+			case 'schoolEvil':
 				{
-					curStage = 'schoolEvil';
-
 					var bg:FlxSprite = new FlxSprite(400, 200);
 					bg.frames = Paths.getSparrowAtlas('weeb/animatedEvilSchool');
 					bg.animation.addByPrefix('idle', 'background 2', 24);
@@ -553,7 +573,7 @@ class PlayState extends MusicBeatState
 					bg.scale.set(6, 6);
 					add(bg);
 				}
-			default:
+			case 'stage':
 				{
 					defaultCamZoom = 0.9;
 					curStage = 'stage';
@@ -592,11 +612,8 @@ class PlayState extends MusicBeatState
 			GameOverSubstate.characterName = 'bf-pixel-dead';
 		}
 
-		var gfVersion:String = 'gf';
-
-		if (isPixelStage)
-			gfVersion = 'gf-pixel';
-		else
+		var gfVersion:String = SONG.gfVersion;
+		if (gfVersion == null || gfVersion.length < 1)
 		{
 			switch (curStage)
 			{
@@ -604,11 +621,13 @@ class PlayState extends MusicBeatState
 					gfVersion = 'gf-car';
 				case 'mall' | 'mallEvil':
 					gfVersion = 'gf-christmas';
+				case 'school' | 'schoolEvil':
+					gfVersion = 'gf-pixel';
+				default:
+					gfVersion = 'gf';
 			}
+			SONG.gfVersion = gfVersion;
 		}
-
-		if (curStage == 'limo')
-			gfVersion = 'gf-car';
 
 		gf = new Character(400, 130, gfVersion);
 		gf.scrollFactor.set(0.95, 0.95);
@@ -904,11 +923,12 @@ class PlayState extends MusicBeatState
 		senpaiEvil.updateHitbox();
 		senpaiEvil.screenCenter();
 
-		if (SONG.song.toLowerCase() == 'roses' || SONG.song.toLowerCase() == 'thorns')
+		var songName:String = Paths.formatToSongPath(SONG.song);
+		if (songName == 'roses' || songName == 'thorns')
 		{
 			remove(black);
 
-			if (SONG.song.toLowerCase() == 'thorns')
+			if (songName == 'thorns')
 			{
 				camHUD.visible = false;
 				add(red);
@@ -929,7 +949,7 @@ class PlayState extends MusicBeatState
 				{
 					inCutscene = true;
 
-					if (SONG.song.toLowerCase() == 'thorns')
+					if (songName == 'thorns')
 					{
 						add(senpaiEvil);
 						senpaiEvil.alpha = 0;
@@ -1393,7 +1413,7 @@ class PlayState extends MusicBeatState
 			var char:String = 'boyfriend';
 			if (!SONG.notes[id].mustHitSection)
 			{
-				if (SONG.song.toLowerCase() == 'tutorial')
+				if (dad.curCharacter == 'gf')
 					char = 'gf';
 				else
 					char = 'dad';
@@ -1924,7 +1944,6 @@ class PlayState extends MusicBeatState
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
 					cancelMusicFadeTween();
-					cpuControlled = false;
 					if (FlxTransitionableState.skipNextTransIn)
 						CustomFadeTransition.nextCamera = null;
 					MusicBeatState.switchState(new StoryMenuState());
@@ -1937,6 +1956,8 @@ class PlayState extends MusicBeatState
 
 					FlxG.save.data.weekUnlocked = StoryMenuState.weekUnlocked;
 					FlxG.save.flush();
+
+					cpuControlled = false;
 				}
 				else
 				{
@@ -1979,11 +2000,11 @@ class PlayState extends MusicBeatState
 			{
 				trace('WENT BACK TO FREEPLAY??');
 				cancelMusicFadeTween();
-				cpuControlled = false;
 				if (FlxTransitionableState.skipNextTransIn)
 					CustomFadeTransition.nextCamera = null;
 				MusicBeatState.switchState(new FreeplayState());
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
+				cpuControlled = false;
 			}
 			transitioning = true;
 		}

@@ -326,7 +326,8 @@ class OptionsMenuState extends MusicBeatState
 
 	function onChangeFramerate()
 	{
-		Main.setFramerate(MagPrefs.getValue('framerate'));
+		FlxG.updateFramerate = MagPrefs.getValue('framerate');
+		// Main.setFramerate(MagPrefs.getValue('framerate'));
 	}
 
 	function getSectionX(index:Int)

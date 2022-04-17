@@ -126,6 +126,7 @@ class PauseSubState extends MusicBeatSubstate
 					else
 						MusicBeatState.switchState(new FreeplayState());
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
+					PlayState.cpuControlled = false;
 			}
 		}
 

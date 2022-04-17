@@ -138,7 +138,7 @@ class Paths
 		return '$library:assets/$library/$file';
 	}
 
-	inline static public function getPreloadPath(file:String)
+	inline public static function getPreloadPath(file:String = '')
 	{
 		return 'assets/$file';
 	}
@@ -262,6 +262,11 @@ class Paths
 		#else
 		return key;
 		#end
+	}
+
+	inline static public function formatToSongPath(path:String)
+	{
+		return path.toLowerCase().replace(' ', '-');
 	}
 
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];

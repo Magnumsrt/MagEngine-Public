@@ -51,7 +51,7 @@ class ChartingState extends MusicBeatState
 	var bpmTxt:FlxText;
 
 	var strumLine:FlxSprite;
-	var curSong:String = 'Dadbattle';
+	var curSong:String = 'dad-battle';
 	var amountSteps:Int = 0;
 	var bullshitUI:FlxGroup;
 
@@ -119,6 +119,9 @@ class ChartingState extends MusicBeatState
 				needsVoices: true,
 				player1: 'bf',
 				player2: 'dad',
+				player3: null,
+				gfVersion: 'gf',
+				stage: 'stage',
 				speed: 1,
 				validScore: false
 			};
@@ -223,6 +226,19 @@ class ChartingState extends MusicBeatState
 		stepperBPM.name = 'song_bpm';
 
 		var characters:Array<String> = CoolUtil.coolTextFile(Paths.txt('characterList'));
+		var stages:Array<String> = CoolUtil.coolTextFile(Paths.txt('stageList'));
+
+		var gfVersionDropDown = new FlxUIDropDownMenu(10, 150, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
+		{
+			_song.gfVersion = characters[Std.parseInt(character)];
+		});
+		gfVersionDropDown.selectedLabel = _song.gfVersion;
+
+		var stageDropDown = new FlxUIDropDownMenu(140, 150, FlxUIDropDownMenu.makeStrIdLabelArray(stages, true), function(character:String)
+		{
+			_song.stage = stages[Std.parseInt(character)];
+		});
+		stageDropDown.selectedLabel = _song.stage;
 
 		var player1DropDown = new FlxUIDropDownMenu(10, 100, FlxUIDropDownMenu.makeStrIdLabelArray(characters, true), function(character:String)
 		{
@@ -234,7 +250,6 @@ class ChartingState extends MusicBeatState
 		{
 			_song.player2 = characters[Std.parseInt(character)];
 		});
-
 		player2DropDown.selectedLabel = _song.player2;
 
 		var tab_group_song = new FlxUI(null, UI_box);
@@ -251,6 +266,8 @@ class ChartingState extends MusicBeatState
 		tab_group_song.add(stepperSpeed);
 		tab_group_song.add(player1DropDown);
 		tab_group_song.add(player2DropDown);
+		tab_group_song.add(gfVersionDropDown);
+		tab_group_song.add(stageDropDown);
 
 		UI_box.addGroup(tab_group_song);
 		UI_box.scrollFactor.set();

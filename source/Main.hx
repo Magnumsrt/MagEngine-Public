@@ -77,7 +77,8 @@ class Main extends Sprite
 		MagPrefs.load();
 
 		#if !html5
-		setFramerate(MagPrefs.getValue('framerate'));
+		// setFramerate(MagPrefs.getValue('framerate'));
+		FlxG.updateFramerate = MagPrefs.getValue('framerate');
 		#end
 
 		#if !mobile
@@ -89,19 +90,19 @@ class Main extends Sprite
 		FlxG.mouse.visible = false;
 	}
 
-	public static function setFramerate(input:Int)
-	{
-		if (input > FlxG.drawFramerate)
-		{
-			FlxG.updateFramerate = input;
-			FlxG.drawFramerate = input;
-		}
-		else
-		{
-			FlxG.drawFramerate = input;
-			FlxG.updateFramerate = input;
-		}
-	}
+	// public static function setFramerate(input:Int)
+	// {
+	// 	if (input > FlxG.drawFramerate)
+	// 	{
+	// 		FlxG.updateFramerate = input;
+	// 		FlxG.drawFramerate = input;
+	// 	}
+	// 	else
+	// 	{
+	// 		FlxG.drawFramerate = input;
+	// 		FlxG.updateFramerate = input;
+	// 	}
+	// }
 
 	public static function setFPSDisplay()
 	{
