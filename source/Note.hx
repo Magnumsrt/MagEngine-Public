@@ -119,7 +119,10 @@ class Note extends FlxSprite
 
 			offsetX -= width / 2;
 			if (PlayState.isPixelStage)
+			{
 				offsetX += 30;
+				offsetY += 5;
+			}
 
 			if (prevNote.isSustainNote)
 			{
@@ -140,10 +143,16 @@ class Note extends FlxSprite
 				if (PlayState.isPixelStage)
 				{
 					prevNote.scale.y *= 1.19;
-					prevNote.scale.y *= (6 / height);
+					prevNote.scale.y *= 6 / height;
 				}
 				prevNote.updateHitbox();
 				// prevNote.setGraphicSize();
+			}
+
+			if (PlayState.isPixelStage)
+			{
+				scale.y *= PlayState.daPixelZoom;
+				updateHitbox();
 			}
 		}
 		else if (!isSustainNote)
@@ -168,6 +177,7 @@ class Note extends FlxSprite
 		if (animation.curAnim != null)
 			lastAnim = animation.curAnim.name;
 
+		var lastScaleY:Float = scale.y;
 		if (PlayState.isPixelStage)
 		{
 			if (isSustainNote)
@@ -200,17 +210,14 @@ class Note extends FlxSprite
 		}
 		else
 		{
-			var lastScaleY:Float = scale.y;
-
 			frames = Paths.getSparrowAtlas(boringPath);
 			loadAnims();
 
 			setGraphicSize(Std.int(width * 0.7));
 			antialiasing = true;
-
-			if (isSustainNote)
-				scale.y = lastScaleY;
 		}
+		if (isSustainNote)
+			scale.y = lastScaleY;
 		updateHitbox();
 
 		if (lastAnim != null)
@@ -287,10 +294,7 @@ class Note extends FlxSprite
 			}
 		}
 
-		if (tooLate)
-		{
-			if (alpha > 0.3)
-				alpha = 0.3;
-		}
+		if (tooLate && alpha > 0.3)
+			alpha = 0.3;
 	}
 }

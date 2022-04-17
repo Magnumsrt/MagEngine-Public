@@ -766,7 +766,7 @@ class PlayState extends MusicBeatState
 		healthBar = new FlxBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this,
 			'health', 0, 2);
 		healthBar.scrollFactor.set();
-		healthBar.createFilledBar(0xFFFF0000, 0xFF66FF33);
+		reloadHealthBarColors();
 		add(healthBar);
 
 		iconP1 = new HealthIcon(SONG.player1, true);
@@ -879,6 +879,12 @@ class PlayState extends MusicBeatState
 		}
 
 		CustomFadeTransition.nextCamera = camHUD;
+	}
+
+	public function reloadHealthBarColors()
+	{
+		healthBar.createFilledBar(dad.barColor, boyfriend.barColor);
+		healthBar.updateBar();
 	}
 
 	function schoolIntro(?dialogueBox:DialogueBox):Void
@@ -1704,14 +1710,15 @@ class PlayState extends MusicBeatState
 
 					if (strum.downScroll && daNote.isSustainNote)
 					{
-						if (daNote.animation.curAnim.name.endsWith('end')) {
+						if (daNote.animation.curAnim.name.endsWith('end'))
+						{
 							daNote.y += 10.5 * (fakeCrochet / 400) * 1.5 * songSpeed + (46 * (songSpeed - 1));
 							daNote.y -= 46 * (1 - (fakeCrochet / 600)) * songSpeed;
-							if(PlayState.isPixelStage)
+							if (PlayState.isPixelStage)
 								daNote.y += 8 + (6 - daNote.originalHeightForCalcs) * PlayState.daPixelZoom;
-							 else
+							else
 								daNote.y -= 19;
-						} 
+						}
 						daNote.y += (Note.swagWidth / 2) - (60.5 * (songSpeed - 1));
 						daNote.y += 27.5 * ((SONG.bpm / 100) - 1) * (songSpeed - 1);
 					}
