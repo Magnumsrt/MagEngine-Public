@@ -186,7 +186,7 @@ class PlayState extends MusicBeatState
 				{
 					if (file.endsWith('.hx') && !filesInserted.contains(file))
 					{
-						scripts.push(new Script(Paths.modFolder('scripts/' + file)));
+						scripts.push(new Script(Path.join([folder, file])));
 						filesInserted.push(file);
 					}
 				}
