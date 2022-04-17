@@ -1,5 +1,6 @@
 package;
 
+import flixel.graphics.FlxGraphic;
 import flixel.FlxG;
 import flixel.FlxSprite;
 
@@ -50,10 +51,11 @@ class StrumNote extends FlxSprite
 
 		if (PlayState.isPixelStage)
 		{
-			loadGraphic(Paths.image('pixelUI/' + boringPath));
+			var file:FlxGraphic = Paths.image('pixelUI/' + boringPath);
+			loadGraphic(file);
 			width = width / 4;
 			height = height / 5;
-			loadGraphic(Paths.image('pixelUI/' + boringPath), true, Math.floor(width), Math.floor(height));
+			loadGraphic(file, true, Math.floor(width), Math.floor(height));
 
 			animation.add('green', [6]);
 			animation.add('red', [7]);

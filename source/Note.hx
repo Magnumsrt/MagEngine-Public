@@ -1,5 +1,6 @@
 package;
 
+import flixel.graphics.FlxGraphic;
 import flixel.FlxSprite;
 
 using StringTools;
@@ -177,20 +178,23 @@ class Note extends FlxSprite
 		var lastScaleY:Float = scale.y;
 		if (PlayState.isPixelStage)
 		{
+			var file:FlxGraphic = null;
 			if (isSustainNote)
 			{
-				loadGraphic(Paths.image('pixelUI/' + boringPath + 'ENDS'));
+				file = Paths.image('pixelUI/' + boringPath + 'ENDS');
+				loadGraphic(file);
 				width = width / 4;
 				height = height / 2;
 				originalHeightForCalcs = height;
-				loadGraphic(Paths.image('pixelUI/' + boringPath + 'ENDS'), true, Math.floor(width), Math.floor(height));
+				loadGraphic(file, true, Math.floor(width), Math.floor(height));
 			}
 			else
 			{
-				loadGraphic(Paths.image('pixelUI/' + boringPath));
+				file = Paths.image('pixelUI/' + boringPath);
+				loadGraphic(file);
 				width = width / 4;
 				height = height / 5;
-				loadGraphic(Paths.image('pixelUI/' + boringPath), true, Math.floor(width), Math.floor(height));
+				loadGraphic(file, true, Math.floor(width), Math.floor(height));
 			}
 
 			loadPixelAnims();

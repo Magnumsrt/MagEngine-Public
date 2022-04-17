@@ -96,17 +96,8 @@ class Paths
 		currentLevel = name.toLowerCase();
 	}
 
-	public static function getPath(file:String, type:AssetType, ?library:Null<String> = null, ?ignoreMods:Bool = false)
+	public static function getPath(file:String, type:AssetType, ?library:Null<String> = null)
 	{
-		#if MODS
-		if (!ignoreMods)
-		{
-			var modPath:String = modFolder(file);
-			if (fileExists(modPath, type, false, library))
-				return modPath;
-		}
-		#end
-
 		if (library != null)
 			return getLibraryPath(file, library);
 
@@ -223,13 +214,10 @@ class Paths
 
 	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String)
 	{
-		#if MODS
 		if (FileSystem.exists(mods(key)) || FileSystem.exists(mods(key)))
 			return true;
-		#else
 		if (OpenFlAssets.exists(Paths.getPath(key, type, library)))
 			return true;
-		#end
 		return false;
 	}
 

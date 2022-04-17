@@ -178,9 +178,9 @@ class PlayState extends MusicBeatState
 		#if SCRIPTS
 		var filesInserted:Array<String> = [];
 		var folders:Array<String> = [
-			#if MODS Paths.modFolder('scripts/') #end,
-			Paths.getPreloadPath('scripts/'),
-			Paths.getPreloadPath('data/' + Paths.formatToSongPath(SONG.song) + '/')
+			#if MODS Paths.modFolder('scripts') #end,
+			Paths.getPreloadPath('scripts'),
+			Paths.getPreloadPath('data/' + Paths.formatToSongPath(SONG.song))
 		];
 		for (folder in folders)
 		{
@@ -284,7 +284,7 @@ class PlayState extends MusicBeatState
 
 		// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
 		if (isStoryMode)
-			detailsText = "Story Mode: Week " + storyWeek;
+			detailsText = "Story Mode: " + Week.getCurrentWeek().weekName;
 		else
 			detailsText = "Freeplay";
 
@@ -1949,12 +1949,12 @@ class PlayState extends MusicBeatState
 					MusicBeatState.switchState(new StoryMenuState());
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
-					StoryMenuState.weekUnlocked[Std.int(Math.min(storyWeek + 1, StoryMenuState.weekUnlocked.length - 1))] = true;
+					// StoryMenuState.weekUnlocked[Std.int(Math.min(storyWeek + 1, StoryMenuState.weekUnlocked.length - 1))] = true;
 
 					if (SONG.validScore)
-						Highscore.saveWeekScore(storyWeek, campaignScore, storyDifficulty);
+						Highscore.saveWeekScore(Week.getCurrentWeek().weekName, campaignScore, storyDifficulty);
 
-					FlxG.save.data.weekUnlocked = StoryMenuState.weekUnlocked;
+					FlxG.save.data.weekCompleted = StoryMenuState.weekCompleted;
 					FlxG.save.flush();
 
 					cpuControlled = false;
