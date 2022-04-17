@@ -26,7 +26,9 @@ class Week
 
 	public static function loadWeeks()
 	{
+		weeksList = [];
 		loadedWeeks.clear();
+
 		weeksList = CoolUtil.coolTextFile(Paths.txt('weekList'));
 
 		#if MODS
