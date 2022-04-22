@@ -30,7 +30,7 @@ class Paths
 
 	public static var dumpExclusions:Array<String> = ['assets/music/freakyMenu.$SOUND_EXT', 'assets/shared/music/breakfast.$SOUND_EXT'];
 
-	// cache system from psych so the game is not more bloated i think
+	// cache system from psych so the game is less bloated
 	/// haya I love you for the base cache dump I took to the max
 	public static function clearUnusedMemory()
 	{
@@ -79,7 +79,6 @@ class Paths
 		{
 			if (!localTrackedAssets.contains(key) && !dumpExclusions.contains(key) && key != null)
 			{
-				// trace('test: ' + dumpExclusions, key);
 				Assets.cache.clear(key);
 				currentTrackedSounds.remove(key);
 			}
@@ -267,6 +266,7 @@ class Paths
 			if (!currentTrackedAssets.exists(path))
 			{
 				var newGraphic:FlxGraphic = FlxG.bitmap.add(path, false, path);
+                                newGraphic.persist = true;
 				currentTrackedAssets.set(path, newGraphic);
 			}
 			localTrackedAssets.push(path);
