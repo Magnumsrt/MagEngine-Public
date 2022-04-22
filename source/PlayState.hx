@@ -91,7 +91,7 @@ class PlayState extends MusicBeatState
 	public var healthBarBG:FlxSprite;
 	public var healthBar:FlxBar;
 
-	// Gameplay settings
+	// gameplay shit (i will hack you soon)
 	public var healthGain:Float = 1;
 	public var healthLoss:Float = 1;
 
@@ -165,7 +165,7 @@ class PlayState extends MusicBeatState
 
 	private var scripts:Array<Script> = [];
 
-	private var keysArray:Array<Dynamic>;
+	private var keysArray:Array<Array<FlxKey>>;
 
 	private var keyPressByController:Bool = false;
 
