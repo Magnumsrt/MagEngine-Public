@@ -10,7 +10,6 @@ typedef SwagWeek =
 {
 	var songs:Array<Array<Dynamic>>;
 	var weekCharacters:Array<String>;
-
 	var storyName:String;
 	var weekBefore:String;
 	var weekName:String;
@@ -21,6 +20,7 @@ typedef SwagWeek =
 
 class Week
 {
+	public static var currentDirectory:String;
 	public static var loadedWeeks:Map<String, SwagWeek> = [];
 	public static var weeksList:Array<String> = [];
 
@@ -58,6 +58,13 @@ class Week
 	public static function getCurrentWeek()
 	{
 		return loadedWeeks.get(getWeekFileName());
+	}
+
+	public static function setNextDirectory(week:Int)
+	{
+		LoadingState.nextDirectory = null;
+		if (weeksList[week] != null)
+			LoadingState.nextDirectory = weeksList[week];
 	}
 
 	public static function loadFromJson(week:String):SwagWeek

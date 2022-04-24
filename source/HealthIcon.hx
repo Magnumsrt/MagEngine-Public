@@ -9,8 +9,6 @@ class HealthIcon extends AttachedSprite
 	private var char:String = '';
 	private var isPlayer:Bool = false;
 
-	private var iconOffsets:Array<Float> = [0, 0];
-
 	public function new(char:String = 'bf', isPlayer:Bool = false)
 	{
 		super();
@@ -30,22 +28,13 @@ class HealthIcon extends AttachedSprite
 
 			loadGraphic(file);
 			loadGraphic(file, true, Math.floor(width / 2), Math.floor(height));
-			iconOffsets[0] = (width - 150) / 2;
-			iconOffsets[1] = (width - 150) / 2;
-			updateHitbox();
 
 			animation.add(char, [0, 1], 0, false, isPlayer);
 			animation.play(char);
 			this.char = char;
 
-			antialiasing = char.endsWith('-pixel');
+			antialiasing = !char.endsWith('-pixel');
 		}
 	}
 
-	override function updateHitbox()
-	{
-		super.updateHitbox();
-		offset.x = iconOffsets[0];
-		offset.y = iconOffsets[1];
-	}
 }

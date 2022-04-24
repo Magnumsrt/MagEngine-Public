@@ -244,11 +244,7 @@ class OptionsMenuState extends MusicBeatState
 									MagPrefs.setOption(name, num);
 								}
 						}
-						if (name == 'framerate')
-							onChangeFramerate();
-						else if (name == 'fps' || name == 'mem' || name == 'memPeak')
-							Main.setFPSDisplay();
-						changeSelection();
+
 						FlxG.sound.play(Paths.sound('scrollMenu'));
 					}
 					else if (setting.type != String)
@@ -268,14 +264,14 @@ class OptionsMenuState extends MusicBeatState
 							MagPrefs.setSetting(name, Math.round(FlxMath.roundDecimal(holdValue, setting.decimals != null ? setting.decimals : 1)));
 						else
 							MagPrefs.setSetting(name, !setting.value);
-
-						if (name == 'framerate')
-							onChangeFramerate();
-						else if (name == 'fps' || name == 'mem' || name == 'memPeak')
-							Main.setFPSDisplay();
-
-						changeSelection();
 					}
+
+					if (name == 'framerate')
+						Main.setFramerate(MagPrefs.getValue('framerate'));
+					else if (name == 'fps' || name == 'mem' || name == 'memPeak')
+						Main.setFPSDisplay();
+
+					changeSelection();
 				}
 
 				if (setting.type != String)
@@ -294,7 +290,7 @@ class OptionsMenuState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			for (option in curOptions)
 				MagPrefs.resetSetting(option[2]);
-			onChangeFramerate();
+			Main.setFramerate(MagPrefs.getValue('framerate'));
 			Main.setFPSDisplay();
 			changeSelection();
 		}
@@ -322,12 +318,6 @@ class OptionsMenuState extends MusicBeatState
 			descText.visible = true;
 			changeSelection();
 		}
-	}
-
-	function onChangeFramerate()
-	{
-		FlxG.updateFramerate = MagPrefs.getValue('framerate');
-		// Main.setFramerate(MagPrefs.getValue('framerate'));
 	}
 
 	function getSectionX(index:Int)

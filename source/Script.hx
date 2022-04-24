@@ -1,5 +1,6 @@
 package;
 
+#if SCRIPTS
 import hscript.Expr.Error;
 import flixel.FlxBasic;
 import sys.io.File;
@@ -140,3 +141,4 @@ class Script
 		return null;
 	}
 }
+#end

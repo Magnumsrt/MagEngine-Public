@@ -84,7 +84,12 @@ class MagPrefs
 		},
 		// graphics settings
 		#if !html5
-		'framerate' => {type: Integer, value: 60, max: 240},
+		'framerate' => {
+			type: Integer,
+			value: 60,
+			min: 60,
+			max: 240
+		},
 		#end
 		'fps' => {
 			type: Boolean,

@@ -5,7 +5,6 @@ import lime.app.Future;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.util.FlxTimer;
 import openfl.utils.Assets;
 import lime.utils.Assets as LimeAssets;
@@ -16,6 +15,8 @@ import haxe.io.Path;
 class LoadingState extends MusicBeatState
 {
 	inline static var MIN_TIME = 1.0;
+
+	public static var nextDirectory:String;
 
 	var target:FlxState;
 	var stopMusic = false;
@@ -152,7 +153,15 @@ class LoadingState extends MusicBeatState
 
 	static function getNextState(target:FlxState, stopMusic = false):FlxState
 	{
-		Paths.setCurrentLevel("week" + PlayState.storyWeek);
+		var directory:String = 'shared';
+
+		if (nextDirectory != null && nextDirectory.length > 0)
+			directory = nextDirectory;
+		nextDirectory = null;
+
+		Paths.currentLevel = directory;
+		trace('new level is ' + directory);
+
 		#if NO_PRELOAD_ALL
 		var loaded = isSoundLoaded(getSongPath())
 			&& (!PlayState.SONG.needsVoices || isSoundLoaded(getVocalPath()))

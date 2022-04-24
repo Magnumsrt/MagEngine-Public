@@ -1,5 +1,6 @@
 package;
 
+import openfl.utils.Assets;
 import animateatlas.AtlasFrameMaker;
 import flixel.util.FlxColor;
 import haxe.Json;
@@ -13,6 +14,7 @@ typedef SwagCharacter =
 {
 	var animations:Array<SwagAnimation>;
 	var image:String;
+	var icon:String;
 	var healthbarColor:Array<Int>;
 	var cameraPosition:Array<Float>;
 	var singDuration:Float;
@@ -49,6 +51,8 @@ class Character extends FlxSprite
 	public var holdTimer:Float = 0;
 	public var heyTimer:Float = 0;
 	public var specialAnim:Bool = false;
+
+	public var icon:String;
 
 	public var stunned:Bool = false;
 
@@ -99,6 +103,8 @@ class Character extends FlxSprite
 				animation.addByPrefix('scared', 'GF FEAR', 24);
 
 				barColor = 0xA5004D;
+
+				icon = 'gf';
 
 			case 'gf-car':
 				frames = Paths.getSparrowAtlas('characters/gfCar');
@@ -171,6 +177,8 @@ class Character extends FlxSprite
 
 				barColor = 0xFFd8558e;
 
+				icon = 'mom';
+
 			case 'monster':
 				frames = Paths.getSparrowAtlas('characters/Monster_Assets');
 
@@ -192,6 +200,8 @@ class Character extends FlxSprite
 				animation.addByPrefix('singRIGHT', 'Monster Right note', 24, false);
 
 				barColor = 0xFFf3ff6e;
+
+				icon = 'monster';
 
 			case 'pico':
 				frames = Paths.getSparrowAtlas('characters/Pico_FNF_assetss');
@@ -259,6 +269,8 @@ class Character extends FlxSprite
 
 				barColor = 0xFF31b0d1;
 				flipX = true;
+
+				icon = 'bf';
 			case 'bf-car':
 				frames = Paths.getSparrowAtlas('characters/bfCar');
 
@@ -274,6 +286,8 @@ class Character extends FlxSprite
 
 				barColor = 0xFF31b0d1;
 				flipX = true;
+
+				icon = 'bf';
 			case 'bf-pixel':
 				frames = Paths.getSparrowAtlas('characters/bfPixel');
 
@@ -297,6 +311,7 @@ class Character extends FlxSprite
 				antialiasing = false;
 
 				flipX = true;
+
 			case 'bf-pixel-dead':
 				frames = Paths.getSparrowAtlas('characters/bfPixelsDEAD');
 
@@ -325,6 +340,8 @@ class Character extends FlxSprite
 				setGraphicSize(Std.int(width * 6));
 				updateHitbox();
 
+				icon = 'senpai-pixel';
+
 				antialiasing = false;
 			case 'senpai-angry':
 				frames = Paths.getSparrowAtlas('characters/senpai');
@@ -338,6 +355,8 @@ class Character extends FlxSprite
 				barColor = 0xFFffaa6f;
 				setGraphicSize(Std.int(width * 6));
 				updateHitbox();
+
+				icon = 'senpai-pixel';
 
 				antialiasing = false;
 
@@ -353,6 +372,8 @@ class Character extends FlxSprite
 				setGraphicSize(Std.int(width * 6));
 				updateHitbox();
 				barColor = 0xFFff3c6e;
+
+				icon = 'spirit-pixel';
 
 				antialiasing = false;
 
@@ -371,9 +392,11 @@ class Character extends FlxSprite
 
 				barColor = 0xFF9a00f8;
 
+				icon = 'parents';
+
 			default:
-				#if MODS
-				var parsedJson:SwagCharacter = cast Json.parse(File.getContent(Paths.modFolder('custom_characters/' + curCharacter + '.json')));
+				#if sys
+				var parsedJson:SwagCharacter = cast Json.parse(Assets.getText(Paths.getPath('characters/' + curCharacter + '.json', TEXT)));
 
 				flipX = parsedJson.flipX;
 				flipY = parsedJson.flipY;
@@ -383,10 +406,12 @@ class Character extends FlxSprite
 
 				cameraPosition = parsedJson.cameraPosition;
 				singDuration = parsedJson.singDuration;
+
+				icon = parsedJson.icon;
 				barColor = FlxColor.fromRGB(parsedJson.healthbarColor[0], parsedJson.healthbarColor[1], parsedJson.healthbarColor[2]);
 
 				if (Paths.fileExists(Paths.modFolder("images/characters/") + parsedJson.image + ".json", TEXT))
-					frames = AtlasFrameMaker.construct(Paths.modFolder("custom_characters/") + parsedJson.image);
+					frames = AtlasFrameMaker.construct(Paths.modFolder("characters/") + parsedJson.image);
 				else if (parsedJson.animations != null && parsedJson.animations.length > 0)
 				{
 					frames = Paths.getSparrowAtlas(parsedJson.image);
@@ -404,6 +429,9 @@ class Character extends FlxSprite
 
 		if (isHardcoded)
 			loadOffsetFromFile(curCharacter);
+
+		if (icon == null)
+			icon = curCharacter;
 
 		if (animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss'))
 			hasMissAnimations = true;

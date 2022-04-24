@@ -5,7 +5,6 @@ import flixel.FlxG;
 import haxe.CallStack;
 import haxe.CallStack.StackItem;
 import openfl.events.UncaughtErrorEvent;
-import flixel.graphics.FlxGraphic;
 import flixel.FlxGame;
 import flixel.FlxState;
 import openfl.Lib;
@@ -72,35 +71,36 @@ class Main extends Sprite
 
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 
+		FlxG.fixedTimestep = false;
+		FlxG.mouse.useSystemCursor = true;
+		FlxG.mouse.visible = false;
+
 		MagPrefs.load();
 
 		#if !html5
-		// setFramerate(MagPrefs.getValue('framerate'));
-		FlxG.updateFramerate = MagPrefs.getValue('framerate');
+		setFramerate(MagPrefs.getValue('framerate'));
 		#end
 
 		#if !mobile
-		fpsCounter = new FPSCounter(10, 3, 0xffffff);
+		fpsCounter = new FPSCounter(8, 3, 0xffffff);
 		addChild(fpsCounter);
 		setFPSDisplay();
 		#end
-
-		FlxG.mouse.visible = false;
 	}
 
-	// public static function setFramerate(input:Int)
-	// {
-	// 	if (input > FlxG.drawFramerate)
-	// 	{
-	// 		FlxG.updateFramerate = input;
-	// 		FlxG.drawFramerate = input;
-	// 	}
-	// 	else
-	// 	{
-	// 		FlxG.drawFramerate = input;
-	// 		FlxG.updateFramerate = input;
-	// 	}
-	// }
+	public static function setFramerate(input:Int)
+	{
+		if (input > FlxG.drawFramerate)
+		{
+			FlxG.updateFramerate = input;
+			FlxG.drawFramerate = input;
+		}
+		else
+		{
+			FlxG.drawFramerate = input;
+			FlxG.updateFramerate = input;
+		}
+	}
 
 	public static function setFPSDisplay()
 	{
