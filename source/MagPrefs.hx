@@ -82,6 +82,10 @@ class MagPrefs
 			type: Boolean,
 			value: true
 		},
+		'notesBehindHud' => {
+			type: Boolean,
+			value: false
+		},
 		// graphics settings
 		#if !html5
 		'framerate' => {

@@ -32,6 +32,9 @@ class Note extends FlxSprite
 	public var copyAngle:Bool = true;
 	public var copyAlpha:Bool = true;
 
+	public var noRating:Bool = false;
+	public var noteSplashEnabled:Bool = true;
+
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
 

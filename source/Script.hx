@@ -1,5 +1,6 @@
 package;
 
+import haxe.Exception;
 #if sys
 import sys.io.File;
 #end
@@ -107,6 +108,7 @@ class Script
 		interp.variables.set("Alphabet", Alphabet);
 		interp.variables.set("CoolUtil", CoolUtil);
 		interp.variables.set("controls", PlayerSettings.player1.controls);
+		interp.variables.set("Sound", flash.media.Sound);
 		interp.variables.set("Paths", Paths);
 
 		var parser:Parser = new Parser();
@@ -124,22 +126,33 @@ class Script
 		}
 	}
 
-	public function call(functionToCall:String, ?params:Array<Dynamic>):Dynamic
+	public function call(functionToCall:String, ?params:Array<Dynamic>)
 	{
 		if (interp.variables.exists(functionToCall))
 		{
-			var functionH = interp.variables.get(functionToCall);
-			if (params == null)
+			var functionH:Dynamic = interp.variables.get(functionToCall);
+			var result:Dynamic = null;
+
+			try
 			{
-				var result = null;
-				result = functionH();
-				return result;
+				if (params == null)
+				{
+					result = functionH();
+					return result;
+				}
+				else
+				{
+					result = Reflect.callMethod(null, functionH, params);
+					return result;
+				}
 			}
-			else
+			catch (e:Exception)
 			{
-				var result = null;
-				result = Reflect.callMethod(null, functionH, params);
-				return result;
+				var nitroMessage:String = 'Error on script: ' + e.message;
+				trace(nitroMessage);
+				#if windows
+				lime.app.Application.current.window.alert(nitroMessage, 'Error on script!');
+				#end
 			}
 		}
 		return null;

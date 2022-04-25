@@ -1,6 +1,5 @@
 package;
 
-import lime.app.Application;
 import flixel.FlxG;
 import haxe.CallStack;
 import haxe.CallStack.StackItem;
@@ -139,7 +138,7 @@ class Main extends Sprite
 			switch (stackItem)
 			{
 				case FilePos(s, file, line, column):
-					errMsg += file + ' (line " + line + ")\n';
+					errMsg += file + ' (line "' + line + '")\n';
 				default:
 					Sys.println(stackItem);
 			}
@@ -149,7 +148,7 @@ class Main extends Sprite
 
 		Sys.println(errMsg);
 
-		Application.current.window.alert(errMsg, 'Error!');
+		lime.app.Application.current.window.alert(errMsg, 'Error!');
 
 		Sys.exit(1);
 	}

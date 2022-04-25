@@ -53,6 +53,8 @@ class Character extends FlxSprite
 
 	public var icon:String;
 
+	public var camMoveArray:Array<Int> = [0, 0];
+
 	public var stunned:Bool = false;
 
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
@@ -517,34 +519,39 @@ class Character extends FlxSprite
 		}
 	}
 
-	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
+	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0)
 	{
+		specialAnim = false;
 		animation.play(AnimName, Force, Reversed, Frame);
 
 		var daOffset = animOffsets.get(AnimName);
 		if (animOffsets.exists(AnimName))
-		{
 			offset.set(daOffset[0], daOffset[1]);
-		}
 		else
 			offset.set(0, 0);
 
-		if (curCharacter == 'gf')
+		if (curCharacter.startsWith('gf'))
 		{
 			if (AnimName == 'singLEFT')
-			{
 				danced = true;
-			}
 			else if (AnimName == 'singRIGHT')
-			{
 				danced = false;
-			}
 
 			if (AnimName == 'singUP' || AnimName == 'singDOWN')
-			{
 				danced = !danced;
-			}
 		}
+
+		camMoveArray = [0, 0];
+
+		var camAdd:Int = 15;
+		if (AnimName.startsWith('singLEFT'))
+			camMoveArray = [-camAdd, 0];
+		if (AnimName.startsWith('singDOWN'))
+			camMoveArray = [0, camAdd];
+		if (AnimName.startsWith('singUP'))
+			camMoveArray = [0, -camAdd];
+		if (AnimName.startsWith('singRIGHT'))
+			camMoveArray = [camAdd, 0];
 	}
 
 	public var danceEveryNumBeats:Int = 2;
@@ -552,7 +559,7 @@ class Character extends FlxSprite
 	public function recalculateDanceIdle()
 	{
 		var lastDanceIdle:Bool = danceIdle;
-		danceIdle = (animation.getByName('danceLeft') != null && animation.getByName('danceRight') != null);
+		danceIdle = animation.getByName('danceLeft') != null && animation.getByName('danceRight') != null;
 
 		if (lastDanceIdle != danceIdle)
 		{

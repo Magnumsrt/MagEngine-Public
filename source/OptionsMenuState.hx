@@ -43,7 +43,8 @@ class OptionsMenuState extends MusicBeatState
 					'Spawns a splash when getting a "Sick!" hit rating.',
 					'noteSplashes'
 				],
-				['Opponent Notes Glow', 'Makes the opponent notes glow on hit.', 'cpuNotesGlow']
+				['Opponent Notes Glow', 'Makes the opponent notes glow on hit.', 'cpuNotesGlow'],
+				['Notes behind HUD', 'Makes the notes goes behind the HUD.', 'notesBehindHud']
 			],
 		],
 		[
