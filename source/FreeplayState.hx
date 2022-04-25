@@ -3,7 +3,7 @@ package;
 import flixel.tweens.FlxTween;
 import Week.SwagWeek;
 import flixel.system.FlxSound;
-#if desktop
+#if DISCORD
 import Discord.DiscordClient;
 #end
 import flixel.FlxG;
@@ -55,7 +55,7 @@ class FreeplayState extends MusicBeatState
 			}
 		 */
 
-		#if desktop
+		#if DISCORD
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end

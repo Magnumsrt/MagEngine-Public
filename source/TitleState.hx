@@ -2,14 +2,11 @@ package;
 
 import modloader.*;
 import haxe.Http;
-#if desktop
+#if DISCORD
 import Discord.DiscordClient;
 #end
 import flixel.FlxG;
 import flixel.FlxSprite;
-// import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
-// import flixel.addons.transition.FlxTransitionableState;
-// import flixel.addons.transition.TransitionData;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup;
@@ -65,7 +62,7 @@ class TitleState extends MusicBeatState
 
 			Highscore.load();
 
-			#if desktop
+			#if DISCORD
 			DiscordClient.initialize();
 
 			Application.current.onExit.add(function(exitCode)

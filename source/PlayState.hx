@@ -8,7 +8,7 @@ import openfl.events.KeyboardEvent;
 #if sys
 import sys.FileSystem;
 #end
-#if desktop
+#if DISCORD
 import Discord.DiscordClient;
 #end
 import Section.SwagSection;
@@ -93,8 +93,8 @@ class PlayState extends MusicBeatState
 	public var healthBar:FlxBar;
 
 	// gameplay shit (i will hack you soon)
-	public var healthGain:Float = 1;
-	public var healthLoss:Float = 1;
+	public static var healthGain:Float = 1;
+	public static var healthLoss:Float = 1;
 
 	public static var cpuControlled:Bool = false;
 
@@ -108,14 +108,13 @@ class PlayState extends MusicBeatState
 
 	public var camHUD:FlxCamera;
 	public var camNotes:FlxCamera;
-	public var camSustains:FlxCamera;
 
 	public var camGame:FlxCamera;
 	public var camOther:FlxCamera;
 
 	public var allUI:Array<FlxCamera> = [];
 
-	public var dialogue:Array<String> = ['blah blah blah', 'coolswag'];
+	var dialogue:Array<String> = ['blah blah blah', 'coolswag'];
 
 	public var halloweenBG:FlxSprite;
 
@@ -223,11 +222,9 @@ class PlayState extends MusicBeatState
 
 		// ui stuff
 		camGame = new FlxCamera();
-		camSustains = new FlxCamera();
 		camNotes = new FlxCamera();
 		camHUD = new FlxCamera();
 		camOther = new FlxCamera();
-		camSustains.bgColor.alpha = 0;
 		camNotes.bgColor.alpha = 0;
 		camHUD.bgColor.alpha = 0;
 		camOther.bgColor.alpha = 0;
@@ -238,10 +235,8 @@ class PlayState extends MusicBeatState
 		var funni:Bool = MagPrefs.getValue('notesBehindHud');
 		if (!funni)
 			FlxG.cameras.add(camHUD);
-		FlxG.cameras.add(camSustains);
 		FlxG.cameras.add(camNotes);
 		FlxG.cameras.add(camOther);
-		allUI.push(camSustains);
 		allUI.push(camNotes);
 		if (funni)
 			FlxG.cameras.add(camHUD);
@@ -287,7 +282,7 @@ class PlayState extends MusicBeatState
 				dialogue = CoolUtil.coolTextFile(Paths.txt('thorns/thornsDialogue'));
 		}
 
-		#if desktop
+		#if DISCORD
 		// Making difficulty text for Discord Rich Presence.
 		storyDifficultyText = CoolUtil.difficultyString(false);
 
@@ -923,8 +918,6 @@ class PlayState extends MusicBeatState
 			sploosh.animation.finishCallback = function(name) sploosh.destroy();
 			add(sploosh);
 		}
-
-		CustomFadeTransition.nextCamera = camOther;
 	}
 
 	public function reloadHealthBarColors()
@@ -1170,7 +1163,7 @@ class PlayState extends MusicBeatState
 		// Song duration in a float, useful for the time left feature
 		songLength = FlxG.sound.music.length;
 
-		#if desktop
+		#if DISCORD
 		// Updating Discord Rich Presence (with Time Left)
 		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC, true, songLength);
 		#end
@@ -1355,7 +1348,7 @@ class PlayState extends MusicBeatState
 
 			callScripts('resume');
 
-			#if desktop
+			#if DISCORD
 			if (startTimer.finished)
 			{
 				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC, true, songLength - Conductor.songPosition);
@@ -1372,7 +1365,7 @@ class PlayState extends MusicBeatState
 
 	override public function onFocus():Void
 	{
-		#if desktop
+		#if DISCORD
 		if (health > 0 && !paused)
 		{
 			if (Conductor.songPosition > 0.0)
@@ -1391,7 +1384,7 @@ class PlayState extends MusicBeatState
 
 	override public function onFocusLost():Void
 	{
-		#if desktop
+		#if DISCORD
 		if (health > 0 && !paused)
 		{
 			DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
@@ -1557,7 +1550,7 @@ class PlayState extends MusicBeatState
 			openSubState(new PauseSubState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 			// }
 
-			#if desktop
+			#if DISCORD
 			DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
 			#end
 		}
@@ -1569,7 +1562,7 @@ class PlayState extends MusicBeatState
 			cancelMusicFadeTween();
 			MusicBeatState.switchState(new ChartingState());
 
-			#if desktop
+			#if DISCORD
 			DiscordClient.changePresence("Chart Editor", null, null, true);
 			#end
 		}
@@ -1772,8 +1765,6 @@ class PlayState extends MusicBeatState
 					{
 						if (daNote.y - daNote.offset.y * daNote.scale.y + daNote.height >= center)
 						{
-							daNote.cameras = [camNotes];
-
 							var swagRect = new FlxRect(0, 0, daNote.frameWidth, daNote.frameHeight);
 							swagRect.height = (center - daNote.y) / daNote.scale.y;
 							swagRect.y = daNote.frameHeight - swagRect.height;
@@ -1785,8 +1776,6 @@ class PlayState extends MusicBeatState
 					{
 						if (daNote.y + daNote.offset.y * daNote.scale.y <= center)
 						{
-							daNote.cameras = [camNotes];
-
 							var swagRect = new FlxRect(0, 0, daNote.width / daNote.scale.x, daNote.height / daNote.scale.y);
 							swagRect.y = (center - daNote.y) / daNote.scale.y;
 							swagRect.height -= swagRect.y;
@@ -1896,7 +1885,7 @@ class PlayState extends MusicBeatState
 
 			// MusicBeatState.switchState(new GameOverState(boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y));
 
-			#if desktop
+			#if DISCORD
 			// Game Over doesn't get his own variable because it's only used here
 			DiscordClient.changePresence("Game Over - " + detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC);
 			#end

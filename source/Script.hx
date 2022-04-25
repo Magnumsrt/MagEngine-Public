@@ -4,7 +4,7 @@ import haxe.Exception;
 #if sys
 import sys.io.File;
 #end
-#if desktop
+#if DISCORD
 import Discord.DiscordClient;
 #end
 import hscript.Expr.Error;
@@ -46,7 +46,9 @@ class Script
 		interp.variables.set("MusicBeatState", MusicBeatState);
 		interp.variables.set("MusicBeatSubstate", MusicBeatSubstate);
 		interp.variables.set("Conductor", Conductor);
+		#if DISCORD
 		interp.variables.set("DiscordClient", DiscordClient);
+		#end
 		interp.variables.set("WiggleEffectType", WiggleEffect.WiggleEffectType);
 		interp.variables.set("FlxBasic", flixel.FlxBasic);
 		// interp.variables.set("MidSongEvent", Song.MidSongEvent);

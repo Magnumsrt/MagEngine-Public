@@ -4,7 +4,7 @@ import flixel.math.FlxMath;
 import MagPrefs.Setting;
 import flixel.util.FlxColor;
 import flixel.text.FlxText;
-#if desktop
+#if DISCORD
 import Discord.DiscordClient;
 #end
 import flixel.FlxG;
@@ -95,7 +95,7 @@ class OptionsMenuState extends MusicBeatState
 			}
 		 */
 
-		#if desktop
+		#if DISCORD
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end

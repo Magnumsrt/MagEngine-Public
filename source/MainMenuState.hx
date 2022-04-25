@@ -1,6 +1,6 @@
 package;
 
-#if desktop
+#if DISCORD
 import Discord.DiscordClient;
 #end
 import flixel.FlxG;
@@ -41,7 +41,7 @@ class MainMenuState extends MusicBeatState
 
 	override function create()
 	{
-		#if desktop
+		#if DISCORD
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end

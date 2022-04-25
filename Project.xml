@@ -43,6 +43,7 @@
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web" />
 
 	<!-- MAG ENGINE CUSTOMIZATION -->
+	<define name="DISCORD" if="desktop" unless="hl" />
 	<define name="MODS" if="desktop" />
 	<define name="SCRIPTS" if="desktop" />
 
@@ -106,7 +107,7 @@
 
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" />
-	<haxelib name="discord_rpc" if="desktop" />
+	<haxelib name="discord_rpc" if="DISCORD" />
 	<!-- <haxelib name="hxcpp-debug-server" if="desktop"/> -->
 
 	<!-- <haxelib name="markdown" /> -->
