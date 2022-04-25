@@ -4,7 +4,6 @@ import openfl.utils.Assets;
 import animateatlas.AtlasFrameMaker;
 import flixel.util.FlxColor;
 import haxe.Json;
-import sys.io.File;
 import flixel.FlxSprite;
 
 using StringTools;

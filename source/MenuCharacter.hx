@@ -42,37 +42,45 @@ class MenuCharacter extends FlxSprite
 		updateHitbox();
 
 		hasConfirmAnimation = false;
-		switch (character)
+
+		if (character.length <= 0)
 		{
-			case '':
-				visible = false;
-				dontPlayAnim = true;
-			default:
-				var path:String = Paths.getPath('images/menucharacters/' + character + '.json', TEXT);
-				if (!Assets.exists(path))
-					path = Paths.getPreloadPath('images/menucharacters/bf.json');
-
-				var charFile:SwagMenuCharacter = cast Json.parse(Assets.getText(path));
-				frames = Paths.getSparrowAtlas('menucharacters/' + charFile.image);
-				animation.addByPrefix('idle', charFile.idle_anim, 24);
-
-				var confirmAnim:String = charFile.confirm_anim;
-				if (confirmAnim != null && confirmAnim != charFile.idle_anim)
-				{
-					animation.addByPrefix('confirm', confirmAnim, 24, false);
-					if (animation.getByName('confirm') != null) // check for invalid animation
-						hasConfirmAnimation = true;
-				}
-
-				flipX = (charFile.flipX == true);
-
-				if (charFile.scale != 1)
-				{
-					scale.set(charFile.scale, charFile.scale);
-					updateHitbox();
-				}
-				offset.set(charFile.position[0], charFile.position[1]);
-				animation.play('idle');
+			visible = false;
+			dontPlayAnim = true;
 		}
+		else
+		{
+			var path:String = Paths.getPath('images/menucharacters/' + character + '.json', TEXT);
+			if (!Assets.exists(path))
+				path = Paths.getPreloadPath('images/menucharacters/bf.json');
+
+			var charFile:SwagMenuCharacter = cast Json.parse(Assets.getText(path));
+			frames = Paths.getSparrowAtlas('menucharacters/' + charFile.image);
+			animation.addByPrefix('idle', charFile.idle_anim, 24);
+
+			var confirmAnim:String = charFile.confirm_anim;
+			if (confirmAnim != null && confirmAnim != charFile.idle_anim)
+			{
+				animation.addByPrefix('confirm', confirmAnim, 24, false);
+				if (animation.getByName('confirm') != null) // check for invalid animation
+					hasConfirmAnimation = true;
+			}
+
+			flipX = charFile.flipX;
+
+			if (charFile.scale != 1)
+			{
+				scale.set(charFile.scale, charFile.scale);
+				updateHitbox();
+			}
+			offset.set(charFile.position[0], charFile.position[1]);
+			animation.play('idle');
+		}
+	}
+
+	public function confirm()
+	{
+		if (hasConfirmAnimation)
+			animation.play('confirm', true);
 	}
 }

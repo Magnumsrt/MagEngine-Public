@@ -248,9 +248,13 @@ class MagPrefs
 		}
 	}
 
-	inline public static function getValue(setting:String):Dynamic
+	public static function getValue(setting:String):Dynamic
 	{
-		return getSetting(setting).value;
+		var shit:Setting = getSetting(setting);
+		if (shit != null)
+			return shit.value;
+		else
+			return null;
 	}
 
 	public static function getMinValue(setting:String)

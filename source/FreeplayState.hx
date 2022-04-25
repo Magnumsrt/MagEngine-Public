@@ -201,8 +201,8 @@ class FreeplayState extends MusicBeatState
 			destroyVocals();
 			FlxG.sound.music.volume = 0;
 
-			var poop:String = Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty);
-			PlayState.SONG = Song.loadFromJson(poop, songs[curSelected].songName.toLowerCase());
+			PlayState.SONG = Song.loadFromJson(Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty),
+				songs[curSelected].songName.toLowerCase());
 			if (PlayState.SONG.needsVoices)
 				vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song));
 			else
@@ -248,39 +248,16 @@ class FreeplayState extends MusicBeatState
 		curDifficulty += change;
 
 		if (curDifficulty < 0)
-			curDifficulty = 2;
-		if (curDifficulty > 2)
+			curDifficulty = CoolUtil.difficultyArray.length - 1;
+		if (curDifficulty >= CoolUtil.difficultyArray.length)
 			curDifficulty = 0;
-
-		var newColor:Int = songs[curSelected].color;
-		if (newColor != intendedColor)
-		{
-			if (colorTween != null)
-				colorTween.cancel();
-			intendedColor = newColor;
-			colorTween = FlxTween.color(bg, 0.5, bg.color, intendedColor, {
-				onComplete: function(twn:FlxTween)
-				{
-					colorTween = null;
-				}
-			});
-		}
 
 		#if !switch
 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
 		#end
 
-		diffText.text = "< ";
-		switch (curDifficulty)
-		{
-			case 0:
-				diffText.text += "EASY";
-			case 1:
-				diffText.text += 'NORMAL';
-			case 2:
-				diffText.text += "HARD";
-		}
-		diffText.text += " >";
+		PlayState.storyDifficulty = curDifficulty;
+		diffText.text = '< ' + CoolUtil.difficultyString() + ' >';
 	}
 
 	function changeSelection(change:Int = 0)
@@ -292,17 +269,28 @@ class FreeplayState extends MusicBeatState
 		if (curSelected >= songs.length)
 			curSelected = 0;
 
+		var newColor:Int = songs[curSelected].color;
+		if (bg != null && newColor != intendedColor)
+		{
+			if (colorTween != null)
+				colorTween.cancel();
+			intendedColor = newColor;
+			colorTween = FlxTween.color(bg, 1, bg.color, intendedColor, {
+				onComplete: function(twn:FlxTween)
+				{
+					colorTween = null;
+				}
+			});
+		}
+
 		#if !switch
 		intendedScore = Highscore.getScore(songs[curSelected].songName, curDifficulty);
-		// lerpScore = 0;
 		#end
 
 		var bullShit:Int = 0;
 
 		for (i in 0...iconArray.length)
-		{
 			iconArray[i].alpha = 0.6;
-		}
 
 		iconArray[curSelected].alpha = 1;
 

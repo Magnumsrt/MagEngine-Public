@@ -1,7 +1,9 @@
 package;
 
 import modloader.ModList;
+#if sys
 import sys.FileSystem;
+#end
 import lime.utils.Assets;
 import flixel.graphics.FlxGraphic;
 import openfl.system.System;
@@ -90,20 +92,16 @@ class Paths
 
 	public static var currentLevel:String;
 
-	public static function getPath(file:String, type:AssetType, ?library:Null<String> = null)
+	public static function getPath(file:String, type:AssetType, ?library:String)
 	{
 		if (library != null)
 			return getLibraryPath(file, library);
 
 		if (currentLevel != null)
 		{
-			var levelPath:String = '';
-			if (currentLevel != 'shared')
-			{
-				levelPath = getLibraryPathForce(file, currentLevel);
-				if (OpenFlAssets.exists(levelPath, type))
-					return levelPath;
-			}
+			var levelPath = getLibraryPathForce(file, currentLevel);
+			if (OpenFlAssets.exists(levelPath, type))
+				return levelPath;
 
 			levelPath = getLibraryPathForce(file, "shared");
 			if (OpenFlAssets.exists(levelPath, type))
@@ -123,7 +121,7 @@ class Paths
 		return '$library:assets/$library/$file';
 	}
 
-	inline public static function getPreloadPath(file:String = '')
+	inline static public function getPreloadPath(file:String)
 	{
 		return 'assets/$file';
 	}
@@ -150,8 +148,7 @@ class Paths
 
 	static public function sound(key:String, ?library:String):Sound
 	{
-		var sound:Sound = returnSound('sounds', key, library);
-		return sound;
+		return returnSound('sounds', key, library);
 	}
 
 	inline static public function soundRandom(key:String, min:Int, max:Int, ?library:String)
@@ -161,29 +158,22 @@ class Paths
 
 	inline static public function music(key:String, ?library:String):Sound
 	{
-		var file:Sound = returnSound('music', key, library);
-		return file;
+		return returnSound('music', key, library);
 	}
 
 	inline static public function voices(song:String):Any
 	{
-		var songKey:String = '${song.toLowerCase().replace(' ', '-')}/Voices';
-		var voices = returnSound('songs', songKey);
-		return voices;
+		return returnSound('songs', '${song.toLowerCase().replace(' ', '-')}/Voices');
 	}
 
 	inline static public function inst(song:String):Any
 	{
-		var songKey:String = '${song.toLowerCase().replace(' ', '-')}/Inst';
-		var inst = returnSound('songs', songKey);
-		return inst;
+		return returnSound('songs', '${song.toLowerCase().replace(' ', '-')}/Inst');
 	}
 
 	inline static public function image(key:String, ?library:String):FlxGraphic
 	{
-		// streamlined the assets process more
-		var returnAsset:FlxGraphic = returnGraphic(key, library);
-		return returnAsset;
+		return returnGraphic(key, library);
 	}
 
 	inline static public function font(key:String)
@@ -208,8 +198,10 @@ class Paths
 
 	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String)
 	{
+		#if MODS
 		if (FileSystem.exists(mods(key)) || FileSystem.exists(mods(key)))
 			return true;
+		#end
 		if (OpenFlAssets.exists(Paths.getPath(key, type, library)))
 			return true;
 		return false;
@@ -275,15 +267,15 @@ class Paths
 
 	public static function returnSound(path:String, key:String, ?library:String)
 	{
-		// I hate this so god damn much
 		var gottenPath:String = getPath('$path/$key.$SOUND_EXT', SOUND, library);
 		gottenPath = gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);
-		// trace(gottenPath);
 		if (!currentTrackedSounds.exists(gottenPath))
 			#if sys
 			currentTrackedSounds.set(gottenPath, Sound.fromFile('./' + gottenPath));
 			#else
-			currentTrackedSounds.set(gottenPath, OpenFlAssets.getSound(getPath('$path/$key.$SOUND_EXT', SOUND, library)));
+			// this broke the engine on html5!!!
+			// TODO: fix the crash lol
+			currentTrackedSounds.set(gottenPath, openfl.Assets.getSound(getPath('$path/$key.$SOUND_EXT', SOUND, library)));
 			#end
 		localTrackedAssets.push(gottenPath);
 		return currentTrackedSounds.get(gottenPath);

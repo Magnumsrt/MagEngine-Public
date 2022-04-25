@@ -1,6 +1,8 @@
 package;
 
+#if sys
 import sys.FileSystem;
+#end
 import haxe.Json;
 import lime.utils.Assets;
 
@@ -26,21 +28,20 @@ class Week
 
 	public static function loadWeeks()
 	{
-		weeksList = [];
 		loadedWeeks.clear();
-
 		weeksList = CoolUtil.coolTextFile(Paths.txt('weekList'));
 
-		#if MODS
-		var folders:Array<String> = [Paths.modFolder('weeks'), Paths.getPreloadPath('weeks'),];
+		#if sys
+		var folders:Array<String> = [#if MODS Paths.modFolder('weeks') #end, Paths.getPreloadPath('weeks')];
 		for (folder in folders)
 		{
 			if (FileSystem.exists(folder))
 			{
 				for (file in FileSystem.readDirectory(folder))
 				{
-					if (file.endsWith('.json'))
-						weeksList.push(file.substr(0, file.length - 5));
+					var omgimcool:String = file.substr(0, file.length - 5);
+					if (file.endsWith('.json') && !weeksList.contains(omgimcool))
+						weeksList.push(omgimcool);
 				}
 			}
 		}

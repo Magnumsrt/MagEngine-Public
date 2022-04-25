@@ -1,5 +1,6 @@
 package;
 
+import flixel.math.FlxMath;
 import flixel.graphics.FlxGraphic;
 
 using StringTools;
@@ -8,6 +9,8 @@ class HealthIcon extends AttachedSprite
 {
 	private var char:String = '';
 	private var isPlayer:Bool = false;
+
+	public var canBounce:Bool = false;
 
 	public function new(char:String = 'bf', isPlayer:Bool = false)
 	{
@@ -37,4 +40,20 @@ class HealthIcon extends AttachedSprite
 		}
 	}
 
+	override public function update(elapsed:Float)
+	{
+		super.update(elapsed);
+
+		if (canBounce)
+		{
+			setGraphicSize(Std.int(FlxMath.lerp(150, width, CoolUtil.boundTo(1 - elapsed * 4.35, 0, 1))));
+			updateHitbox();
+		}
+	}
+
+	public function bounce()
+	{
+		if (canBounce)
+			setGraphicSize(Std.int(width + 30));
+	}
 }

@@ -1,8 +1,6 @@
 package;
 
 import flixel.math.FlxMath;
-import haxe.Timer;
-import openfl.events.Event;
 import openfl.system.System;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
@@ -51,9 +49,6 @@ class FPSCounter extends TextField
 
 		var currentCount = times.length;
 		currentFPS = Math.round((currentCount + cacheCount) / 2);
-		var framerate:Int = MagPrefs.getValue('framerate');
-		if (currentFPS > framerate)
-			currentFPS = framerate;
 
 		if (visible && currentCount != cacheCount)
 		{

@@ -1,5 +1,6 @@
 package;
 
+import flixel.graphics.FlxGraphic;
 import Week.SwagWeek;
 #if desktop
 import Discord.DiscordClient;
@@ -42,6 +43,7 @@ class StoryMenuState extends MusicBeatState
 
 	var difficultySelectors:FlxGroup;
 	var sprDifficulty:FlxSprite;
+	var tweenDifficulty:FlxTween;
 	var leftArrow:FlxSprite;
 	var rightArrow:FlxSprite;
 
@@ -59,9 +61,9 @@ class StoryMenuState extends MusicBeatState
 		persistentUpdate = persistentDraw = true;
 
 		Week.loadWeeks();
-		updateCurWeek();
+		weekShit = Week.loadedWeeks.get(Week.weeksList[curWeek]);
 
-		scoreText = new FlxText(10, 10, 0, "SCORE: 49324858", 36);
+		scoreText = new FlxText(10, 10, 0, "", 36);
 		scoreText.setFormat("VCR OSD Mono", 32);
 
 		txtWeekTitle = new FlxText(FlxG.width * 0.7, 10, 0, "", 32);
@@ -96,11 +98,13 @@ class StoryMenuState extends MusicBeatState
 		for (i in 0...Week.weeksList.length)
 		{
 			var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, Week.weeksList[i]);
-			weekThing.y += ((weekThing.height + 20) * i);
+			weekThing.y += (weekThing.height + 20) * i;
 			weekThing.targetY = i;
 			grpWeekText.add(weekThing);
 
 			weekThing.screenCenter(X);
+			// position still cringe???? fuck haxeflixel
+			weekThing.x -= 20;
 			weekThing.antialiasing = true;
 			// weekThing.updateHitbox();
 
@@ -119,7 +123,7 @@ class StoryMenuState extends MusicBeatState
 
 		for (char in 0...3)
 		{
-			var weekCharacterThing:MenuCharacter = new MenuCharacter((FlxG.width * 0.25) * (1 + char) - 150,
+			var weekCharacterThing:MenuCharacter = new MenuCharacter(FlxG.width * 0.25 * (1 + char) - 150,
 				Week.loadedWeeks.get(Week.weeksList[0]).weekCharacters[char]);
 			weekCharacterThing.y += 70;
 			grpWeekCharacters.add(weekCharacterThing);
@@ -135,17 +139,13 @@ class StoryMenuState extends MusicBeatState
 		leftArrow.animation.play('idle');
 		difficultySelectors.add(leftArrow);
 
-		sprDifficulty = new FlxSprite(leftArrow.x + 130, leftArrow.y);
-		sprDifficulty.frames = ui_tex;
-		sprDifficulty.animation.addByPrefix('easy', 'EASY');
-		sprDifficulty.animation.addByPrefix('normal', 'NORMAL');
-		sprDifficulty.animation.addByPrefix('hard', 'HARD');
-		sprDifficulty.animation.play('easy');
+		sprDifficulty = new FlxSprite(0, leftArrow.y);
+		sprDifficulty.antialiasing = true;
 		changeDifficulty();
 
 		difficultySelectors.add(sprDifficulty);
 
-		rightArrow = new FlxSprite(sprDifficulty.x + sprDifficulty.width + 50, leftArrow.y);
+		rightArrow = new FlxSprite(leftArrow.x + 376, leftArrow.y);
 		rightArrow.frames = ui_tex;
 		rightArrow.animation.addByPrefix('idle', 'arrow right');
 		rightArrow.animation.addByPrefix('press', "arrow push right", 24, false);
@@ -175,9 +175,6 @@ class StoryMenuState extends MusicBeatState
 		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, 0.5));
 
 		scoreText.text = "WEEK SCORE:" + lerpScore;
-
-		txtWeekTitle.text = Week.weeksList[curWeek].toUpperCase();
-		txtWeekTitle.x = FlxG.width - (txtWeekTitle.width + 10);
 
 		// FlxG.watch.addQuick('font', scoreText.font);
 
@@ -243,7 +240,10 @@ class StoryMenuState extends MusicBeatState
 				FlxG.sound.play(Paths.sound('confirmMenu'));
 
 				grpWeekText.members[curWeek].startFlashing();
-				grpWeekCharacters.members[1].animation.play('bfConfirm');
+				grpWeekCharacters.forEachAlive(function(char:MenuCharacter)
+				{
+					char.confirm();
+				});
 				stopspamming = true;
 			}
 
@@ -253,19 +253,9 @@ class StoryMenuState extends MusicBeatState
 			PlayState.isStoryMode = true;
 			selectedWeek = true;
 
-			var diffic = '';
-
-			switch (curDifficulty)
-			{
-				case 0:
-					diffic = '-easy';
-				case 2:
-					diffic = '-hard';
-			}
-
 			PlayState.storyDifficulty = curDifficulty;
 
-			PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
+			PlayState.SONG = Song.loadFromJson(Highscore.formatSong(PlayState.storyPlaylist[0].toLowerCase(), curDifficulty), PlayState.storyPlaylist[0]);
 			PlayState.storyWeek = curWeek;
 			Week.setNextDirectory(PlayState.storyWeek);
 			PlayState.campaignScore = 0;
@@ -281,23 +271,27 @@ class StoryMenuState extends MusicBeatState
 		curDifficulty += change;
 
 		if (curDifficulty < 0)
-			curDifficulty = 2;
-		if (curDifficulty > 2)
+			curDifficulty = CoolUtil.difficultyArray.length - 1;
+		if (curDifficulty >= CoolUtil.difficultyArray.length)
 			curDifficulty = 0;
 
-		sprDifficulty.offset.x = 0;
-
-		switch (curDifficulty)
+		var newImage:FlxGraphic = Paths.image('menudifficulties/' + Paths.formatToSongPath(CoolUtil.difficultyArray[curDifficulty][1]));
+		if (sprDifficulty.graphic != newImage)
 		{
-			case 0:
-				sprDifficulty.animation.play('easy');
-				sprDifficulty.offset.x = 20;
-			case 1:
-				sprDifficulty.animation.play('normal');
-				sprDifficulty.offset.x = 70;
-			case 2:
-				sprDifficulty.animation.play('hard');
-				sprDifficulty.offset.x = 20;
+			sprDifficulty.loadGraphic(newImage);
+			sprDifficulty.x = leftArrow.x + 60;
+			sprDifficulty.x += (308 - sprDifficulty.width) / 3;
+			sprDifficulty.alpha = 0;
+			sprDifficulty.y = leftArrow.y - 15;
+
+			if (tweenDifficulty != null)
+				tweenDifficulty.cancel();
+			tweenDifficulty = FlxTween.tween(sprDifficulty, {y: leftArrow.y + 15, alpha: 1}, 0.07, {
+				onComplete: function(twn:FlxTween)
+				{
+					tweenDifficulty = null;
+				}
+			});
 		}
 
 		sprDifficulty.alpha = 0;
@@ -313,11 +307,6 @@ class StoryMenuState extends MusicBeatState
 		FlxTween.tween(sprDifficulty, {y: leftArrow.y + 15, alpha: 1}, 0.07);
 	}
 
-	inline function updateCurWeek()
-	{
-		weekShit = Week.loadedWeeks.get(Week.weeksList[curWeek]);
-	}
-
 	var lerpScore:Int = 0;
 	var intendedScore:Int = 0;
 
@@ -330,7 +319,10 @@ class StoryMenuState extends MusicBeatState
 		if (curWeek < 0)
 			curWeek = Week.weeksList.length - 1;
 
-		updateCurWeek();
+		weekShit = Week.loadedWeeks.get(Week.weeksList[curWeek]);
+
+		txtWeekTitle.text = weekShit.storyName.toUpperCase();
+		txtWeekTitle.x = FlxG.width - (txtWeekTitle.width + 10);
 
 		var unlocked:Bool = !weekIsLocked(Week.weeksList[curWeek]);
 		difficultySelectors.visible = unlocked;

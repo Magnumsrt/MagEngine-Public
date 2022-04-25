@@ -2,10 +2,12 @@ package;
 
 import lime.app.Application;
 import haxe.io.Path;
-import sys.FileSystem;
 import flixel.input.gamepad.FlxGamepad;
 import flixel.input.keyboard.FlxKey;
 import openfl.events.KeyboardEvent;
+#if sys
+import sys.FileSystem;
+#end
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -155,16 +157,19 @@ class PlayState extends MusicBeatState
 
 	var inCutscene:Bool = false;
 
+	var songLength:Float = 0;
+
 	#if desktop
 	// Discord RPC variables
 	var storyDifficultyText:String = "";
 	var iconRPC:String = "";
-	var songLength:Float = 0;
 	var detailsText:String = "";
 	var detailsPausedText:String = "";
 	#end
 
+	#if SCRIPTS
 	private var scripts:Array<Script> = [];
+	#end
 
 	private var keysArray:Array<Array<FlxKey>>;
 
@@ -259,15 +264,7 @@ class PlayState extends MusicBeatState
 
 		#if desktop
 		// Making difficulty text for Discord Rich Presence.
-		switch (storyDifficulty)
-		{
-			case 0:
-				storyDifficultyText = "Easy";
-			case 1:
-				storyDifficultyText = "Normal";
-			case 2:
-				storyDifficultyText = "Hard";
-		}
+		storyDifficultyText = CoolUtil.difficultyString(false);
 
 		iconRPC = SONG.player2;
 
@@ -790,10 +787,12 @@ class PlayState extends MusicBeatState
 
 		iconP1 = new HealthIcon(boyfriend.icon, true);
 		iconP1.y = healthBar.y - iconP1.height / 2;
+		iconP1.canBounce = true;
 		add(iconP1);
 
 		iconP2 = new HealthIcon(dad.icon, false);
 		iconP2.y = healthBar.y - iconP2.height / 2;
+		iconP2.canBounce = true;
 		add(iconP2);
 
 		infoTxt = new FlxText(4, 0, 0, SONG.song + " - " + CoolUtil.difficultyString(false) + ' - ME ' + Application.current.meta.get('version'), 16);
@@ -1138,10 +1137,10 @@ class PlayState extends MusicBeatState
 		FlxG.sound.music.onComplete = endSong;
 		vocals.play();
 
-		#if desktop
 		// Song duration in a float, useful for the time left feature
 		songLength = FlxG.sound.music.length;
 
+		#if desktop
 		// Updating Discord Rich Presence (with Time Left)
 		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconRPC, true, songLength);
 		#end
@@ -1563,17 +1562,10 @@ class PlayState extends MusicBeatState
 		// FlxG.watch.addQuick('VOL', vocals.amplitudeLeft);
 		// FlxG.watch.addQuick('VOLRight', vocals.amplitudeRight);
 
-		var bounceVal:Float = CoolUtil.boundTo(1 - elapsed * 3.7, 0, 1);
-		iconP1.setGraphicSize(Std.int(FlxMath.lerp(150, iconP1.width, bounceVal)));
-		iconP2.setGraphicSize(Std.int(FlxMath.lerp(150, iconP2.width, bounceVal)));
-
-		iconP1.updateHitbox();
-		iconP2.updateHitbox();
-
 		var iconOffset:Int = 26;
 
-		iconP1.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset);
-		iconP2.x = healthBar.x + (healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01)) - (iconP2.width - iconOffset);
+		iconP1.x = healthBar.x + healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - iconOffset;
+		iconP2.x = healthBar.x + healthBar.width * (FlxMath.remapToRange(healthBar.percent, 0, 100, 100, 0) * 0.01) - (iconP2.width - iconOffset);
 
 		if (health > 2)
 			health = 2;
@@ -1639,7 +1631,7 @@ class PlayState extends MusicBeatState
 
 		if (camZooming)
 		{
-			lerpVal = CoolUtil.boundTo(1 - elapsed * 2.135, 0, 1);
+			lerpVal = CoolUtil.boundTo(1 - elapsed * 5.4, 0, 1);
 			FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom, FlxG.camera.zoom, lerpVal);
 			camHUD.zoom = FlxMath.lerp(1, camHUD.zoom, lerpVal);
 		}
@@ -1660,9 +1652,6 @@ class PlayState extends MusicBeatState
 					gfSpeed = 2;
 				case 112:
 					gfSpeed = 1;
-				case 163:
-					// FlxG.sound.music.stop();
-					// MusicBeatState.switchState(new TitleState());
 			}
 		}
 
@@ -1688,10 +1677,14 @@ class PlayState extends MusicBeatState
 
 		if (unspawnNotes[0] != null)
 		{
-			if (unspawnNotes[0].strumTime - Conductor.songPosition < 1500)
+			var time:Float = 3000; // shit be werid on 4:3
+			if (songSpeed < 1)
+				time /= songSpeed;
+
+			while (unspawnNotes.length > 0 && unspawnNotes[0].strumTime - Conductor.songPosition < time)
 			{
 				var dunceNote:Note = unspawnNotes[0];
-				notes.add(dunceNote);
+				notes.insert(0, dunceNote);
 
 				var index:Int = unspawnNotes.indexOf(dunceNote);
 				unspawnNotes.splice(index, 1);
@@ -1949,7 +1942,7 @@ class PlayState extends MusicBeatState
 					MusicBeatState.switchState(new StoryMenuState());
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
-					// StoryMenuState.weekUnlocked[Std.int(Math.min(storyWeek + 1, StoryMenuState.weekUnlocked.length - 1))] = true;
+					StoryMenuState.weekCompleted.set(Week.weeksList[storyWeek], true);
 
 					if (SONG.validScore)
 						Highscore.saveWeekScore(Week.getCurrentWeek().weekName, campaignScore, storyDifficulty);
@@ -1961,17 +1954,6 @@ class PlayState extends MusicBeatState
 				}
 				else
 				{
-					var difficulty:String = "";
-
-					if (storyDifficulty == 0)
-						difficulty = '-easy';
-
-					if (storyDifficulty == 2)
-						difficulty = '-hard';
-
-					trace('LOADING NEXT SONG');
-					trace(PlayState.storyPlaylist[0].toLowerCase() + difficulty);
-
 					if (SONG.song.toLowerCase() == 'eggnog')
 					{
 						var blackShit:FlxSprite = new FlxSprite(-FlxG.width * FlxG.camera.zoom,
@@ -1989,7 +1971,8 @@ class PlayState extends MusicBeatState
 					prevCamFollow = camFollow;
 					prevCamFollowPos = camFollowPos;
 
-					PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + difficulty, PlayState.storyPlaylist[0]);
+					PlayState.SONG = Song.loadFromJson(Highscore.formatSong(PlayState.storyPlaylist[0].toLowerCase(), storyDifficulty),
+						PlayState.storyPlaylist[0]);
 					FlxG.sound.music.stop();
 
 					cancelMusicFadeTween();
@@ -2642,17 +2625,11 @@ class PlayState extends MusicBeatState
 		// wiggleShit.update(Conductor.crochet);
 
 		// HARDCODING FOR MILF ZOOMS!
-		if (curSong.toLowerCase() == 'milf' && curBeat >= 168 && curBeat < 200 && camZooming && FlxG.camera.zoom < 1.35)
-		{
-			FlxG.camera.zoom += 0.015;
-			camHUD.zoom += 0.03;
-		}
+		if (curSong.toLowerCase() == 'milf' && curBeat >= 168 && curBeat < 200)
+			camBump();
 
-		if (camZooming && FlxG.camera.zoom < 1.35 && curBeat % 4 == 0)
-		{
-			FlxG.camera.zoom += 0.015;
-			camHUD.zoom += 0.03;
-		}
+		if (curBeat % 4 == 0)
+			camBump();
 
 		iconP1.setGraphicSize(Std.int(iconP1.width + 30));
 		iconP2.setGraphicSize(Std.int(iconP2.width + 30));
@@ -2745,6 +2722,15 @@ class PlayState extends MusicBeatState
 		}
 
 		callScripts('beatHit');
+	}
+
+	public function camBump(force:Bool = false)
+	{
+		if ((force || camZooming) && FlxG.camera.zoom < 1.35)
+		{
+			FlxG.camera.zoom += 0.015;
+			camHUD.zoom += 0.04;
+		}
 	}
 
 	function callScripts(functionToCall:String, ?params:Array<Dynamic>)

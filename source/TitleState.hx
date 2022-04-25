@@ -254,7 +254,7 @@ class TitleState extends MusicBeatState
 				// Check if version is outdated
 				if (MagPrefs.getValue('versionCheck') && !OutdatedSubState.leftState)
 				{
-					var http:Http = new Http('https://raw.githubusercontent.com/magnumsrtisswag/MagEngine-Public/main/gameVersion.txt');
+					var http:Http = new Http('https://raw.githubusercontent.com/Stilic/MagEngine-Public/main/gameVersion.txt');
 					http.onData = function(data:String)
 					{
 						var updateVersion:String = data.split('\n')[0].trim();

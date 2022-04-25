@@ -7,11 +7,11 @@ using StringTools;
 
 class CoolUtil
 {
-	public static var difficultyArray:Array<String> = ['Easy', 'Normal', 'Hard'];
+	public static var difficultyArray:Array<Array<String>> = [['Easy', 'easy'], ['Normal', 'normal'], ['Hard', 'hard']];
 
 	public static function difficultyString(uppercase:Bool = true):String
 	{
-		var diff:String = difficultyArray[PlayState.storyDifficulty];
+		var diff:String = difficultyArray[PlayState.storyDifficulty][0];
 		if (uppercase)
 			diff = diff.toUpperCase();
 		return diff;

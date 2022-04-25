@@ -1,12 +1,15 @@
 package;
 
-#if SCRIPTS
+#if sys
+import sys.io.File;
+#end
+#if desktop
+import Discord.DiscordClient;
+#end
 import hscript.Expr.Error;
 import flixel.FlxBasic;
-import sys.io.File;
 import hscript.Parser;
 import haxe.Json;
-import Discord.DiscordClient;
 import hscript.Interp;
 
 class Script
@@ -14,6 +17,7 @@ class Script
 	public static final Function_Stop:Int = 1;
 	public static final Function_Continue:Int = 0;
 
+	#if SCRIPTS
 	private var interp:Interp;
 
 	public var path:String;
@@ -140,5 +144,5 @@ class Script
 		}
 		return null;
 	}
+	#end
 }
-#end
