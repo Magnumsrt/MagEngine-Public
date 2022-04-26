@@ -541,17 +541,19 @@ class Character extends FlxSprite
 				danced = !danced;
 		}
 
-		camMoveArray = [0, 0];
-
-		var camAdd:Int = 15;
-		if (AnimName.startsWith('singLEFT'))
-			camMoveArray = [-camAdd, 0];
-		if (AnimName.startsWith('singDOWN'))
-			camMoveArray = [0, camAdd];
-		if (AnimName.startsWith('singUP'))
-			camMoveArray = [0, -camAdd];
-		if (AnimName.startsWith('singRIGHT'))
-			camMoveArray = [camAdd, 0];
+		if (!stunned)
+		{
+			camMoveArray = [0, 0];
+			var camAdd:Int = 15;
+			if (AnimName.startsWith('singLEFT'))
+				camMoveArray = [-camAdd, 0];
+			if (AnimName.startsWith('singDOWN'))
+				camMoveArray = [0, camAdd];
+			if (AnimName.startsWith('singUP'))
+				camMoveArray = [0, -camAdd];
+			if (AnimName.startsWith('singRIGHT'))
+				camMoveArray = [camAdd, 0];
+		}
 	}
 
 	public var danceEveryNumBeats:Int = 2;
