@@ -1,11 +1,11 @@
 package;
 
+import flixel.FlxState;
 import Conductor.BPMChangeEvent;
 import flixel.FlxG;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.ui.FlxUIState;
 import flixel.math.FlxRect;
-import flixel.FlxState;
 import flixel.util.FlxTimer;
 
 class MusicBeatState extends FlxUIState
@@ -25,9 +25,10 @@ class MusicBeatState extends FlxUIState
 		var skip:Bool = FlxTransitionableState.skipNextTransOut;
 		super.create();
 
-		// Custom made Trans out
 		if (!skip)
-			openSubState(new CustomFadeTransition(1, true));
+		{
+			openSubState(new CustomFadeTransition(0.7, true));
+		}
 		FlxTransitionableState.skipNextTransOut = false;
 	}
 
@@ -45,6 +46,27 @@ class MusicBeatState extends FlxUIState
 		super.update(elapsed);
 	}
 
+	private function updateBeat():Void
+	{
+		curBeat = Math.floor(curStep / 4);
+	}
+
+	private function updateCurStep():Void
+	{
+		var lastChange:BPMChangeEvent = {
+			stepTime: 0,
+			songTime: 0,
+			bpm: 0
+		}
+		for (i in 0...Conductor.bpmChangeMap.length)
+		{
+			if (Conductor.songPosition >= Conductor.bpmChangeMap[i].songTime)
+				lastChange = Conductor.bpmChangeMap[i];
+		}
+
+		curStep = lastChange.stepTime + Math.floor((Conductor.songPosition - lastChange.songTime) / Conductor.stepCrochet);
+	}
+
 	public static function switchState(nextState:FlxState)
 	{
 		// Custom made Trans in
@@ -52,7 +74,7 @@ class MusicBeatState extends FlxUIState
 		var leState:MusicBeatState = curState;
 		if (!FlxTransitionableState.skipNextTransIn)
 		{
-			leState.openSubState(new CustomFadeTransition(0.7, false));
+			leState.openSubState(new CustomFadeTransition(0.6, false));
 			if (nextState == FlxG.state)
 			{
 				CustomFadeTransition.finishCallback = function()
@@ -76,27 +98,6 @@ class MusicBeatState extends FlxUIState
 	public static function resetState()
 	{
 		MusicBeatState.switchState(FlxG.state);
-	}
-
-	private function updateBeat():Void
-	{
-		curBeat = Math.floor(curStep / 4);
-	}
-
-	private function updateCurStep():Void
-	{
-		var lastChange:BPMChangeEvent = {
-			stepTime: 0,
-			songTime: 0,
-			bpm: 0
-		}
-		for (i in 0...Conductor.bpmChangeMap.length)
-		{
-			if (Conductor.songPosition >= Conductor.bpmChangeMap[i].songTime)
-				lastChange = Conductor.bpmChangeMap[i];
-		}
-
-		curStep = lastChange.stepTime + Math.floor((Conductor.songPosition - lastChange.songTime) / Conductor.stepCrochet);
 	}
 
 	public function stepHit():Void

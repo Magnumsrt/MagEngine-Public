@@ -24,23 +24,19 @@ class ModsMenu extends MusicBeatState
 
 	var page:FlxTypedGroup<ModsMenuOption> = new FlxTypedGroup<ModsMenuOption>();
 
-	public static var instance:ModsMenu;
-
 	public static var enabledMods = [];
 
 	public static var coolId:String;
 	public static var disableButton:FlxButton;
 	public static var enableButton:FlxButton;
 
-	var bgtwo:FlxSprite;
-	var bg:FlxSprite;
-
 	var infoText:FlxText;
 	var infoTextcool:FlxText;
 
 	override function create()
 	{
-		LoggingUtil.writeToLogFile('In The Mods Menu!');
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
 
 		var menuBG:FlxSprite;
 
@@ -98,39 +94,27 @@ class ModsMenu extends MusicBeatState
 		}
 
 		if (optionLoopNum > 0)
-		{
 			buildUI();
-		}
 
 		infoText.visible = (page.length == 0);
 	}
 
 	function buildUI()
 	{
-		bg = new FlxSprite(0, 0).loadGraphic(Paths.image("modbg"));
-		// bg.screenCenter(Y);
-
-		bgtwo = new FlxSprite(720, 0).loadGraphic(Paths.image("modbg"));
-		bgtwo.screenCenter(Y);
-
-		ModsMenu.enableButton = new FlxButton(bg.x + 1120, 309, "Enable Mod", function()
+		enableButton = new FlxButton(1120, 310, "Enable mod", function()
 		{
-			page.members[curSelected].Mod_Enabled = true;
-			if (!enabledMods.contains(page.members[curSelected].Option_Value))
-			{
-				enabledMods.push(page.members[curSelected].Option_Value);
-			}
-			ModList.setModEnabled(page.members[curSelected].Option_Value, page.members[curSelected].Mod_Enabled);
+			page.members[curSelected].enabled = true;
+			if (!enabledMods.contains(page.members[curSelected].value))
+				enabledMods.push(page.members[curSelected].value);
+			ModList.setModEnabled(page.members[curSelected].value, page.members[curSelected].enabled);
 		});
 
-		ModsMenu.disableButton = new FlxButton(bg.x + 1120, 380, "Disable Mod", function()
+		disableButton = new FlxButton(enableButton.x, enableButton.y + 70, "Disable mod", function()
 		{
-			page.members[curSelected].Mod_Enabled = false;
-			if (enabledMods.contains(page.members[curSelected].Option_Value))
-			{
-				enabledMods.remove(page.members[curSelected].Option_Value);
-			}
-			ModList.setModEnabled(page.members[curSelected].Option_Value, page.members[curSelected].Mod_Enabled);
+			page.members[curSelected].enabled = false;
+			if (enabledMods.contains(page.members[curSelected].value))
+				enabledMods.remove(page.members[curSelected].value);
+			ModList.setModEnabled(page.members[curSelected].value, page.members[curSelected].enabled);
 		});
 
 		enableButton.setGraphicSize(150, 70);
@@ -147,7 +131,6 @@ class ModsMenu extends MusicBeatState
 		disableButton.label.fieldWidth = 135;
 		setLabelOffset(disableButton, 5, 22);
 
-		add(bgtwo);
 		add(infoTextcool);
 		add(disableButton);
 		add(enableButton);
@@ -167,13 +150,13 @@ class ModsMenu extends MusicBeatState
 
 		if (page.length > 0)
 		{
-			if (controls.UP_P)
+			if (controls.UI_UP_P)
 			{
 				curSelected--;
 				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
 			}
 
-			if (controls.DOWN_P)
+			if (controls.UI_DOWN_P)
 			{
 				curSelected++;
 				FlxG.sound.play(Paths.sound('scrollMenu'), 0.4);
@@ -197,7 +180,7 @@ class ModsMenu extends MusicBeatState
 
 		for (x in page.members)
 		{
-			x.Alphabet_Text.targetY = bruh - curSelected;
+			x.text.targetY = bruh - curSelected;
 			bruh++;
 		}
 	}

@@ -1,7 +1,0 @@
-Magnumsrt:Main Developer
-Stilic:Assistant Developer
-Shadow Mario:Mod Support
-RozeBud:KeyBinds Menu
-Yoshubs:New Inputs
-BrightFyre:MP4 Video Support
-Leather128:Polymod Enabling And Disabling Code

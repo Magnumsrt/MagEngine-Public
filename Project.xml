@@ -1,34 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project>
+<project xmlns="http://lime.software/project/1.0.3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://lime.software/project/1.0.3 http://lime.software/xsd/project-1.0.3.xsd">
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin': Mag Engine" file="Mag Engine" packageName="com.ninjamuffin99.funkin" package="com.ninjamuffin99.funkin" main="Main" version="1.4.1" company="Magnumsrt" />
+	<app title="Friday Night Funkin': Mag Engine" file="MagEngine" packageName="com.magnumsrt.magengine" package="com.magnumsrt.magengine" main="Main" version="2.0.0" company="magnumsrt" />
 
 	<!--Switch Export with Unique ApplicationID and Icon-->
 	<set name="APP_ID" value="0x0100f6c013bbc000" />
 
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
-	<!-- <app preloader="Preloader" resizable="true" /> -->
 	<app preloader="flixel.system.FlxPreloader" />
 
 	<!--Minimum without FLX_NO_GAMEPAD: 11.8, without FLX_NO_NATIVE_CURSOR: 11.2-->
 	<set name="SWF_VERSION" value="11.8" />
 
-	<log warn="SET POLYMOD TO VERSION 1.3.0" />
-	<log warn="SET POLYMOD TO VERSION 1.3.0 " />
-	<log warn="SET POLYMOD TO VERSION 1.3.0  " />
-	<log warn="SET POLYMOD TO VERSION 1.3.0   " />
-	<log warn="SET POLYMOD TO VERSION 1.3.0     " />
-	<log warn="SET POLYMOD TO VERSION 1.3.0       " />
-	<log warn="SET POLYMOD TO VERSION 1.3.0         " />
-	<log warn="LATEST POLYMOD VERSIONS ARE BROKEN" />
-	<echo value="-Magnumsrt"/>
-
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="" background="#000000" hardware="true" vsync="false" />
+	<window width="1280" height="720" background="#000000" hardware="true" vsync="false" />
 
 	<!--HTML5-specific-->
 	<window if="html5" resizable="true" />
@@ -48,21 +37,23 @@
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
 	<set name="BUILD_DIR" value="export/32bit" if="32bit" />
 
-	<classpath name="source" />
+	<classpath path="source" />
 
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web" />
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web" />
 
+	<!-- MAG ENGINE CUSTOMIZATION -->
+	<define name="DISCORD" if="desktop" unless="hl" />
 	<define name="MODS" if="desktop" />
 	<define name="SCRIPTS" if="desktop" />
-	<define name="CACHE" if="sys" />
+
+	<!-- <define name="PRELOAD_ALL" /> -->
 	<define name="PRELOAD_ALL" unless="web" />
+	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL" />
 
 	<section if="PRELOAD_ALL">
 		<library name="songs" preload="true" />
 		<library name="shared" preload="true" />
-		<library name="tutorial" preload="true" />
-		<library name="week1" preload="true" />
 		<library name="week2" preload="true" />
 		<library name="week3" preload="true" />
 		<library name="week4" preload="true" />
@@ -70,11 +61,9 @@
 		<library name="week6" preload="true" />
 	</section>
 
-	<section unless="PRELOAD_ALL">
+	<section if="NO_PRELOAD_ALL">
 		<library name="songs" preload="false" />
 		<library name="shared" preload="false" />
-		<library name="tutorial" preload="false" />
-		<library name="week1" preload="false" />
 		<library name="week2" preload="false" />
 		<library name="week3" preload="false" />
 		<library name="week4" preload="false" />
@@ -86,10 +75,6 @@
 	<assets path="assets/songs" library="songs" exclude="*.mp3" unless="web" />
 	<assets path="assets/shared" library="shared" exclude="*.ogg" if="web" />
 	<assets path="assets/shared" library="shared" exclude="*.mp3" unless="web" />
-	<assets path="assets/tutorial" library="tutorial" exclude="*.ogg" if="web" />
-	<assets path="assets/tutorial" library="tutorial" exclude="*.mp3" unless="web" />
-	<assets path="assets/week1" library="week1" exclude="*.ogg" if="web" />
-	<assets path="assets/week1" library="week1" exclude="*.mp3" unless="web" />
 	<assets path="assets/week2" library="week2" exclude="*.ogg" if="web" />
 	<assets path="assets/week2" library="week2" exclude="*.mp3" unless="web" />
 	<assets path="assets/week3" library="week3" exclude="*.ogg" if="web" />
@@ -101,19 +86,9 @@
 	<assets path="assets/week6" library="week6" exclude="*.ogg" if="web" />
 	<assets path="assets/week6" library="week6" exclude="*.mp3" unless="web" />
 
-	<assets path="assets/videos" exclude="*.mp3" if="web" />
-	<assets path="assets/videos" exclude="*.ogg" unless="web" />
-	<assets path="plugins/" rename='' if="windows" />
-	<assets path="dlls/" rename='' if="windows" />
-
 	<assets path='example_mods' rename='mods' embed='false' />
-	<assets path='example_skins' rename='skins' embed='false' />
-	<assets path='example_logs' rename='logs' embed='false' />
 	<assets path='art/readme.txt' rename='do NOT readme.txt' />
-	
 	<!-- <template path='mods' /> -->
-
-	<assets path="CHANGELOG.md" rename='changelog.txt' />
 
 	<!-- NOTE FOR FUTURE SELF SINCE FONTS ARE ALWAYS FUCKY 
 		TO FIX ONE OF THEM, I CONVERTED IT TO OTF. DUNNO IF YOU NEED TO
@@ -124,15 +99,15 @@
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<haxelib name="flixel" />
-	<haxedev set='webgl' />
-	<haxelib name="flixel-addons" />
 
-	<haxelib name="flixel-ui" />
-	<haxelib name="newgrounds" />
-	<haxelib name="faxe" if='switch' />
-	<haxelib name="linc_luajit" />
+	<!--In case you want to use the addons package-->
+	<haxelib name="flixel-addons" />
 	<haxelib name="polymod" />
-	<haxelib name="discord_rpc" if="desktop" />
+	<haxelib name="hscript" />
+
+	<!--In case you want to use the ui package-->
+	<haxelib name="flixel-ui" />
+	<haxelib name="discord_rpc" if="DISCORD" />
 	<!-- <haxelib name="hxcpp-debug-server" if="desktop"/> -->
 
 	<!-- <haxelib name="markdown" /> -->
@@ -181,7 +156,4 @@
 	<icon path="art/icon32.png" size='32' />
 	<icon path="art/icon64.png" size='64' />
 	<icon path="art/iconOG.png" />
-
-	<!-- <haxedef name="SKIP_TO_PLAYSTATE" if="debug" /> -->
-	<haxedef name="NG_LOGIN" if="newgrounds" />
 </project>

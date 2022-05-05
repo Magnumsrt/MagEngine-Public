@@ -1,45 +1,23 @@
 package;
 
-import flixel.FlxSprite;
-import openfl.utils.Assets as OpenFlAssets;
-#if sys
-import sys.FileSystem;
-#end
+import flixel.math.FlxMath;
+import flixel.graphics.FlxGraphic;
 
 using StringTools;
 
-class HealthIcon extends FlxSprite
+class HealthIcon extends AttachedSprite
 {
-	public var sprTracker:FlxSprite;
-
-	private var isOldIcon:Bool = false;
+	private var char:String = '';
 	private var isPlayer:Bool = false;
 
-	public var char:String = '';
+	public var canBounce:Bool = false;
 
 	public function new(char:String = 'bf', isPlayer:Bool = false)
 	{
 		super();
-		isOldIcon = (char == 'bf-old');
 		this.isPlayer = isPlayer;
 		changeIcon(char);
 		scrollFactor.set();
-	}
-
-	override function update(elapsed:Float)
-	{
-		super.update(elapsed);
-
-		if (sprTracker != null)
-			setPosition(sprTracker.x + sprTracker.width + 10, sprTracker.y - 30);
-	}
-
-	public function swapOldIcon()
-	{
-		if (isOldIcon = !isOldIcon)
-			changeIcon('bf-old');
-		else
-			changeIcon('bf');
 	}
 
 	public function changeIcon(char:String)
@@ -47,29 +25,35 @@ class HealthIcon extends FlxSprite
 		if (this.char != char)
 		{
 			var name:String = 'icons/icon-' + char;
-			if (!FileSystem.exists('images/' + name + '.png'))
-				name = 'icons/icon-' + char;
+			if (!Paths.fileExists('images/' + name + '.png', IMAGE))
+				name = 'icons/icon-face';
+			var file:FlxGraphic = Paths.image(name);
 
-			var file:Dynamic = Paths.image(name);
+			loadGraphic(file);
+			loadGraphic(file, true, Math.floor(width / 2), Math.floor(height));
 
-			loadGraphic(file, true, 150, 150);
 			animation.add(char, [0, 1], 0, false, isPlayer);
 			animation.play(char);
 			this.char = char;
 
-			if (char.endsWith('-pixel') || char.startsWith('senpai') || char.startsWith('spirit'))
-			{
-				antialiasing = false;
-			}
-			else
-			{
-				antialiasing = true;
-			}
+			antialiasing = !char.endsWith('-pixel');
 		}
 	}
 
-	public function getCharacter():String
+	override public function update(elapsed:Float)
 	{
-		return char;
+		super.update(elapsed);
+
+		if (canBounce)
+		{
+			setGraphicSize(Std.int(FlxMath.lerp(150, width, CoolUtil.boundTo(1 - elapsed * 4.35, 0, 1))));
+			updateHitbox();
+		}
+	}
+
+	public function bounce()
+	{
+		if (canBounce)
+			setGraphicSize(Std.int(width + 30));
 	}
 }

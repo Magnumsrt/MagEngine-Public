@@ -7,6 +7,7 @@ import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 import flixel.util.FlxTimer;
 import flixel.system.FlxSound;
+import flash.media.Sound;
 
 using StringTools;
 
@@ -20,6 +21,8 @@ class Alphabet extends FlxSpriteGroup
 
 	// for menu shit
 	public var forceX:Float = Math.NEGATIVE_INFINITY;
+	public var horizontalScroll:Bool = false;
+	public var targetX:Float = 0;
 	public var targetY:Float = 0;
 	public var yMult:Float = 120;
 	public var xAdd:Float = 0;
@@ -137,9 +140,11 @@ class Alphabet extends FlxSpriteGroup
 			{
 				consecutiveSpaces++;
 			}
+
+			var isNumber:Bool = AlphaCharacter.numbers.indexOf(character) != -1;
 			var isSymbol:Bool = AlphaCharacter.symbols.indexOf(character) != -1;
 			var isAlphabet:Bool = AlphaCharacter.alphabet.indexOf(character.toLowerCase()) != -1;
-			if ((isAlphabet || isSymbol) && (!isBold || !spaceChar))
+			if ((isAlphabet || isSymbol || isNumber) && (!isBold || !spaceChar))
 			{
 				if (lastSprite != null)
 				{
@@ -157,7 +162,11 @@ class Alphabet extends FlxSpriteGroup
 
 				if (isBold)
 				{
-					if (isSymbol)
+					if (isNumber)
+					{
+						letter.createBoldNumber(character);
+					}
+					else if (isSymbol)
 					{
 						letter.createBoldSymbol(character);
 					}
@@ -168,7 +177,11 @@ class Alphabet extends FlxSpriteGroup
 				}
 				else
 				{
-					if (isSymbol)
+					if (isNumber)
+					{
+						letter.createNumber(character);
+					}
+					else if (isSymbol)
 					{
 						letter.createSymbol(character);
 					}
@@ -199,7 +212,19 @@ class Alphabet extends FlxSpriteGroup
 	public var curRow:Int = 0;
 
 	var dialogueSound:FlxSound = null;
+
+	private static var soundDialog:Sound = null;
+
 	var consecutiveSpaces:Int = 0;
+
+	public static function setDialogueSound(name:String = '')
+	{
+		if (name == null || name.trim() == '')
+			name = 'dialogue';
+		soundDialog = Paths.sound(name);
+		if (soundDialog == null)
+			soundDialog = Paths.sound('dialogue');
+	}
 
 	var typeTimer:FlxTimer = null;
 
@@ -210,6 +235,11 @@ class Alphabet extends FlxSpriteGroup
 
 		// trace(arrayShit);
 
+		if (soundDialog == null)
+		{
+			Alphabet.setDialogueSound();
+		}
+
 		if (speed <= 0)
 		{
 			while (!finishedText)
@@ -218,7 +248,7 @@ class Alphabet extends FlxSpriteGroup
 			}
 			if (dialogueSound != null)
 				dialogueSound.stop();
-			dialogueSound = FlxG.sound.play(Paths.sound('dialogue'));
+			dialogueSound = FlxG.sound.play(soundDialog);
 		}
 		else
 		{
@@ -268,10 +298,11 @@ class Alphabet extends FlxSpriteGroup
 				consecutiveSpaces++;
 			}
 
+			var isNumber:Bool = AlphaCharacter.numbers.indexOf(splitWords[loopNum]) != -1;
 			var isSymbol:Bool = AlphaCharacter.symbols.indexOf(splitWords[loopNum]) != -1;
 			var isAlphabet:Bool = AlphaCharacter.alphabet.indexOf(splitWords[loopNum].toLowerCase()) != -1;
 
-			if ((isAlphabet || isSymbol) && (!isBold || !spaceChar))
+			if ((isAlphabet || isSymbol || isNumber) && (!isBold || !spaceChar))
 			{
 				if (lastSprite != null && !xPosResetted)
 				{
@@ -296,7 +327,11 @@ class Alphabet extends FlxSpriteGroup
 				letter.row = curRow;
 				if (isBold)
 				{
-					if (isSymbol)
+					if (isNumber)
+					{
+						letter.createBoldNumber(splitWords[loopNum]);
+					}
+					else if (isSymbol)
 					{
 						letter.createBoldSymbol(splitWords[loopNum]);
 					}
@@ -307,7 +342,11 @@ class Alphabet extends FlxSpriteGroup
 				}
 				else
 				{
-					if (isSymbol)
+					if (isNumber)
+					{
+						letter.createNumber(splitWords[loopNum]);
+					}
+					else if (isSymbol)
 					{
 						letter.createSymbol(splitWords[loopNum]);
 					}
@@ -322,7 +361,7 @@ class Alphabet extends FlxSpriteGroup
 				{
 					if (dialogueSound != null)
 						dialogueSound.stop();
-					dialogueSound = FlxG.sound.play(Paths.sound('dialogue'));
+					dialogueSound = FlxG.sound.play(soundDialog);
 				}
 
 				add(letter);
@@ -346,23 +385,24 @@ class Alphabet extends FlxSpriteGroup
 
 	override function update(elapsed:Float)
 	{
+		var lerpVal:Float = getLerpVal();
+
 		if (isMenuItem)
 		{
-			var scaledY = FlxMath.remapToRange(targetY, 0, 1, 0, 1.3);
-
-			var lerpVal:Float = CoolUtil.boundTo(elapsed * 9.6, 0, 1);
-			y = FlxMath.lerp(y, (scaledY * yMult) + (FlxG.height * 0.48) + yAdd, lerpVal);
+			y = FlxMath.lerp(y, (FlxMath.remapToRange(targetY, 0, 1, 0, 1.3) * yMult) + (FlxG.height * 0.48) + yAdd, lerpVal);
 			if (forceX != Math.NEGATIVE_INFINITY)
-			{
 				x = forceX;
-			}
 			else
-			{
 				x = FlxMath.lerp(x, (targetY * 20) + 90 + xAdd, lerpVal);
-			}
 		}
-
+		else if (horizontalScroll)
+			x = FlxMath.lerp(x, targetX, lerpVal);
 		super.update(elapsed);
+	}
+
+	inline static public function getLerpVal()
+	{
+		return CoolUtil.boundTo(FlxG.elapsed * 9.6, 0, 1);
 	}
 
 	public function killTheTimer()
@@ -378,7 +418,7 @@ class Alphabet extends FlxSpriteGroup
 
 class AlphaCharacter extends FlxSprite
 {
-	public static var alphabet:String = "abcdefghijklmnopqrstuvwxyz";
+	public static var alphabet:String = "abcdefghijklmnopqrstuvwxyzàáãâåèéêëìíîïòóôöùúûüñçþæ";
 
 	public static var numbers:String = "1234567890";
 
@@ -430,6 +470,10 @@ class AlphaCharacter extends FlxSprite
 				animation.addByPrefix(letter, 'bold (', 24);
 			case ")":
 				animation.addByPrefix(letter, 'bold )', 24);
+			case "$":
+				animation.addByPrefix(letter, '$', 24);
+			case '^':
+				animation.addByPrefix(letter, '^ bold', 24);
 			default:
 				animation.addByPrefix(letter, 'bold ' + letter, 24);
 		}

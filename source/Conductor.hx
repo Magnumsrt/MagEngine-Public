@@ -2,10 +2,6 @@ package;
 
 import Song.SwagSong;
 
-/**
- * ...
- * @author
- */
 typedef BPMChangeEvent =
 {
 	var stepTime:Int;
@@ -18,7 +14,6 @@ class Conductor
 	public static var bpm:Int = 100;
 	public static var crochet:Float = ((60 / bpm) * 1000); // beats in milliseconds
 	public static var stepCrochet:Float = crochet / 4; // steps in milliseconds
-	public static var rawSongPos:Float;
 	public static var songPosition:Float;
 	public static var lastSongPos:Float;
 	public static var offset:Float = 0;
@@ -28,22 +23,23 @@ class Conductor
 
 	public static var bpmChangeMap:Array<BPMChangeEvent> = [];
 
-	public function new()
-	{
-	}
+	public static var timingWindows:Array<Int>;
 
-	public static function judgeNote(note:Note, diff:Float = 0)
+	public static function judgeNote(diff:Float = 0)
 	{
-		// pls better hit rating (stolen from psych who stolen from kade :troll:)
-		var timingWindows:Array<Int> = [45, 90, 135];
+		// tryna do MS based judgment due to popular demand
+		if (timingWindows == null)
+			timingWindows = [
+				MagPrefs.getValue('sickWindow'),
+				MagPrefs.getValue('goodWindow'),
+				MagPrefs.getValue('badWindow')
+			];
 		var windowNames:Array<String> = ['sick', 'good', 'bad'];
 
 		for (i in 0...timingWindows.length) // based on 4 timing windows, will break with anything else
 		{
 			if (diff <= timingWindows[Math.round(Math.min(i, timingWindows.length - 1))])
-			{
 				return windowNames[i];
-			}
 		}
 		return 'shit';
 	}

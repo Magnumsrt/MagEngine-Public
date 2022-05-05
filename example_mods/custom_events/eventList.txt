@@ -1,5 +1,0 @@
-none
-play-animation
-video
-character-change
-time-reverse

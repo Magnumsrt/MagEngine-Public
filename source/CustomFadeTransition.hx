@@ -8,7 +8,6 @@ import flixel.util.FlxGradient;
 import flixel.FlxSprite;
 import flixel.FlxCamera;
 
-// transition code from psych cuz the original one is buggy
 class CustomFadeTransition extends MusicBeatSubstate
 {
 	public static var finishCallback:Void->Void;
@@ -78,22 +77,14 @@ class CustomFadeTransition extends MusicBeatSubstate
 	override function update(elapsed:Float)
 	{
 		if (isTransIn)
-		{
 			transBlack.y = transGradient.y + transGradient.height;
-		}
 		else
-		{
 			transBlack.y = transGradient.y - transBlack.height;
-		}
 		super.update(elapsed);
 		if (isTransIn)
-		{
 			transBlack.y = transGradient.y + transGradient.height;
-		}
 		else
-		{
 			transBlack.y = transGradient.y - transBlack.height;
-		}
 	}
 
 	override function destroy()

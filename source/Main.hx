@@ -1,70 +1,31 @@
 package;
 
-import openfl.text.TextFormat;
 import flixel.FlxG;
+import haxe.CallStack;
+import haxe.CallStack.StackItem;
+import openfl.events.UncaughtErrorEvent;
 import flixel.FlxGame;
 import flixel.FlxState;
 import openfl.Lib;
 import openfl.display.Sprite;
 import openfl.events.Event;
-#if sys
-import sys.FileSystem;
-import sys.io.Process;
-import sys.io.File;
-#end
-import openfl.system.System;
 
 class Main extends Sprite
 {
 	var gameWidth:Int = 1280; // Width of the game in pixels (might be less / more in actual pixels depending on your zoom).
 	var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).
-	var initialState:Class<FlxState> = StartState; // The FlxState the game starts with.
-	var framerate:Int = 120; // How many frames per second the game should run at.
+	var initialState:Class<FlxState> = TitleState; // The FlxState the game starts with.
 	var zoom:Float = -1; // If -1, zoom is automatically calculated to fit the window dimensions.
+	var framerate:Int = 60; // How many frames per second the game should run at.
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
+	var fpsCounter:FPSCounter;
 
 	public static function main():Void
 	{
-		// quick checks
-		var rawCommand = Sys.args();
-		if (rawCommand.contains('startUpdate'))
-		{
-			var cleanUp:String->String->Void = null;
-			cleanUp = function(curPath, newPath)
-			{
-				FileSystem.createDirectory(curPath);
-				FileSystem.createDirectory(newPath);
-				for (file in FileSystem.readDirectory(curPath))
-				{
-					if (FileSystem.isDirectory(curPath + "/" + file))
-					{
-						cleanUp(curPath + "/" + file, newPath + "/" + file);
-					}
-					else
-					{
-						File.copy(curPath + "/" + file, newPath + "/" + file);
-					}
-				}
-			}
-			cleanUp('updateCache', '.');
-			CoolUtil.deleteFolderContents('updateCache');
-			FileSystem.deleteDirectory('updateCache');
-			new Process('start /B "" "Mag Engine.exe"', null);
-			System.exit(0);
-		}
-		else
-		{
-
-			if (FileSystem.exists("Updater.exe")) {
-				FileSystem.deleteFile('Updater.exe');
-			}
-
-
-			Lib.current.addChild(new Main());
-		}
+		Lib.current.addChild(new Main());
 	}
 
 	public function new()
@@ -72,21 +33,16 @@ class Main extends Sprite
 		super();
 
 		if (stage != null)
-		{
 			init();
-		}
 		else
-		{
 			addEventListener(Event.ADDED_TO_STAGE, init);
-		}
 	}
 
 	private function init(?E:Event):Void
 	{
 		if (hasEventListener(Event.ADDED_TO_STAGE))
-		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-		}
+
 		setupGame();
 	}
 
@@ -104,48 +60,97 @@ class Main extends Sprite
 			gameHeight = Math.ceil(stageHeight / zoom);
 		}
 
-		#if html5
-		framerate = 60;
+		#if sys
+		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
+		#end
+
+		#if !debug
+		initialState = TitleState;
 		#end
 
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 
-		#if !mobile
-		display = new SimpleInfoDisplay(10, 3, 0xFFFFFF);
-		addChild(display);
+		FlxG.fixedTimestep = false;
+		FlxG.mouse.useSystemCursor = true;
+		FlxG.mouse.visible = false;
+
+		MagPrefs.load();
+
+		#if !html5
+		setFramerate(MagPrefs.getValue('framerate'));
 		#end
 
-		if (FlxG.save.data.fps != null)
-			(cast(Lib.current.getChildAt(0), Main)).toggleFPS(FlxG.save.data.fps);
-
-		if (FlxG.save.data.mem != null)
-			(cast(Lib.current.getChildAt(0), Main)).toggleMem(FlxG.save.data.mem);
-
-		if (FlxG.save.data.v != null)
-			(cast(Lib.current.getChildAt(0), Main)).toggleVers(FlxG.save.data.v);
-
-		FlxG.mouse.visible = false;
+		#if !mobile
+		fpsCounter = new FPSCounter(8, 3, 0xffffff);
+		addChild(fpsCounter);
+		setFPSDisplay();
+		#end
 	}
 
-	public static var display:SimpleInfoDisplay;
-
-	public function toggleFPS(enabled:Bool):Void
+	public static function setFramerate(input:Int)
 	{
-		display.infoDisplayed[0] = enabled;
+		if (input > FlxG.drawFramerate)
+		{
+			FlxG.updateFramerate = input;
+			FlxG.drawFramerate = input;
+		}
+		else
+		{
+			FlxG.drawFramerate = input;
+			FlxG.updateFramerate = input;
+		}
 	}
 
-	public function toggleMem(enabled:Bool):Void
+	public static function setFPSDisplay()
 	{
-		display.infoDisplayed[1] = enabled;
+		var leMain:Main = cast Lib.current.getChildAt(0);
+		leMain.toggleFPS(MagPrefs.getValue('fps'));
+		leMain.toggleMem(MagPrefs.getValue('mem'));
+		leMain.toggleMemPeak(MagPrefs.getValue('memPeak'));
 	}
 
-	public function toggleVers(enabled:Bool):Void
+	public function toggleFPS(value:Bool)
 	{
-		display.infoDisplayed[2] = enabled;
+		if (fpsCounter != null)
+			fpsCounter.showFPS = value;
 	}
 
-	public static function changeFont(font:String):Void
+	public function toggleMem(value:Bool)
 	{
-		display.defaultTextFormat = new TextFormat(font, (font == "_sans" ? 12 : 14), display.textColor);
+		if (fpsCounter != null)
+			fpsCounter.showMEM = value;
 	}
+
+	public function toggleMemPeak(value:Bool)
+	{
+		if (fpsCounter != null)
+			fpsCounter.showMEMPeak = value;
+	}
+
+	#if sys
+	function onCrash(e:UncaughtErrorEvent):Void
+	{
+		var errMsg:String = '';
+		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
+
+		for (stackItem in callStack)
+		{
+			switch (stackItem)
+			{
+				case FilePos(s, file, line, column):
+					errMsg += file + ' (line "' + line + '")\n';
+				default:
+					Sys.println(stackItem);
+			}
+		}
+
+		errMsg += "\nUncaught Error: " + e.error;
+
+		Sys.println(errMsg);
+
+		lime.app.Application.current.window.alert(errMsg, 'Error!');
+
+		Sys.exit(1);
+	}
+	#end
 }

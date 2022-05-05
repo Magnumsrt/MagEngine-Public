@@ -1,27 +1,30 @@
 package modloader;
 
-// this is here so the game doesnt crash because of no framework params
-#if (MODS && polymod)
+#if MODS
 import polymod.Polymod;
 
 class PolymodHandler
 {
-	public static var swagMeta:String;
 	public static var metadataArrays:Array<String> = [];
 
 	public static function loadMods()
 	{
 		loadModMetadata();
-
 		Polymod.init({
-			modRoot: "mods/",
+			modRoot: 'mods/',
 			dirs: ModList.getActiveMods(metadataArrays),
-			errorCallback: function(error:PolymodError)
-			{
-				// trace(error.message);
-			},
+			errorCallback: onError,
 			frameworkParams: {
-				assetLibraryPaths: ["songs" => "songs", "shared" => "shared", "fonts" => "fonts"]
+				assetLibraryPaths: [
+					'shared' => 'shared',
+					'songs' => 'songs',
+					'fonts' => 'fonts',
+					'week2' => 'week2',
+					'week3' => 'week3',
+					'week4' => 'week4',
+					'week5' => 'week5',
+					'week6' => 'week6'
+				]
 			}
 		});
 	}
@@ -29,18 +32,18 @@ class PolymodHandler
 	public static function loadModMetadata()
 	{
 		metadataArrays = [];
-
-		var tempArray = Polymod.scan("mods/", "*.*.*", function(error:PolymodError)
-		{
-			trace(error.message);
-		});
-
+		var tempArray:Array<ModMetadata> = Polymod.scan('mods/', '*.*.*', onError);
 		for (metadata in tempArray)
 		{
-			swagMeta = metadata.id;
 			metadataArrays.push(metadata.id);
 			ModList.modMetadatas.set(metadata.id, metadata);
 		}
+	}
+
+	static function onError(error:PolymodError)
+	{
+		if (error.severity == ERROR)
+			trace(error.message);
 	}
 }
 #end

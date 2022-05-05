@@ -1,5 +1,6 @@
 package animateatlas.displayobject;
 
+import flixel.util.FlxColor;
 import openfl.filters.GlowFilter;
 import openfl.filters.BlurFilter;
 import openfl.display.PixelSnapping;
@@ -370,6 +371,18 @@ class SpriteSymbol extends Sprite
 			newTransform.greenMultiplier = (data.greenMultiplier == null ? 1 : data.greenMultiplier);
 			newTransform.blueMultiplier = (data.blueMultiplier == null ? 1 : data.blueMultiplier);
 			newTransform.alphaMultiplier = (data.alphaMultiplier == null ? 1 : data.alphaMultiplier);
+
+			if (data.mode == "Tint")
+			{ // Tint color effect
+				var color:FlxColor = Std.parseInt(StringTools.replace(data.tintColor, "#", "0xFF"));
+
+				newTransform.redMultiplier = 0;
+				newTransform.greenMultiplier = 0; // (data.greenMultiplier == null ? 1 : data.greenMultiplier);
+				newTransform.blueMultiplier = 0; // (data.blueMultiplier == null ? 1 : data.blueMultiplier);
+				newTransform.redOffset = color.red * data.tintMultiplier;
+				newTransform.greenOffset = color.green * data.tintMultiplier; // (data.greenMultiplier == null ? 1 : data.greenMultiplier);
+				newTransform.blueOffset = color.blue * data.tintMultiplier; // (data.blueMultiplier == null ? 1 : data.blueMultiplier);
+			}
 		}
 		transform.colorTransform = newTransform;
 	}
