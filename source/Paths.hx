@@ -161,14 +161,14 @@ class Paths
 		return returnSound('music', key, library);
 	}
 
-	inline static public function voices(song:String):Any
+	inline static public function voices(song:String):Sound
 	{
-		return returnSound('songs', '${song.toLowerCase().replace(' ', '-')}/Voices');
+		return returnSound('songs', '${song.toLowerCase().replace(' ', '-')}/Voices', 'songs');
 	}
 
-	inline static public function inst(song:String):Any
+	inline static public function inst(song:String):Sound
 	{
-		return returnSound('songs', '${song.toLowerCase().replace(' ', '-')}/Inst');
+		return returnSound('songs', '${song.toLowerCase().replace(' ', '-')}/Inst', 'songs');
 	}
 
 	inline static public function image(key:String, ?library:String):FlxGraphic
@@ -270,13 +270,7 @@ class Paths
 		var gottenPath:String = getPath('$path/$key.$SOUND_EXT', SOUND, library);
 		gottenPath = gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);
 		if (!currentTrackedSounds.exists(gottenPath))
-			#if sys
-			currentTrackedSounds.set(gottenPath, Sound.fromFile('./' + gottenPath));
-			#else
-			// this broke the engine on html5!!!
-			// TODO: fix the crash lol
 			currentTrackedSounds.set(gottenPath, openfl.Assets.getSound(getPath('$path/$key.$SOUND_EXT', SOUND, library)));
-			#end
 		localTrackedAssets.push(gottenPath);
 		return currentTrackedSounds.get(gottenPath);
 	}
