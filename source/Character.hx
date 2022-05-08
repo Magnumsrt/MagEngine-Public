@@ -540,9 +540,9 @@ class Character extends FlxSprite
 				danced = !danced;
 		}
 
+		camMoveArray = [0, 0];
 		if (!stunned)
 		{
-			camMoveArray = [0, 0];
 			var camAdd:Int = 15;
 			if (AnimName.startsWith('singLEFT'))
 				camMoveArray = [-camAdd, 0];
