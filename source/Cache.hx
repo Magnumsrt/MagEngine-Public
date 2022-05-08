@@ -17,6 +17,11 @@ import openfl.display3D.textures.Texture;
  */
 class Cache
 {
+	public static var dumpExclusions:Array<String> = [
+		'assets/music/freakyMenu.${Paths.SOUND_EXT}',
+		'assets/shared/music/breakfast.${Paths.SOUND_EXT}'
+	];
+
 	private static var graphics:Map<String, FlxGraphic> = [];
 	private static var textures:Map<String, Texture> = [];
 	private static var sounds:Map<String, Sound> = [];
@@ -69,12 +74,15 @@ class Cache
 		@:privateAccess
 		for (key => graphic in graphics)
 		{
-			textures.get(key).dispose();
-			textures.remove(key);
-			Assets.cache.removeBitmapData(key);
-			FlxG.bitmap._cache.remove(key);
-			graphic.destroy();
-			graphics.remove(key);
+			if (!dumpExclusions.contains(key))
+			{
+				textures.get(key).dispose();
+				textures.remove(key);
+				Assets.cache.removeBitmapData(key);
+				FlxG.bitmap._cache.remove(key);
+				graphic.destroy();
+				graphics.remove(key);
+			}
 		}
 	}
 
@@ -83,8 +91,11 @@ class Cache
 	{
 		for (key in sounds.keys())
 		{
-			Assets.cache.clear(key);
-			sounds.remove(key);
+			if (!dumpExclusions.contains(key))
+			{
+				Assets.cache.clear(key);
+				sounds.remove(key);
+			}
 		}
 		Assets.cache.clear('songs');
 	}
