@@ -541,7 +541,7 @@ class Character extends FlxSprite
 		}
 
 		camMoveArray = [0, 0];
-		if (!stunned)
+		if (!AnimName.endsWith('miss'))
 		{
 			var camAdd:Int = 15;
 			if (AnimName.startsWith('singLEFT'))
