@@ -163,7 +163,7 @@ class ModsMenu extends MusicBeatState
 		{
 			PolymodHandler.loadMods();
 			FlxG.mouse.visible = false;
-			LoadingState.loadAndSwitchState(new MainMenuState());
+			MusicBeatState.switchState(new MainMenuState());
 		}
 
 		if (curSelected < 0)
