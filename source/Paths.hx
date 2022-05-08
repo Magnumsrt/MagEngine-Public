@@ -146,7 +146,7 @@ class Paths
 		return getPath('data/$key.json', TEXT, library);
 	}
 
-	static public function sound(key:String, ?library:String):Sound
+	static public function sound(key:String, ?library:String)
 	{
 		return returnSound('sounds', key, library);
 	}
@@ -156,19 +156,19 @@ class Paths
 		return sound(key + FlxG.random.int(min, max), library);
 	}
 
-	inline static public function music(key:String, ?library:String):Sound
+	inline static public function music(key:String, ?library:String)
 	{
 		return returnSound('music', key, library);
 	}
 
-	inline static public function voices(song:String):Sound
+	inline static public function voices(song:String)
 	{
-		return returnSound('songs', '${song.toLowerCase().replace(' ', '-')}/Voices', 'songs');
+		return returnSound(null, '${song.toLowerCase().replace(' ', '-')}/Voices', 'songs');
 	}
 
-	inline static public function inst(song:String):Sound
+	inline static public function inst(song:String)
 	{
-		return returnSound('songs', '${song.toLowerCase().replace(' ', '-')}/Inst', 'songs');
+		return returnSound(null, '${song.toLowerCase().replace(' ', '-')}/Inst', 'songs');
 	}
 
 	inline static public function image(key:String, ?library:String):FlxGraphic
@@ -265,13 +265,21 @@ class Paths
 
 	public static var currentTrackedSounds:Map<String, Sound> = [];
 
-	public static function returnSound(path:String, key:String, ?library:String)
+	public static function returnSound(?path:String, key:String, ?library:String):Any
 	{
-		var gottenPath:String = getPath('$path/$key.$SOUND_EXT', SOUND, library);
-		gottenPath = gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);
+		if (library != null && path == library)
+			path = '';
+
+		var drip:String = '$key.$SOUND_EXT';
+		if (path != null && path.length > 0)
+			drip = '$path/$drip';
+		drip = getPath(drip, SOUND, library);
+
+		var gottenPath:String = drip.substring(drip.indexOf(':') + 1, drip.length);
 		if (!currentTrackedSounds.exists(gottenPath))
-			currentTrackedSounds.set(gottenPath, openfl.Assets.getSound(getPath('$path/$key.$SOUND_EXT', SOUND, library)));
+			currentTrackedSounds.set(gottenPath, openfl.Assets.getSound(drip));
 		localTrackedAssets.push(gottenPath);
+
 		return currentTrackedSounds.get(gottenPath);
 	}
 }
