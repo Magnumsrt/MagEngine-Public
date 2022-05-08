@@ -78,22 +78,12 @@ class OptionsMenuState extends MusicBeatState
 
 	var curOptions:Array<Array<String>>;
 
-	// TODO: add a black box or something like KE options menu
 	var optionsText:FlxText;
 	var descText:FlxText;
 
 	override function create()
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
-		/* 
-			if (FlxG.sound.music != null)
-			{
-				if (!FlxG.sound.music.playing)
-					FlxG.sound.playMusic(Paths.music('freakyMenu'));
-			}
-		 */
+		Cache.clear();
 
 		#if DISCORD
 		// Updating Discord Rich Presence

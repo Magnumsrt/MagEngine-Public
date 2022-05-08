@@ -185,7 +185,8 @@ class PlayState extends MusicBeatState
 	{
 		instance = this;
 
-		Paths.clearStoredMemory();
+		if (!MusicBeatState.resetedShit)
+			Cache.clear();
 
 		#if SCRIPTS
 		var filesInserted:Array<String> = [];
@@ -908,8 +909,6 @@ class PlayState extends MusicBeatState
 		callScripts('createPost');
 
 		super.create();
-
-		Paths.clearUnusedMemory();
 
 		// cache note splash
 		if (MagPrefs.getValue('noteSplashes'))

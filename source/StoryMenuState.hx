@@ -22,7 +22,7 @@ using StringTools;
 
 class StoryMenuState extends MusicBeatState
 {
-	public static var weekCompleted:Map<String, Bool> = new Map<String, Bool>();
+	public static var weekCompleted:Map<String, Bool> = [];
 
 	var scoreText:FlxText;
 
@@ -49,9 +49,6 @@ class StoryMenuState extends MusicBeatState
 
 	override function create()
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
-
 		if (FlxG.sound.music != null)
 		{
 			if (!FlxG.sound.music.playing)

@@ -32,7 +32,7 @@ typedef SwagAnimation =
 
 class Character extends FlxSprite
 {
-	public var animOffsets:Map<String, Array<Float>>;
+	public var animOffsets:Map<String, Array<Float>> = [];
 	public var debugMode:Bool = false;
 
 	public var isPlayer:Bool = false;
@@ -61,7 +61,6 @@ class Character extends FlxSprite
 	{
 		super(x, y);
 
-		animOffsets = new Map<String, Array<Float>>();
 		curCharacter = character;
 		this.isPlayer = isPlayer;
 

@@ -148,11 +148,7 @@ class Controls extends FlxActionSet
 	var _pause = new FlxActionDigital(Action.PAUSE);
 	var _reset = new FlxActionDigital(Action.RESET);
 
-	#if (haxe >= "4.0.0")
 	var byName:Map<String, FlxActionDigital> = [];
-	#else
-	var byName:Map<String, FlxActionDigital> = new Map<String, FlxActionDigital>();
-	#end
 
 	public var gamepadsAdded:Array<Int> = [];
 	public var keyboardScheme = KeyboardScheme.None;

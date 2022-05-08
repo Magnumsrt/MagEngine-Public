@@ -35,13 +35,9 @@ class ModsMenu extends MusicBeatState
 
 	override function create()
 	{
-		Paths.clearStoredMemory();
-		Paths.clearUnusedMemory();
+		Cache.clear();
 
-		var menuBG:FlxSprite;
-
-		menuBG = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-
+		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
 		menuBG.color = FlxColor.GRAY;
 		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
 		menuBG.updateHitbox();

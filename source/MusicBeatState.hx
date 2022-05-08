@@ -10,6 +10,8 @@ import flixel.util.FlxTimer;
 
 class MusicBeatState extends FlxUIState
 {
+	public static var resetedShit:Bool = false;
+
 	private var lastBeat:Float = 0;
 	private var lastStep:Float = 0;
 
@@ -26,9 +28,7 @@ class MusicBeatState extends FlxUIState
 		super.create();
 
 		if (!skip)
-		{
 			openSubState(new CustomFadeTransition(0.7, true));
-		}
 		FlxTransitionableState.skipNextTransOut = false;
 	}
 
@@ -70,15 +70,14 @@ class MusicBeatState extends FlxUIState
 	public static function switchState(nextState:FlxState)
 	{
 		// Custom made Trans in
-		var curState:Dynamic = FlxG.state;
-		var leState:MusicBeatState = curState;
 		if (!FlxTransitionableState.skipNextTransIn)
 		{
-			leState.openSubState(new CustomFadeTransition(0.6, false));
+			FlxG.state.openSubState(new CustomFadeTransition(0.6, false));
 			if (nextState == FlxG.state)
 			{
 				CustomFadeTransition.finishCallback = function()
 				{
+					resetedShit = true;
 					FlxG.resetState();
 				};
 			}
@@ -86,12 +85,14 @@ class MusicBeatState extends FlxUIState
 			{
 				CustomFadeTransition.finishCallback = function()
 				{
+					resetedShit = false;
 					FlxG.switchState(nextState);
 				};
 			}
 			return;
 		}
 		FlxTransitionableState.skipNextTransIn = false;
+		resetedShit = false;
 		FlxG.switchState(nextState);
 	}
 
