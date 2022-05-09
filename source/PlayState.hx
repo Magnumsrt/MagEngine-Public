@@ -19,7 +19,6 @@ import flixel.FlxObject;
 import flixel.FlxSprite;
 import flixel.FlxSubState;
 import flixel.addons.effects.FlxTrail;
-import flixel.addons.effects.chainable.FlxWaveEffect;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
@@ -243,10 +242,8 @@ class PlayState extends MusicBeatState
 
 		FlxG.cameras.add(camOther, false);
 		FlxG.cameras.setDefaultDrawTarget(camGame, true);
-		CustomFadeTransition.nextCamera = camOther;
 
-		persistentUpdate = true;
-		persistentDraw = true;
+		persistentUpdate = persistentDraw = true;
 
 		if (SONG == null)
 			SONG = Song.loadFromJson('tutorial');
@@ -933,8 +930,6 @@ class PlayState extends MusicBeatState
 			var sploosh:NoteSplash = new NoteSplash(2000, 2000, 0);
 			add(sploosh);
 		}
-
-		CustomFadeTransition.nextCamera = camOther;
 	}
 
 	public function reloadHealthBarColors()
@@ -1885,8 +1880,7 @@ class PlayState extends MusicBeatState
 		{
 			boyfriend.stunned = true;
 
-			persistentUpdate = false;
-			persistentDraw = false;
+			persistentUpdate = persistentDraw = false;
 			paused = true;
 
 			vocals.stop();
@@ -1907,20 +1901,20 @@ class PlayState extends MusicBeatState
 
 	public var transitioning = false;
 
+	function cheaterNoteCheck(daNote:Note)
+	{
+		if (daNote.strumTime < songLength - Conductor.safeZoneOffset)
+			health -= 0.05 * healthLoss;
+	}
+
 	public function endSong():Void
 	{
 		if (!startingSong)
 		{
-			notes.forEach(function(daNote:Note)
-			{
-				if (daNote.strumTime < songLength - Conductor.safeZoneOffset)
-					health -= 0.05 * healthLoss;
-			});
+			// yoooo cheaters are not allowed!!!
+			notes.forEach(cheaterNoteCheck);
 			for (daNote in unspawnNotes)
-			{
-				if (daNote.strumTime < songLength - Conductor.safeZoneOffset)
-					health -= 0.05 * healthLoss;
-			}
+				cheaterNoteCheck(daNote);
 
 			if (doDeathCheck())
 				return;
@@ -1947,13 +1941,9 @@ class PlayState extends MusicBeatState
 
 				if (storyPlaylist.length <= 0)
 				{
-					persistentUpdate = persistentDraw = false;
-
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
 					cancelMusicFadeTween();
-					if (FlxTransitionableState.skipNextTransIn)
-						CustomFadeTransition.nextCamera = null;
 					MusicBeatState.switchState(new StoryMenuState());
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
@@ -1981,8 +1971,6 @@ class PlayState extends MusicBeatState
 						FlxG.sound.play(Paths.sound('Lights_Shut_off'));
 					}
 
-					persistentUpdate = persistentDraw = false;
-
 					FlxTransitionableState.skipNextTransIn = true;
 					FlxTransitionableState.skipNextTransOut = true;
 
@@ -2000,10 +1988,7 @@ class PlayState extends MusicBeatState
 			else
 			{
 				trace('WENT BACK TO FREEPLAY??');
-				persistentUpdate = persistentDraw = false;
 				cancelMusicFadeTween();
-				if (FlxTransitionableState.skipNextTransIn)
-					CustomFadeTransition.nextCamera = null;
 				MusicBeatState.switchState(new FreeplayState());
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				cpuControlled = false;
@@ -2186,82 +2171,74 @@ class PlayState extends MusicBeatState
 		curSection += 1;
 	}
 
+	// literally week 7 code x psych code lol
 	private function onKeyPress(event:KeyboardEvent):Void
 	{
 		var eventKey:FlxKey = event.keyCode;
 		var key:Int = getKeyFromEvent(eventKey);
 
-		if (!cpuControlled && !paused && key > -1 && (FlxG.keys.checkStatus(eventKey, JUST_PRESSED) || keyPressByController))
+		if (generatedMusic
+			&& !endingSong
+			&& !cpuControlled
+			&& !paused
+			&& key > -1
+			&& (FlxG.keys.checkStatus(eventKey, JUST_PRESSED) || keyPressByController))
 		{
-			if (!boyfriend.stunned && generatedMusic && !endingSong)
+			var possibleNotes:Array<Note> = [];
+			var removeList:Array<Note> = [];
+			var ignoreList:Array<Int> = [];
+
+			notes.forEachAlive(function(daNote:Note)
 			{
-				// more accurate hit time for the ratings?
-				var lastTime:Float = Conductor.songPosition;
-				Conductor.songPosition = FlxG.sound.music.time;
-
-				var canMiss:Bool = !MagPrefs.getValue('ghostTapping');
-
-				// heavily based on my own code LOL if it aint broke dont fix it
-				var pressNotes:Array<Note> = [];
-				// var notesDatas:Array<Int> = [];
-				var notesStopped:Bool = false;
-
-				var sortedNotesList:Array<Note> = [];
-				notes.forEachAlive(function(daNote:Note)
+				if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit)
 				{
-					if (daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit && !daNote.isSustainNote)
+					if (ignoreList.contains(daNote.noteData))
 					{
-						if (daNote.noteData == key)
+						for (possibleNote in possibleNotes)
 						{
-							sortedNotesList.push(daNote);
-							// notesDatas.push(daNote.noteData);
-						}
-						canMiss = true;
-					}
-				});
-				sortedNotesList.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
-
-				if (sortedNotesList.length > 0)
-				{
-					for (epicNote in sortedNotesList)
-					{
-						for (doubleNote in pressNotes)
-						{
-							if (Math.abs(doubleNote.strumTime - epicNote.strumTime) < 1)
+							if (possibleNote.noteData == daNote.noteData && Math.abs(daNote.strumTime - possibleNote.strumTime) < 10)
+								removeList.push(daNote);
+							else if (possibleNote.noteData == daNote.noteData && daNote.strumTime < possibleNote.strumTime)
 							{
-								doubleNote.kill();
-								notes.remove(doubleNote, true);
-								doubleNote.destroy();
+								possibleNotes.remove(possibleNote);
+								possibleNotes.push(daNote);
 							}
-							else
-								notesStopped = true;
-						}
-
-						// eee jack detection before was not super good
-						if (!notesStopped)
-						{
-							goodNoteHit(epicNote);
-							pressNotes.push(epicNote);
 						}
 					}
+					else
+					{
+						possibleNotes.push(daNote);
+						ignoreList.push(daNote.noteData);
+					}
 				}
-				else if (canMiss)
-				{
-					noteMissPress(key);
-					callScripts('noteMissPress', [key]);
-				}
+			});
 
-				// more accurate hit time for the ratings? part 2 (Now that the calculations are done, go back to the time it was before for not causing a note stutter)
-				Conductor.songPosition = lastTime;
+			for (badNote in removeList)
+			{
+				badNote.kill();
+				notes.remove(badNote, true);
+				badNote.destroy();
 			}
 
-			var spr:StrumNote = playerStrums.members[key];
-			if (spr != null && spr.animation.curAnim.name != 'confirm')
-				spr.playAnim('pressed');
+			possibleNotes.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
 
-			callScripts('keyPress', [key]);
+			if (possibleNotes.length > 0)
+			{
+				if (!ignoreList.contains(key))
+					noteMissPress(key);
+				for (possibleNote in possibleNotes)
+					if (possibleNote.noteData == key)
+						goodNoteHit(possibleNote);
+			}
+			else
+				noteMissPress(key);
 		}
-		// trace('pressed: ' + controlArray);
+
+		var spr:StrumNote = playerStrums.members[key];
+		if (spr != null && spr.animation.curAnim.name != 'confirm')
+			spr.playAnim('pressed');
+
+		callScripts('keyPress', [key]);
 	}
 
 	private function onKeyRelease(event:KeyboardEvent):Void
@@ -2269,11 +2246,15 @@ class PlayState extends MusicBeatState
 		var eventKey:FlxKey = event.keyCode;
 		var key:Int = getKeyFromEvent(eventKey);
 
-		if (!cpuControlled && !paused && key > -1)
+		if (generatedMusic && !endingSong && !cpuControlled && !paused && key > -1)
 		{
 			var spr:StrumNote = playerStrums.members[key];
 			if (spr != null)
-				spr.playAnim('static');
+			{
+				var controlHoldArray:Array<Bool> = [controls.NOTE_LEFT, controls.NOTE_DOWN, controls.NOTE_UP, controls.NOTE_RIGHT];
+				if (!controlHoldArray[key])
+					spr.playAnim('static');
+			}
 
 			callScripts('keyRelease', [key]);
 		}
@@ -2289,16 +2270,14 @@ class PlayState extends MusicBeatState
 				for (j in 0...keysArray[i].length)
 				{
 					if (key == keysArray[i][j])
-					{
 						return i;
-					}
 				}
 			}
 		}
 		return -1;
 	}
 
-	// Hold notes
+	// shit for gamepad and sus notes
 	private function keyShit():Void
 	{
 		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
@@ -2306,13 +2285,6 @@ class PlayState extends MusicBeatState
 			&& !FlxG.keys.pressed.ANY
 			&& gamepad != null
 			&& (!gamepad.justReleased.ANY || gamepad.pressed.ANY);
-
-		// HOLDING
-		var up = controls.NOTE_UP;
-		var right = controls.NOTE_RIGHT;
-		var down = controls.NOTE_DOWN;
-		var left = controls.NOTE_LEFT;
-		var controlHoldArray:Array<Bool> = [left, down, up, right];
 
 		if (keyPressByController)
 		{
@@ -2332,17 +2304,14 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		// FlxG.watch.addQuick('asdfa', upP);
-		if (!boyfriend.stunned && generatedMusic)
+		if (generatedMusic)
 		{
-			// rewritten inputs???
+			var controlHoldArray:Array<Bool> = [controls.NOTE_LEFT, controls.NOTE_DOWN, controls.NOTE_UP, controls.NOTE_RIGHT];
 			notes.forEachAlive(function(daNote:Note)
 			{
-				// hold note functions
-				if (daNote.isSustainNote && controlHoldArray[daNote.noteData] && daNote.canBeHit && daNote.mustPress && !daNote.tooLate && !daNote.wasGoodHit)
+				if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && controlHoldArray[daNote.noteData])
 					goodNoteHit(daNote);
 			});
-
 			if (!controlHoldArray.contains(true)
 				&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
 				&& boyfriend.animation.curAnim.name.startsWith('sing')
@@ -2369,7 +2338,7 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	// You didn't hit the key and let it go offscreen
+	// offscreen shit
 	function noteMiss(daNote:Note):Void
 	{
 		// Dupe note remove
@@ -2408,7 +2377,7 @@ class PlayState extends MusicBeatState
 		]);
 	}
 
-	// You pressed a key when there was no notes to press for this key
+	// empty note hit shit
 	function noteMissPress(direction:Int = 1):Void
 	{
 		if (!boyfriend.stunned && !MagPrefs.getValue('ghostTapping'))

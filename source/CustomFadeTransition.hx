@@ -1,5 +1,6 @@
 package;
 
+import flixel.addons.transition.FlxTransitionableState;
 import flixel.FlxG;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
@@ -12,9 +13,8 @@ class CustomFadeTransition extends MusicBeatSubstate
 {
 	public static var finishCallback:Void->Void;
 
-	private var leTween:FlxTween = null;
-
-	public static var nextCamera:FlxCamera;
+	var leTween:FlxTween;
+	var leCam:FlxCamera;
 
 	var isTransIn:Bool = false;
 	var transBlack:FlxSprite;
@@ -66,12 +66,11 @@ class CustomFadeTransition extends MusicBeatSubstate
 			});
 		}
 
-		if (nextCamera != null)
-		{
-			transBlack.cameras = [nextCamera];
-			transGradient.cameras = [nextCamera];
-		}
-		nextCamera = null;
+		leCam = new FlxCamera();
+		leCam.bgColor.alpha = 0;
+		FlxG.cameras.add(leCam, false);
+		transBlack.cameras = [leCam];
+		transGradient.cameras = [leCam];
 	}
 
 	override function update(elapsed:Float)
@@ -93,6 +92,8 @@ class CustomFadeTransition extends MusicBeatSubstate
 		{
 			finishCallback();
 			leTween.cancel();
+			if (leCam != null)
+				FlxG.cameras.remove(leCam);
 		}
 		super.destroy();
 	}

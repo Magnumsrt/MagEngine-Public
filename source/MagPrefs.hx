@@ -62,19 +62,19 @@ class MagPrefs
 		},
 		// hit windows
 		'sickWindow' => {
-			type: Float,
-			value: 45
+			type: Integer,
+			value: 33
 		},
 		'goodWindow' => {
-			type: Float,
-			value: 90
+			type: Integer,
+			value: 91
 		},
 		'badWindow' => {
-			type: Float,
-			value: 135
+			type: Integer,
+			value: 133
 		},
 		'safeFrames' => {
-			type: Float,
+			type: Integer,
 			value: 10
 		},
 		// notes settings
@@ -207,9 +207,12 @@ class MagPrefs
 		save.flush();
 	}
 
-	public static function getSetting(setting:String)
+	public static function getSetting(setting:String, ?byDefault:Bool = false)
 	{
-		return settings.get(setting);
+		if (byDefault)
+			return defaultSettings.get(setting);
+		else
+			return settings.get(setting);
 	}
 
 	public static function setSetting(setting:String, value:Dynamic, ?type:SettingType, ?min:Float, ?max:Float)
@@ -256,9 +259,9 @@ class MagPrefs
 		}
 	}
 
-	public static function getValue(setting:String):Dynamic
+	public static function getValue(setting:String, ?byDefault:Bool = false):Dynamic
 	{
-		var shit:Setting = getSetting(setting);
+		var shit:Setting = getSetting(setting, byDefault);
 		if (shit != null)
 			return shit.value;
 		else
