@@ -50,15 +50,7 @@ class Cache
 	{
 		if (sounds.exists(path))
 			return sounds.get(path);
-
-		// poop fart
-		#if sys
-		var fartSound:Sound = Sound.fromFile('./' + path.substring(path.indexOf(':') + 1, path.length));
-		#else
-		var fartSound:Sound = Assets.getSound(path);
-		#end
-		sounds.set(path, fartSound);
-
+		sounds.set(path.substring(path.indexOf(':') + 1, path.length), Assets.getSound(path));
 		return fartSound;
 	}
 
