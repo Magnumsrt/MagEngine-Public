@@ -1042,7 +1042,7 @@ class PlayState extends MusicBeatState
 
 	public var countdownAssets:Map<String, Array<String>> = [
 		'normal' => ['ready', 'set', 'go'],
-		'pixel' => ['pixelUI/ready-pixel', 'pixelUI/set-pixel', 'pixelUI/go-pixel']
+		'pixel' => ['pixelUI/ready-pixel', 'pixelUI/set-pixel', 'pixelUI/date-pixel']
 	];
 	public var countdownStyle:String = 'normal';
 	public var countdownSuffix:String = '';
