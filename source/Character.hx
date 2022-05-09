@@ -507,7 +507,7 @@ class Character extends FlxSprite
 		}
 	}
 
-	private var danced:Bool = false;
+	public var danced:Bool = false;
 
 	/**
 	 * FOR GF DANCING SHIT

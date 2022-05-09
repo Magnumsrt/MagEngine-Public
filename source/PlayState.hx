@@ -232,18 +232,18 @@ class PlayState extends MusicBeatState
 
 		FlxG.cameras.reset(camGame);
 
-		// yahhhhh crnge sht
 		var funni:Bool = MagPrefs.getValue('notesBehindHud');
 		if (!funni)
 			FlxG.cameras.add(camHUD, false);
 		FlxG.cameras.add(camNotes, false);
-		FlxG.cameras.add(camOther, false);
 		allUI.push(camNotes);
 		if (funni)
 			FlxG.cameras.add(camHUD, false);
 		allUI.push(camHUD);
 
+		FlxG.cameras.add(camOther, false);
 		FlxG.cameras.setDefaultDrawTarget(camGame, true);
+		CustomFadeTransition.nextCamera = camOther;
 
 		persistentUpdate = true;
 		persistentDraw = true;
@@ -931,7 +931,6 @@ class PlayState extends MusicBeatState
 		if (MagPrefs.getValue('noteSplashes'))
 		{
 			var sploosh:NoteSplash = new NoteSplash(2000, 2000, 0);
-			sploosh.animation.finishCallback = function(name) sploosh.destroy();
 			add(sploosh);
 		}
 
@@ -1073,9 +1072,7 @@ class PlayState extends MusicBeatState
 
 			startTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
 			{
-				if (gf != null
-					&& tmr.loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
-					&& !gf.stunned
+				if (tmr.loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
 					&& gf.animation.curAnim.name != null
 					&& !gf.animation.curAnim.name.startsWith("sing")
 					&& !gf.stunned)
@@ -1824,12 +1821,7 @@ class PlayState extends MusicBeatState
 						vocals.volume = 1;
 
 					if (MagPrefs.getValue('cpuNotesGlow'))
-					{
-						var time:Float = 0.15;
-						if (daNote.isSustainNote && !daNote.animation.curAnim.name.endsWith('end'))
-							time += 0.15;
-						strumPlayAnim(true, Std.int(Math.abs(daNote.noteData)) % 4, time);
-					}
+						strumPlayAnim(true, Std.int(Math.abs(daNote.noteData)) % 4);
 
 					daNote.hitByOpponent = true;
 
@@ -2061,7 +2053,6 @@ class PlayState extends MusicBeatState
 				{
 					var coolStrum:StrumNote = playerStrums.members[note.noteData];
 					var sploosh:NoteSplash = new NoteSplash(coolStrum.x, coolStrum.y, note.noteData);
-					sploosh.animation.finishCallback = function(name) sploosh.destroy();
 					sploosh.cameras = [camNotes];
 					add(sploosh);
 				}
@@ -2266,10 +2257,7 @@ class PlayState extends MusicBeatState
 
 			var spr:StrumNote = playerStrums.members[key];
 			if (spr != null && spr.animation.curAnim.name != 'confirm')
-			{
 				spr.playAnim('pressed');
-				spr.resetAnim = 0;
-			}
 
 			callScripts('keyPress', [key]);
 		}
@@ -2285,10 +2273,7 @@ class PlayState extends MusicBeatState
 		{
 			var spr:StrumNote = playerStrums.members[key];
 			if (spr != null)
-			{
 				spr.playAnim('static');
-				spr.resetAnim = 0;
-			}
 
 			callScripts('keyRelease', [key]);
 		}
@@ -2430,10 +2415,8 @@ class PlayState extends MusicBeatState
 		{
 			health -= 0.05 * healthLoss;
 
-			if (combo > 5 && gf != null && gf.animOffsets.exists('sad'))
-			{
+			if (combo > 5 && gf.animOffsets.exists('sad'))
 				gf.playAnim('sad');
-			}
 			combo = 0;
 
 			songScore -= 10;
@@ -2465,12 +2448,7 @@ class PlayState extends MusicBeatState
 			boyfriend.holdTimer = 0;
 
 			if (cpuControlled)
-			{
-				var time:Float = 0.15;
-				if (note.isSustainNote && !note.animation.curAnim.name.endsWith('end'))
-					time += 0.15;
-				strumPlayAnim(false, Std.int(Math.abs(note.noteData)) % 4, time);
-			}
+				strumPlayAnim(false, Std.int(Math.abs(note.noteData)) % 4);
 			else
 				playerStrums.forEach(function(spr:StrumNote)
 				{
@@ -2503,18 +2481,13 @@ class PlayState extends MusicBeatState
 			accPercent = Math.min(1, Math.max(0, totalNotesHit / totalPlayed));
 	}
 
-	function strumPlayAnim(isDad:Bool, id:Int, ?time:Float)
+	function strumPlayAnim(isDad:Bool, id:Int)
 	{
 		var spr:StrumNote = playerStrums.members[id];
 		if (isDad)
 			spr = opponentStrums.members[id];
-
 		if (spr != null)
-		{
-			spr.playAnim('confirm', true);
-			if (time != null)
-				spr.resetAnim = time;
-		}
+			spr.autoConfirm();
 	}
 
 	var fastCarCanDrive:Bool = true;
@@ -2561,6 +2534,7 @@ class PlayState extends MusicBeatState
 		{
 			startedMoving = true;
 			gf.playAnim('hairBlow');
+			gf.specialAnim = true;
 		}
 
 		if (startedMoving)
@@ -2583,7 +2557,9 @@ class PlayState extends MusicBeatState
 
 	function trainReset():Void
 	{
+		gf.danced = false;
 		gf.playAnim('hairFall');
+		gf.specialAnim = true;
 		phillyTrain.x = FlxG.width + 200;
 		trainMoving = false;
 		// trainSound.stop();
@@ -2660,9 +2636,7 @@ class PlayState extends MusicBeatState
 		iconP1.bounce();
 		iconP2.bounce();
 
-		if (gf != null
-			&& curBeat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
-			&& !gf.stunned
+		if (curBeat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
 			&& gf.animation.curAnim.name != null
 			&& !gf.animation.curAnim.name.startsWith("sing")
 			&& !gf.stunned)
@@ -2685,7 +2659,7 @@ class PlayState extends MusicBeatState
 			boyfriend.playAnim('hey', true);
 		}
 
-		if (curBeat % 16 == 15 && SONG.song == 'Tutorial' && dad.curCharacter == 'gf' && curBeat > 16 && curBeat < 48)
+		if (curBeat % 16 == 15 && curSong == 'Tutorial' && dad.curCharacter == 'gf' && curBeat > 16 && curBeat < 48)
 		{
 			boyfriend.playAnim('hey', true);
 			dad.playAnim('cheer', true);

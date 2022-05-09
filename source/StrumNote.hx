@@ -6,8 +6,6 @@ import flixel.FlxSprite;
 
 class StrumNote extends FlxSprite
 {
-	public var resetAnim:Float = 0;
-
 	public var direction:Float = 90;
 	public var downScroll:Bool = false;
 
@@ -132,18 +130,20 @@ class StrumNote extends FlxSprite
 		ID = noteData;
 	}
 
+	public function autoConfirm()
+	{
+		playAnim('confirm', true);
+
+		var oldCallback = animation.finishCallback;
+		animation.finishCallback = function(name:String)
+		{
+			playAnim('static');
+			animation.finishCallback = oldCallback;
+		};
+	}
+
 	override function update(elapsed:Float)
 	{
-		if (resetAnim > 0)
-		{
-			resetAnim -= elapsed;
-			if (resetAnim <= 0)
-			{
-				playAnim('static');
-				resetAnim = 0;
-			}
-		}
-
 		if (animation.curAnim.name == 'confirm' && !PlayState.isPixelStage)
 			centerOrigin();
 

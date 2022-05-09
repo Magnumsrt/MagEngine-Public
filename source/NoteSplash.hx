@@ -18,14 +18,13 @@ class NoteSplash extends FlxSprite
 	public function new(x:Float, y:Float, noteData:Int)
 	{
 		super(x, y);
-
 		texture = '';
-
 		alpha = 0.6;
-		offset.x += 90;
-		offset.y += 80;
 
 		animation.play('splash ' + FlxG.random.int(0, 1) + ' ' + noteData);
+		animation.curAnim.frameRate += FlxG.random.int(-2, 2);
+
+		animation.finishCallback = function(name:String) kill();
 	}
 
 	public function reloadSplash(texture:String, ?prefix:String = '', ?suffix:String = '')
@@ -44,6 +43,7 @@ class NoteSplash extends FlxSprite
 		if (PlayState.isPixelStage)
 		{
 			loadGraphic(Paths.image('pixelUI/' + boringPath), true, 50, 50);
+
 			animation.add('splash 0 0', [0, 1, 2, 3], 24, false);
 			animation.add('splash 1 0', [4, 5, 6, 7], 24, false);
 			animation.add('splash 0 1', [8, 9, 10, 11], 24, false);
@@ -57,10 +57,13 @@ class NoteSplash extends FlxSprite
 
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 			updateHitbox();
+			offset.x += 100;
+			offset.y += 80;
 		}
 		else
 		{
 			frames = Paths.getSparrowAtlas(boringPath);
+
 			animation.addByPrefix('splash 0 0', 'note impact 1 purple', 24, false);
 			animation.addByPrefix('splash 0 1', 'note impact 1  blue', 24, false);
 			animation.addByPrefix('splash 0 2', 'note impact 1 green', 24, false);
@@ -69,6 +72,9 @@ class NoteSplash extends FlxSprite
 			animation.addByPrefix('splash 1 1', 'note impact 2 blue', 24, false);
 			animation.addByPrefix('splash 1 2', 'note impact 2 green', 24, false);
 			animation.addByPrefix('splash 1 3', 'note impact 2 red', 24, false);
+
+			updateHitbox();
+			offset.set(width * 0.3, height * 0.3);
 		}
 
 		if (lastAnim != null)
