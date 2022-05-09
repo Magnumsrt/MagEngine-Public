@@ -50,7 +50,11 @@ class Cache
 	{
 		if (sounds.exists(path))
 			return sounds.get(path);
-		sounds.set(path.substring(path.indexOf(':') + 1, path.length), Assets.getSound(path));
+		
+		// poop fart
+		var fartSound:Sound = Assets.getSound(path);
+		sounds.set(path.substring(path.indexOf(':') + 1, path.length), fartSound);
+
 		return fartSound;
 	}
 
