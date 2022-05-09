@@ -1,3 +1,2 @@
-- add week 7
+- add week 7 shit
 - make the advanced dialogue system
-- make a really custom caching system (using context3d for store shit on gpu maybe??)
