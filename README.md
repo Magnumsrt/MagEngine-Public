@@ -23,7 +23,6 @@ IF YOU MAKE A MOD AND DISTRIBUTE A MODIFIED / RECOMPILED VERSION, YOU MUST OPEN 
 -   [Yoshubs](https://twitter.com/Yoshubs) - New input system
 -   [BrightFyre](https://twitter.com/fyre_bright) - MP4 video extension
 -   [Leather128](https://gamebanana.com/members/1799813) - Polymod enable and disable code (genius)
--   [NonsenseNH](https://twitter.com/NonsenseNH) - YouTube button in the socials menu
 
 ## Original credits / shoutouts
 
