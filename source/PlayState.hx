@@ -61,7 +61,7 @@ class PlayState extends MusicBeatState
 	public var gf:Character;
 	public var boyfriend:Boyfriend;
 
-	public var singAnimations:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
+	public static var singAnimations:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
@@ -235,15 +235,15 @@ class PlayState extends MusicBeatState
 		// yahhhhh crnge sht
 		var funni:Bool = MagPrefs.getValue('notesBehindHud');
 		if (!funni)
-			FlxG.cameras.add(camHUD);
-		FlxG.cameras.add(camNotes);
-		FlxG.cameras.add(camOther);
+			FlxG.cameras.add(camHUD, false);
+		FlxG.cameras.add(camNotes, false);
+		FlxG.cameras.add(camOther, false);
 		allUI.push(camNotes);
 		if (funni)
-			FlxG.cameras.add(camHUD);
+			FlxG.cameras.add(camHUD, false);
 		allUI.push(camHUD);
 
-		FlxCamera.defaultCameras = [camGame];
+		FlxG.cameras.setDefaultDrawTarget(camGame, true);
 
 		persistentUpdate = true;
 		persistentDraw = true;
@@ -624,10 +624,27 @@ class PlayState extends MusicBeatState
 
 		if (isPixelStage)
 		{
+			countdownStyle = 'pixel';
 			GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pixel';
 			GameOverSubstate.loopSoundName = 'gameOver-pixel';
 			GameOverSubstate.endSoundName = 'gameOverEnd-pixel';
 			GameOverSubstate.characterName = 'bf-pixel-dead';
+		}
+
+		if (countdownStyle != 'normal')
+			countdownSuffix = '-' + countdownStyle;
+
+		// CACHE SHIT
+		if (!MusicBeatState.resetedShit)
+		{
+			for (asset in countdownAssets.get(countdownStyle))
+				Paths.image(asset);
+			Paths.sound('introGo' + countdownSuffix);
+			for (i in 1...4)
+			{
+				Paths.sound('intro' + i + countdownSuffix);
+				Paths.sound('missnote' + i);
+			}
 		}
 
 		var gfVersion:String = SONG.gfVersion;
@@ -917,6 +934,8 @@ class PlayState extends MusicBeatState
 			sploosh.animation.finishCallback = function(name) sploosh.destroy();
 			add(sploosh);
 		}
+
+		CustomFadeTransition.nextCamera = camOther;
 	}
 
 	public function reloadHealthBarColors()
@@ -1021,6 +1040,13 @@ class PlayState extends MusicBeatState
 	public var countdownSet:FlxSprite;
 	public var countdownGo:FlxSprite;
 
+	public var countdownAssets:Map<String, Array<String>> = [
+		'normal' => ['ready', 'set', 'go'],
+		'pixel' => ['pixelUI/ready-pixel', 'pixelUI/set-pixel', 'pixelUI/go-pixel']
+	];
+	public var countdownStyle:String = 'normal';
+	public var countdownSuffix:String = '';
+
 	public function startCountdown():Void
 	{
 		if (startedCountdown)
@@ -1067,19 +1093,15 @@ class PlayState extends MusicBeatState
 					&& !dad.stunned)
 					dad.dance();
 
-				var introAssets:Array<String> = ['ready', 'set', 'go'];
-				var altSuffix:String = "";
+				if (countdownStyle != 'normal')
+					countdownSuffix = '-' + countdownStyle;
 
-				if (isPixelStage)
-				{
-					introAssets = ['pixelUI/ready-pixel', 'pixelUI/set-pixel', 'pixelUI/date-pixel'];
-					altSuffix = '-pixel';
-				}
+				var introAssets:Array<String> = countdownAssets.get(countdownStyle);
 
 				switch (swagCounter)
 				{
 					case 0:
-						FlxG.sound.play(Paths.sound('intro3' + altSuffix), 0.6);
+						FlxG.sound.play(Paths.sound('intro3' + countdownSuffix), 0.6);
 					case 1:
 						countdownReady = new FlxSprite().loadGraphic(Paths.image(introAssets[0]));
 						countdownReady.scrollFactor.set();
@@ -1097,7 +1119,7 @@ class PlayState extends MusicBeatState
 								countdownReady.destroy();
 							}
 						});
-						FlxG.sound.play(Paths.sound('intro2' + altSuffix), 0.6);
+						FlxG.sound.play(Paths.sound('intro2' + countdownSuffix), 0.6);
 					case 2:
 						var countdownSet:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introAssets[1]));
 						countdownSet.scrollFactor.set();
@@ -1114,7 +1136,7 @@ class PlayState extends MusicBeatState
 								countdownSet.destroy();
 							}
 						});
-						FlxG.sound.play(Paths.sound('intro1' + altSuffix), 0.6);
+						FlxG.sound.play(Paths.sound('intro1' + countdownSuffix), 0.6);
 					case 3:
 						var countdownGo:FlxSprite = new FlxSprite().loadGraphic(Paths.image(introAssets[2]));
 						countdownGo.scrollFactor.set();
@@ -1133,7 +1155,7 @@ class PlayState extends MusicBeatState
 								countdownGo.destroy();
 							}
 						});
-						FlxG.sound.play(Paths.sound('introGo' + altSuffix), 0.6);
+						FlxG.sound.play(Paths.sound('introGo' + countdownSuffix), 0.6);
 				}
 				callScripts('countdownTick', [swagCounter]);
 
@@ -1144,7 +1166,6 @@ class PlayState extends MusicBeatState
 	}
 
 	var previousFrameTime:Int = 0;
-	var lastReportedPlayheadPosition:Int = 0;
 	var songTime:Float = 0;
 
 	function startSong():Void
@@ -1152,7 +1173,6 @@ class PlayState extends MusicBeatState
 		startingSong = false;
 
 		previousFrameTime = FlxG.game.ticks;
-		lastReportedPlayheadPosition = 0;
 
 		if (!paused)
 			FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
@@ -2078,15 +2098,18 @@ class PlayState extends MusicBeatState
 		rating.acceleration.y = 550;
 		rating.velocity.y -= FlxG.random.int(140, 175);
 		rating.velocity.x -= FlxG.random.int(0, 10);
+		rating.cameras = [camHUD];
+		add(rating);
 
 		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(altPath + 'combo' + altSuffix));
 		comboSpr.screenCenter();
 		comboSpr.x = coolText.x;
 		comboSpr.acceleration.y = 600;
 		comboSpr.velocity.y -= 150;
-
 		comboSpr.velocity.x += FlxG.random.int(1, 10);
-		add(rating);
+		comboSpr.cameras = [camHUD];
+		if (MagPrefs.getValue('comboDisplay') && combo >= 10)
+			add(comboSpr);
 
 		if (!isPixelStage)
 		{
@@ -2133,8 +2156,8 @@ class PlayState extends MusicBeatState
 			numScore.velocity.y -= FlxG.random.int(140, 160);
 			numScore.velocity.x = FlxG.random.float(-5, 5);
 
-			if (combo >= 10 || combo == 0)
-				add(numScore);
+			numScore.cameras = [camHUD];
+			add(numScore);
 
 			FlxTween.tween(numScore, {alpha: 0}, 0.2, {
 				onComplete: function(tween:FlxTween)

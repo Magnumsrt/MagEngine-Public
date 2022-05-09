@@ -56,6 +56,10 @@ class MagPrefs
 			type: Boolean,
 			value: true
 		},
+		'comboDisplay' => {
+			type: Boolean,
+			value: true
+		},
 		// hit windows
 		'sickWindow' => {
 			type: Float,

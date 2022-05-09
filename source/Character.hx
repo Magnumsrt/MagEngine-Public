@@ -441,8 +441,14 @@ class Character extends FlxSprite
 		if (icon == null)
 			icon = curCharacter;
 
-		if (animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss'))
-			hasMissAnimations = true;
+		for (anim in PlayState.singAnimations)
+		{
+			if (animation.getByName(anim + 'miss') != null)
+			{
+				hasMissAnimations = true;
+				break;
+			}
+		}
 		recalculateDanceIdle();
 
 		if (isPlayer)

@@ -33,6 +33,7 @@ class OptionsMenuState extends MusicBeatState
 				],
 				['Misses Display', 'Shows your misses.', 'missesDisplay'],
 				['Accuracy Display', 'Shows your accuracy.', 'accDisplay'],
+				['Combo Display', 'Shows the combo text.', 'comboDisplay'],
 			]
 		],
 		[
