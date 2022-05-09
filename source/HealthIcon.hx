@@ -54,6 +54,9 @@ class HealthIcon extends AttachedSprite
 	public function bounce()
 	{
 		if (canBounce)
+		{
 			setGraphicSize(Std.int(width + 30));
+			updateHitbox();
+		}
 	}
 }

@@ -36,7 +36,7 @@ class Character extends FlxSprite
 	public var debugMode:Bool = false;
 
 	public var isPlayer:Bool = false;
-	public var curCharacter:String = 'bf';
+	public var curCharacter:String;
 
 	public var hasMissAnimations:Bool = false;
 	public var danceIdle:Bool = false;
@@ -60,6 +60,14 @@ class Character extends FlxSprite
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
 	{
 		super(x, y);
+		changeCharacter(character, isPlayer);
+		dance();
+	}
+
+	public function changeCharacter(character:String, isPlayer:Bool = false)
+	{
+		if (character == curCharacter)
+			return;
 
 		curCharacter = character;
 		this.isPlayer = isPlayer;
@@ -436,8 +444,6 @@ class Character extends FlxSprite
 		if (animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss'))
 			hasMissAnimations = true;
 		recalculateDanceIdle();
-
-		dance();
 
 		if (isPlayer)
 			flipX = !flipX;
