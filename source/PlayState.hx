@@ -2102,7 +2102,8 @@ class PlayState extends MusicBeatState
 			numScore.velocity.x = FlxG.random.float(-5, 5);
 
 			numScore.cameras = [camHUD];
-			add(numScore);
+			if (combo >= 10)
+				add(numScore);
 
 			FlxTween.tween(numScore, {alpha: 0}, 0.2, {
 				onComplete: function(tween:FlxTween)

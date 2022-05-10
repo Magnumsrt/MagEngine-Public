@@ -20,8 +20,8 @@ IF YOU MAKE A MOD AND DISTRIBUTE A MODIFIED / RECOMPILED VERSION, YOU MUST OPEN 
 
 -   [Magnumsrt](https://twitter.com/MagnumsrtYT) - Owner, coder, artist, and developer
 -   [Stilic](https://www.youtube.com/channel/UCY2VZxpdhxLnL0p6TbqIfHw) - Assistant coder and contributer
--   [Yoshubs](https://twitter.com/Yoshubs) - New input system
--   [BrightFyre](https://twitter.com/fyre_bright) - MP4 video extension
+-   [Vermex](https://gamebanana.com/members/1664988) - Pixel note splashes
+-   [PolybiusProxy](https://twitter.com/polybiusproxy) - MP4 video extension
 -   [Leather128](https://gamebanana.com/members/1799813) - Polymod enable and disable code (genius)
 
 ## Original credits / shoutouts
@@ -56,6 +56,7 @@ flixel
 flixel-addons
 flixel-ui
 hscript
+hscript-ex
 ```
 
 So for each of those type `haxelib install [library]` so shit like `haxelib install newgrounds`
