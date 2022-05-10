@@ -60,14 +60,15 @@ class MagPrefs
 			type: Boolean,
 			value: true
 		},
-		// hit windows
+		// hit windows (based on the new fnf windows, see https://twitter.com/kade0912/status/1511477162469113859/photo/1)
 		'sickWindow' => {
 			type: Integer,
-			value: 33
+			value: 34
 		},
 		'goodWindow' => {
 			type: Integer,
-			value: 91
+			// idk just make sicks easier to get??? (original value is 91 AAAAAAAAAA)
+			value: 94
 		},
 		'badWindow' => {
 			type: Integer,

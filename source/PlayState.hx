@@ -48,6 +48,7 @@ class PlayState extends MusicBeatState
 	public static var isStoryMode:Bool = false;
 	public static var storyWeek:Int = 0;
 	public static var storyPlaylist:Array<String> = [];
+	public static var storyLength:Int = 0;
 	public static var storyDifficulty:Int = 1;
 
 	public var halloweenLevel:Bool = false;
@@ -918,7 +919,7 @@ class PlayState extends MusicBeatState
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
 
-		Conductor.safeZoneOffset = MagPrefs.getValue('safeFrames') / 60 * 1000;
+		Conductor.safeZoneOffset = MagPrefs.getValue('safeFrames', true) / 60 * 1000;
 
 		callScripts('createPost');
 
@@ -1028,7 +1029,6 @@ class PlayState extends MusicBeatState
 	}
 
 	var startTimer:FlxTimer;
-	var perfectMode:Bool = false;
 
 	public var countdownReady:FlxSprite;
 	public var countdownSet:FlxSprite;
@@ -1182,8 +1182,6 @@ class PlayState extends MusicBeatState
 		callScripts('songStart');
 	}
 
-	var debugNum:Int = 0;
-
 	private function generateSong(dataPath:String):Void
 	{
 		songSpeed = FlxMath.roundDecimal(SONG.speed, 2);
@@ -1208,7 +1206,6 @@ class PlayState extends MusicBeatState
 		// NEW SHIT
 		noteData = songData.notes;
 
-		var daBeats:Int = 0; // Not exactly representative of 'daBeats' lol, just how much it has looped
 		for (section in noteData)
 		{
 			for (songNotes in section.sectionNotes)
@@ -1219,9 +1216,7 @@ class PlayState extends MusicBeatState
 				var gottaHitNote:Bool = section.mustHitSection;
 
 				if (songNotes[1] > 3)
-				{
 					gottaHitNote = !section.mustHitSection;
-				}
 
 				var oldNote:Note;
 				if (unspawnNotes.length > 0)
@@ -1248,33 +1243,11 @@ class PlayState extends MusicBeatState
 					unspawnNotes.push(sustainNote);
 
 					sustainNote.mustPress = gottaHitNote;
-
-					if (sustainNote.mustPress)
-						sustainNote.x += FlxG.width / 2; // general offset
-					else if (MagPrefs.getValue('middleScroll'))
-					{
-						sustainNote.x += 310;
-						if (daNoteData > 1)
-							sustainNote.x += FlxG.width / 2 + 25;
-					}
 				}
 
 				swagNote.mustPress = gottaHitNote;
-
-				if (swagNote.mustPress)
-					swagNote.x += FlxG.width / 2; // general offset
-				else if (MagPrefs.getValue('middleScroll'))
-				{
-					swagNote.x += 310;
-					if (daNoteData > 1)
-						swagNote.x += FlxG.width / 2 + 25;
-				}
 			}
-			daBeats += 1;
 		}
-
-		// trace(unspawnNotes.length);
-		// playerCounter += 1;
 
 		unspawnNotes.sort(sortByShit);
 
@@ -1294,7 +1267,7 @@ class PlayState extends MusicBeatState
 			var babyArrow:StrumNote = new StrumNote(MagPrefs.getValue('middleScroll') ? STRUM_X_MIDDLESCROLL : STRUM_X, strumLine.y, i, player);
 			babyArrow.downScroll = MagPrefs.getValue('downScroll');
 
-			if (!isStoryMode)
+			if (!isStoryMode || storyPlaylist.length == storyLength)
 			{
 				babyArrow.y -= 10;
 				babyArrow.alpha = 0;
@@ -1500,10 +1473,6 @@ class PlayState extends MusicBeatState
 	override public function update(elapsed:Float)
 	{
 		callScripts('update', [elapsed]);
-
-		#if !debug
-		perfectMode = false;
-		#end
 
 		// if (FlxG.keys.justPressed.NINE)
 		// {

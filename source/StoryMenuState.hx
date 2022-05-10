@@ -248,6 +248,7 @@ class StoryMenuState extends MusicBeatState
 			for (song in weekShit.songs)
 				PlayState.storyPlaylist.push(song[0]);
 			PlayState.isStoryMode = true;
+			PlayState.storyLength = PlayState.storyPlaylist.length;
 			selectedWeek = true;
 
 			PlayState.storyDifficulty = curDifficulty;
