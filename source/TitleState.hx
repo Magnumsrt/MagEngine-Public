@@ -40,8 +40,6 @@ class TitleState extends MusicBeatState
 
 	override public function create():Void
 	{
-		Cache.clear();
-
 		super.create();
 
 		if (!initialized)

@@ -11,7 +11,7 @@ import openfl.display3D.textures.Texture;
 /**
  * This class manages all images and sounds assets used in-game.
  * 
- * The images are stored on the GPU. This means that the image doesn't exists in the RAM.
+ * The images can be stored on the GPU. This means that the images doesn't exist in standard RAM.
  * 
  * GPU bitmaps idea stolen from Rozebud trololol!
  */
@@ -22,77 +22,102 @@ class Cache
 		'assets/shared/music/breakfast.${Paths.SOUND_EXT}'
 	];
 
-	private static var graphics:Map<String, FlxGraphic> = [];
-	private static var textures:Map<String, Texture> = [];
-	private static var sounds:Map<String, Sound> = [];
+	static var bitmaps:Array<BitmapAsset> = [];
+	static var sounds:Map<String, Sound> = [];
 
 	public static function getGraphic(path:String)
 	{
-		if (graphics.exists(path))
-			return graphics.get(path);
+		for (bitmap in bitmaps)
+			if (bitmap.path == path)
+				return bitmap.graphic;
 
-		// this is a baby. please play with this baby.
-		var babyMap:BitmapData = Assets.getBitmapData(path, false);
-		var tex:Texture = FlxG.stage.context3D.createTexture(babyMap.width, babyMap.height, BGRA, true);
-		tex.uploadFromBitmapData(babyMap);
-		textures.set(path, tex);
-		babyMap.dispose();
-		babyMap.disposeImage();
-
-		var graphix:FlxGraphic = FlxGraphic.fromBitmapData(BitmapData.fromTexture(tex), false, path, false);
-		graphix.persist = true;
-		graphics.set(path, graphix);
-
-		return graphix;
+		// fuck, html5 don't use a gpu
+		var dumbMap:BitmapAsset = new BitmapAsset(path, #if sys true #else false #end);
+		bitmaps.push(dumbMap);
+		return dumbMap.graphic;
 	}
 
 	public static function getSound(path:String)
 	{
 		if (sounds.exists(path))
 			return sounds.get(path);
-		
 		// poop fart
-		var fartSound:Sound = Assets.getSound(path);
+		var fartSound:Sound = Assets.getSound(path, false);
 		sounds.set(path.substring(path.indexOf(':') + 1, path.length), fartSound);
-
 		return fartSound;
 	}
 
 	public static function clear()
 	{
-		disposeAllGraphics();
-		disposeAllSounds();
+		clearBitmaps();
+		clearSounds();
 		System.gc();
 	}
 
-	public static function disposeAllGraphics()
+	public static function clearBitmaps()
 	{
-		@:privateAccess
-		for (key => graphic in graphics)
+		for (bitmap in bitmaps)
 		{
-			if (!dumpExclusions.contains(key))
+			if (!dumpExclusions.contains(bitmap.path.substring(bitmap.path.indexOf(':') + 1, bitmap.path.length)))
 			{
-				textures.get(key).dispose();
-				textures.remove(key);
-				Assets.cache.removeBitmapData(key);
-				FlxG.bitmap._cache.remove(key);
-				graphic.destroy();
-				graphics.remove(key);
+				bitmaps.remove(bitmap);
+				bitmap.dispose();
 			}
 		}
 	}
 
-	// not really dispose, but still
-	public static function disposeAllSounds()
+	public static function clearSounds()
 	{
 		for (key in sounds.keys())
-		{
-			if (!dumpExclusions.contains(key))
-			{
-				Assets.cache.clear(key);
+			if (!dumpExclusions.contains(key.substring(key.indexOf(':') + 1, key.length)))
 				sounds.remove(key);
-			}
+	}
+}
+
+class BitmapAsset
+{
+	public var path:String;
+	public var graphic:FlxGraphic;
+
+	var data:BitmapData;
+	var texture:Texture;
+
+	public function new(path:String, storeInGpu:Bool = true)
+	{
+		this.path = path;
+
+		// this is a baby. please take care of this baby.
+		data = Assets.getBitmapData(path, !storeInGpu);
+		if (storeInGpu)
+		{
+			texture = FlxG.stage.context3D.createTexture(data.width, data.height, BGRA, false);
+			texture.uploadFromBitmapData(data);
+			data.dispose();
+			data.disposeImage();
+			data = null;
 		}
-		Assets.cache.clear('songs');
+
+		graphic = FlxGraphic.fromBitmapData(storeInGpu ? BitmapData.fromTexture(texture) : data);
+		graphic.persist = true;
+		graphic.destroyOnNoUse = false;
+		// trace('new bitmap: ' + path);
+	}
+
+	public function dispose()
+	{
+		if (texture != null)
+			texture.dispose();
+		if (data != null)
+		{
+			data.dispose();
+			data.disposeImage();
+		}
+
+		Assets.cache.removeBitmapData(path);
+		@:privateAccess
+		FlxG.bitmap._cache.remove(path);
+
+		graphic.destroy();
+		// trace('disposed bitmap: ' + path);
 	}
 }

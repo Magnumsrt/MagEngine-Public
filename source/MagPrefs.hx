@@ -67,8 +67,7 @@ class MagPrefs
 		},
 		'goodWindow' => {
 			type: Integer,
-			// idk just make sicks easier to get??? (original value is 91 AAAAAAAAAA)
-			value: 94
+			value: 91
 		},
 		'badWindow' => {
 			type: Integer,
@@ -92,26 +91,26 @@ class MagPrefs
 			value: false
 		},
 		// graphics settings
+		#if !mobile
+		'fps' => {
+			type: Boolean,
+			value: true
+		},
 		#if !html5
 		'framerate' => {
 			type: Integer,
 			value: 60,
 			min: 60,
 			max: 240
+		}, 'mem' => {
+			type: Boolean,
+			value: true
+		}, 'memPeak' => {
+			type: Boolean,
+			value: true
 		},
 		#end
-		'fps' => {
-			type: Boolean,
-			value: true
-		},
-		'mem' => {
-			type: Boolean,
-			value: true
-		},
-		'memPeak' => {
-			type: Boolean,
-			value: true
-		},
+		#end
 		// other funni shit
 		'versionCheck' => {
 			type: Boolean,
@@ -120,7 +119,6 @@ class MagPrefs
 	];
 	static var settings:Map<String, Setting>;
 
-	// DON'T SET SOMETHING ON CUSTOMCONTROLS SINCE ITS AUTOMATICALLY USED BY KEYBINDS SHIT!!
 	public static var keyBinds:Map<String, Array<FlxKey>> = [
 		'note_left' => [A, LEFT],
 		'note_down' => [S, DOWN],

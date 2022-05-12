@@ -51,11 +51,10 @@ class OptionsMenuState extends MusicBeatState
 		[
 			'graphics',
 			[
-				#if !html5 ['Framerate', 'How much images the game must display per second?', 'framerate'],
+				#if !mobile
+				['FPS Display', 'Shows the current FPS.', 'fps'], #if !html5 ['Framerate', 'How much images the game must display per second?', 'framerate'],
+				['Memory Display', 'Shows the current memory usage.', 'mem'], ['Memory Peak Display', 'Shows the current memory peak.', 'memPeak'] #end
 				#end
-				['FPS Display', 'Shows the current FPS.', 'fps'],
-				['Memory Display', 'Shows the current memory usage.', 'mem'],
-				['Memory Peak Display', 'Shows the current memory peak.', 'memPeak']
 			]
 		],
 		[

@@ -45,9 +45,12 @@
 	<!-- MAG ENGINE CUSTOMIZATION -->
 	<define name="DISCORD" if="desktop" unless="hl" />
 	<define name="MODS" if="desktop" />
-	<define name="SCRIPTS" if="desktop" />
+	<define name="SCRIPTS" />
 
 	<!-- <define name="PRELOAD_ALL" /> -->
+	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web" />
+	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web" />
+
 	<define name="PRELOAD_ALL" unless="web" />
 	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL" />
 
@@ -86,7 +89,7 @@
 	<assets path="assets/week6" library="week6" exclude="*.ogg" if="web" />
 	<assets path="assets/week6" library="week6" exclude="*.mp3" unless="web" />
 
-	<assets path='example_mods' rename='mods' embed='false' />
+	<assets path='example_mods' rename='mods' embed='false' if='MODS' />
 	<assets path='art/readme.txt' rename='do NOT readme.txt' />
 	<!-- <template path='mods' /> -->
 
@@ -102,8 +105,8 @@
 
 	<!--In case you want to use the addons package-->
 	<haxelib name="flixel-addons" />
-	<haxelib name="polymod" />
-	<haxelib name="hscript" />
+	<haxelib name="polymod" if="MODS" />
+	<haxelib name="hscript" if="SCRIPTS" />
 
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" />

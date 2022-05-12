@@ -1,5 +1,6 @@
 package;
 
+import openfl.system.System;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.FlxG;
 import flixel.tweens.FlxEase;
@@ -96,5 +97,6 @@ class CustomFadeTransition extends MusicBeatSubstate
 				FlxG.cameras.remove(leCam);
 		}
 		super.destroy();
+		System.gc();
 	}
 }

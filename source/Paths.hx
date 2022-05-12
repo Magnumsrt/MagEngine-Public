@@ -92,17 +92,27 @@ class Paths
 		return returnSound('music', key, library);
 	}
 
-	inline static public function voices(song:String):Any
+	inline static public function voicesPath(song:String)
+	{
+		return Paths.getPath('${formatToSongPath(song)}/Voices', SOUND, 'songs');
+	}
+
+	inline static public function instPath(song:String)
+	{
+		return Paths.getPath('${formatToSongPath(song)}/Voices', SOUND, 'songs');
+	}
+
+	inline static public function voices(song:String)
 	{
 		return returnSound(null, '${formatToSongPath(song)}/Voices', 'songs');
 	}
 
-	inline static public function inst(song:String):Any
+	inline static public function inst(song:String)
 	{
 		return returnSound(null, '${formatToSongPath(song)}/Inst', 'songs');
 	}
 
-	inline static public function image(key:String, ?library:String):FlxGraphic
+	inline static public function image(key:String, ?library:String)
 	{
 		return returnGraphic(key, library);
 	}
@@ -185,13 +195,9 @@ class Paths
 
 	inline static public function returnSound(?path:String, key:String, ?library:String)
 	{
-		if (library != null && path == library)
-			path = null;
-
 		var drip:String = '$key.$SOUND_EXT';
 		if (path != null && path.length > 0)
 			drip = '$path/$drip';
-
 		return Cache.getSound(getPath(drip, SOUND, library));
 	}
 }

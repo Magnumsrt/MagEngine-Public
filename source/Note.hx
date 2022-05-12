@@ -18,8 +18,6 @@ class Note extends FlxSprite
 	public var hitByOpponent:Bool = false;
 	public var prevNote:Note;
 
-	private var earlyHitMult:Float = 0.5;
-
 	public var distance:Float = 0;
 
 	public var offsetX:Float = 0;
@@ -156,8 +154,6 @@ class Note extends FlxSprite
 				updateHitbox();
 			}
 		}
-		else if (!isSustainNote)
-			earlyHitMult = 1;
 		x += offsetX;
 	}
 
@@ -278,24 +274,20 @@ class Note extends FlxSprite
 
 		if (mustPress)
 		{
-			if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset
-				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * earlyHitMult))
-				canBeHit = true;
+			if (strumTime >= Conductor.songPosition - Conductor.safeZoneOffset)
+			{
+				if (strumTime <= Conductor.songPosition + 0.5 * Conductor.safeZoneOffset)
+					canBeHit = true;
+			}
 			else
-				canBeHit = false;
-
-			if (strumTime < Conductor.songPosition - Conductor.safeZoneOffset && !wasGoodHit)
-				tooLate = true;
+				canBeHit = true;
 		}
 		else
 		{
 			canBeHit = false;
 
-			if (strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * earlyHitMult))
-			{
-				if ((isSustainNote && prevNote.wasGoodHit) || strumTime <= Conductor.songPosition)
-					wasGoodHit = true;
-			}
+			if (strumTime <= Conductor.songPosition)
+				wasGoodHit = true;
 		}
 
 		if (tooLate && alpha > 0.3)

@@ -42,9 +42,9 @@ class LoadingState extends MusicBeatState
 
 	override function create()
 	{
-		var bg:FlxSprite = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, 0xffcaff4d);
+		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xffcaff4d);
 		add(bg);
-		funkay = new FlxSprite(0, 0).loadGraphic(Paths.getPath('images/preloaderArt.png', IMAGE));
+		funkay = new FlxSprite().loadGraphic(Paths.image('funkay'));
 		funkay.setGraphicSize(0, FlxG.height);
 		funkay.updateHitbox();
 		funkay.antialiasing = true;
@@ -68,9 +68,7 @@ class LoadingState extends MusicBeatState
 			}
 			checkLibrary("shared");
 			if (directory != null && directory.length > 0 && directory != 'shared')
-			{
 				checkLibrary(directory);
-			}
 
 			var fadeTime = 0.5;
 			FlxG.camera.fade(FlxG.camera.bgColor, fadeTime, true);
@@ -92,7 +90,6 @@ class LoadingState extends MusicBeatState
 
 	function checkLibrary(library:String)
 	{
-		trace(Assets.hasLibrary(library));
 		if (Assets.getLibrary(library) == null)
 		{
 			@:privateAccess
@@ -135,12 +132,12 @@ class LoadingState extends MusicBeatState
 
 	static function getSongPath()
 	{
-		return Paths.inst(PlayState.SONG.song);
+		return Paths.instPath(PlayState.SONG.song);
 	}
 
 	static function getVocalPath()
 	{
-		return Paths.voices(PlayState.SONG.song);
+		return Paths.voicesPath(PlayState.SONG.song);
 	}
 
 	inline static public function loadAndSwitchState(target:FlxState, stopMusic = false)

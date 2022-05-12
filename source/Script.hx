@@ -1,5 +1,6 @@
 package;
 
+import openfl.utils.Assets;
 import haxe.Exception;
 #if sys
 import sys.io.File;
@@ -118,7 +119,7 @@ class Script
 		parser.allowTypes = true;
 		try
 		{
-			interp.execute(parser.parseString(File.getContent(path)));
+			interp.execute(parser.parseString(#if MODS File.getContent(path) #else Assets.getText(path) #end));
 			trace('loaded script ' + path);
 			call('create');
 		}
