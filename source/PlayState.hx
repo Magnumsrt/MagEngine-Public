@@ -2189,15 +2189,17 @@ class PlayState extends MusicBeatState
 
 				possibleNotes.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
 
+				var canMiss:Bool = !MagPrefs.getValue('ghostTapping');
+
 				if (possibleNotes.length > 0)
 				{
-					if (!MagPrefs.getValue('ghostTapping') && !ignoreList.contains(key))
+					if (canMiss && !ignoreList.contains(key))
 						noteMiss(key);
 					for (possibleNote in possibleNotes)
 						if (possibleNote.noteData == key)
 							goodNoteHit(possibleNote);
 				}
-				else if (!MagPrefs.getValue('ghostTapping'))
+				else if (canMiss)
 					noteMiss(key);
 
 				// more accurate shit??? part 2
