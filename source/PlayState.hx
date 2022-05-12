@@ -2191,7 +2191,7 @@ class PlayState extends MusicBeatState
 
 				if (possibleNotes.length > 0)
 				{
-					if (!ignoreList.contains(key))
+					if (!MagPrefs.getValue('ghostTapping') && !ignoreList.contains(key))
 						noteMiss(key);
 					for (possibleNote in possibleNotes)
 						if (possibleNote.noteData == key)
