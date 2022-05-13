@@ -64,7 +64,7 @@ class MagPrefs
 		'sickWindow' => {
 			type: Integer,
 			// tryna to make this better (value before was 34 lmao)
-			value: 36
+			value: 34
 		},
 		'goodWindow' => {
 			type: Integer,
