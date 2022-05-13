@@ -114,7 +114,7 @@ class PlayState extends MusicBeatState
 
 	public var allUI:Array<FlxCamera> = [];
 
-	var dialogue:Array<String> = ['blah blah blah', 'coolswag'];
+	var dialogue:Array<String> = [];
 
 	public var halloweenBG:FlxSprite;
 
@@ -257,32 +257,31 @@ class PlayState extends MusicBeatState
 
 		var songName:String = Paths.formatToSongPath(SONG.song);
 
-		switch (songName)
-		{
-			// case 'tutorial':
-			// 	dialogue = ["Hey you're pretty cute.", 'Use the arrow keys to keep up \nwith me singing.'];
-			// case 'bopeebo':
-			// 	dialogue = [
-			// 		'HEY!',
-			// 		"You think you can just sing\nwith my daughter like that?",
-			// 		"If you want to date her...",
-			// 		"You're going to have to go \nthrough ME first!"
-			// 	];
-			// case 'fresh':
-			// 	dialogue = ["Not too shabby boy.", ""];
-			// case 'dad-battle':
-			// 	dialogue = [
-			// 		"gah you think you're hot stuff?",
-			// 		"If you can beat me here...",
-			// 		"Only then I will even CONSIDER letting you\ndate my daughter!"
-			// 	];
-			case 'senpai':
-				dialogue = CoolUtil.coolTextFile(Paths.txt('senpai/senpaiDialogue'));
-			case 'roses':
-				dialogue = CoolUtil.coolTextFile(Paths.txt('roses/rosesDialogue'));
-			case 'thorns':
-				dialogue = CoolUtil.coolTextFile(Paths.txt('thorns/thornsDialogue'));
-		}
+		// switch (songName)
+		// {
+		// case 'tutorial':
+		// 	dialogue = ["Hey you're pretty cute.", 'Use the arrow keys to keep up \nwith me singing.'];
+		// case 'bopeebo':
+		// 	dialogue = [
+		// 		'HEY!',
+		// 		"You think you can just sing\nwith my daughter like that?",
+		// 		"If you want to date her...",
+		// 		"You're going to have to go \nthrough ME first!"
+		// 	];
+		// case 'fresh':
+		// 	dialogue = ["Not too shabby boy.", ""];
+		// case 'dad-battle':
+		// 	dialogue = [
+		// 		"gah you think you're hot stuff?",
+		// 		"If you can beat me here...",
+		// 		"Only then I will even CONSIDER letting you\ndate my daughter!"
+		// 	];
+		// }
+
+		// i hate haxe string interpolation
+		var doofPath:String = Paths.txt('$songName/$songName' + 'Dialogue');
+		if (Assets.exists(doofPath))
+			dialogue = CoolUtil.coolTextFile(doofPath);
 
 		#if DISCORD
 		// Making difficulty text for Discord Rich Presence.
@@ -635,7 +634,7 @@ class PlayState extends MusicBeatState
 		if (countdownStyle != 'normal')
 			countdownSuffix = '-' + countdownStyle;
 
-		// CACHE SHIT
+		// CACHE SHIT GOES HERE!!
 		if (!MusicBeatState.resetedShit)
 		{
 			for (asset in countdownAssets.get(countdownStyle))
@@ -758,11 +757,16 @@ class PlayState extends MusicBeatState
 		add(dad);
 		add(boyfriend);
 
-		var doof:DialogueBox = new DialogueBox(false, dialogue);
-		// doof.x += 70;
-		// doof.y = FlxG.height * 0.5;
-		doof.scrollFactor.set();
-		doof.finishThing = startCountdown;
+		var doof:DialogueBox = null;
+		if (dialogue != null && dialogue.length > 0)
+		{
+			doof = new DialogueBox(false, dialogue);
+			// doof.x += 70;
+			// doof.y = FlxG.height * 0.5;
+			doof.scrollFactor.set();
+			doof.finishThing = startCountdown;
+			doof.cameras = [camHUD];
+		}
 
 		Conductor.songPosition = -5000;
 
@@ -857,7 +861,6 @@ class PlayState extends MusicBeatState
 		iconP2.cameras = [camHUD];
 		infoTxt.cameras = [camHUD];
 		scoreTxt.cameras = [camHUD];
-		doof.cameras = [camHUD];
 
 		// if (SONG.song == 'South')
 		// FlxG.camera.alpha = 0.7;
@@ -899,25 +902,16 @@ class PlayState extends MusicBeatState
 							});
 						});
 					});
-				case 'senpai':
-					schoolIntro(doof);
-				case 'roses':
-					FlxG.sound.play(Paths.sound('ANGRY'));
-					schoolIntro(doof);
-				case 'thorns':
+				case 'senpai' | 'roses' | 'thorns':
 					schoolIntro(doof);
 				default:
 					startCountdown();
 			}
 		}
 		else
-		{
-			switch (curSong.toLowerCase())
-			{
-				default:
-					startCountdown();
-			}
-		}
+			startCountdown();
+
+		recalculateRating();
 
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);
 		FlxG.stage.addEventListener(KeyboardEvent.KEY_UP, onKeyRelease);
@@ -944,6 +938,14 @@ class PlayState extends MusicBeatState
 
 	function schoolIntro(?dialogueBox:DialogueBox):Void
 	{
+		if (dialogueBox == null)
+			startCountdown();
+
+		var songName:String = Paths.formatToSongPath(SONG.song);
+
+		if (songName == 'roses')
+			FlxG.sound.play(Paths.sound('ANGRY'));
+
 		var black:FlxSprite = new FlxSprite(-100, -100).makeGraphic(FlxG.width * 2, FlxG.height * 2, FlxColor.BLACK);
 		black.scrollFactor.set();
 		add(black);
@@ -959,7 +961,6 @@ class PlayState extends MusicBeatState
 		senpaiEvil.updateHitbox();
 		senpaiEvil.screenCenter();
 
-		var songName:String = Paths.formatToSongPath(SONG.song);
 		if (songName == 'roses' || songName == 'thorns')
 		{
 			remove(black);
@@ -1195,7 +1196,7 @@ class PlayState extends MusicBeatState
 		curSong = songData.song;
 
 		if (SONG.needsVoices)
-			vocals = new FlxSound().loadEmbedded(Paths.voices(PlayState.SONG.song));
+			vocals = new FlxSound().loadEmbedded(Paths.voices(curSong));
 		else
 			vocals = new FlxSound();
 
@@ -1622,7 +1623,7 @@ class PlayState extends MusicBeatState
 
 		if (camZooming)
 		{
-			lerpVal = CoolUtil.boundTo(1 - elapsed * 5.4, 0, 1);
+			lerpVal = CoolUtil.boundTo(1 - elapsed * 4.4, 0, 1);
 			FlxG.camera.zoom = FlxMath.lerp(defaultCamZoom, FlxG.camera.zoom, lerpVal);
 			for (ui in allUI)
 				ui.zoom = FlxMath.lerp(1, ui.zoom, lerpVal);
@@ -1809,10 +1810,7 @@ class PlayState extends MusicBeatState
 				if (Conductor.songPosition > noteKillOffset + daNote.strumTime)
 				{
 					if (daNote.tooLate || !daNote.wasGoodHit)
-					{
-						health -= 0.0475 * healthLoss;
-						vocals.volume = 0;
-					}
+						noteMiss(daNote);
 
 					daNote.active = false;
 					daNote.visible = false;
@@ -2009,10 +2007,10 @@ class PlayState extends MusicBeatState
 				}
 		}
 
+		songScore += score;
 		if (!cpuControlled)
 		{
 			totalPlayed++;
-			songScore += score;
 			recalculateRating();
 		}
 
@@ -2138,7 +2136,6 @@ class PlayState extends MusicBeatState
 		});
 	}
 
-	// literally week 7 code x psych code lol
 	private function onKeyPress(event:KeyboardEvent):Void
 	{
 		var eventKey:FlxKey = event.keyCode;
@@ -2146,7 +2143,7 @@ class PlayState extends MusicBeatState
 
 		if (!cpuControlled && !paused && key > -1 && (FlxG.keys.checkStatus(eventKey, JUST_PRESSED) || keyPressByController))
 		{
-			if (!boyfriend.stunned && generatedMusic && !endingSong)
+			if (generatedMusic && !endingSong)
 			{
 				// more accurate shit??? part 1 (i hate haxeflixel)
 				var lastTime:Float = Conductor.songPosition;
@@ -2190,19 +2187,18 @@ class PlayState extends MusicBeatState
 				possibleNotes.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
 
 				var canMiss:Bool = !MagPrefs.getValue('ghostTapping');
-
 				if (possibleNotes.length > 0)
 				{
 					if (canMiss && !ignoreList.contains(key))
-						noteMiss(key);
+						noteMissPress(key);
 					for (possibleNote in possibleNotes)
 						if (possibleNote.noteData == key)
 							goodNoteHit(possibleNote);
 				}
 				else if (canMiss)
-					noteMiss(key);
+					noteMissPress(key);
 
-				// more accurate shit??? part 2
+				// more accurate shit??? part 2 (back to the old times)
 				Conductor.songPosition = lastTime;
 			}
 
@@ -2310,27 +2306,54 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	public function noteMiss(direction:Int = 1):Void
+	// for when the notes goes off-screen
+	public function noteMiss(daNote:Note):Void
+	{
+		// remove too similar notes to be less cringe
+		notes.forEachAlive(function(note:Note)
+		{
+			if (daNote != note
+				&& daNote.mustPress
+				&& daNote.noteData == note.noteData
+				&& daNote.isSustainNote == note.isSustainNote
+				&& Math.abs(daNote.strumTime - note.strumTime) < 1)
+				removeNote(note);
+		});
+
+		health -= daNote.missHealth * healthLoss;
+		vocals.volume = 0;
+
+		combo = 0;
+
+		songScore -= 10;
+		songMisses++;
+		totalPlayed++;
+		recalculateRating();
+
+		boyfriend.playAnim(singAnimations[Std.int(Math.abs(daNote.noteData))] + 'miss', true);
+
+		callScripts('noteMiss', [daNote]);
+	}
+
+	// for hits in the void
+	public function noteMissPress(direction:Int = 1):Void
 	{
 		if (!boyfriend.stunned)
 		{
 			health -= 0.04 * healthLoss;
+			vocals.volume = 0;
 
 			if (combo > 5 && gf.animation.getByName('sad') != null)
 				gf.playAnim('sad');
 			combo = 0;
 
-			// if (!practiceMode)
-			// {
 			songScore -= 10;
-			songMisses++;
+			if (!endingSong)
+				songMisses++;
 			totalPlayed++;
 			recalculateRating();
-			// }
 
 			FlxG.sound.play(Paths.soundRandom('missnote', 1, 3), FlxG.random.float(0.1, 0.2));
-			// FlxG.sound.play(Paths.sound('missnote1'), 1, false);
-			// FlxG.log.add('played imss note');
 
 			boyfriend.stunned = true;
 
@@ -2340,9 +2363,9 @@ class PlayState extends MusicBeatState
 				boyfriend.stunned = false;
 			});
 
-			boyfriend.playAnim(singAnimations[Std.int(Math.abs(direction))] + 'miss', true);
+			boyfriend.playAnim(singAnimations[direction] + 'miss', true);
 
-			callScripts('noteMiss', [direction]);
+			callScripts('noteMissPress', [direction]);
 		}
 	}
 
@@ -2354,6 +2377,8 @@ class PlayState extends MusicBeatState
 			{
 				popUpScore(note);
 				combo += 1;
+				if (combo > 9999)
+					combo = 9999;
 			}
 
 			health += note.hitHealth * healthGain;

@@ -35,22 +35,19 @@ class PauseSubState extends MusicBeatSubstate
 		bg.scrollFactor.set();
 		add(bg);
 
-		var levelInfo:FlxText = new FlxText(0, 15, 0, "", 32);
-		levelInfo.text += PlayState.SONG.song;
+		var levelInfo:FlxText = new FlxText(0, 15, 0, PlayState.SONG.song, 32);
 		levelInfo.scrollFactor.set();
 		levelInfo.setFormat(Paths.font("vcr.ttf"), 32);
 		levelInfo.updateHitbox();
 		add(levelInfo);
 
-		var levelDifficulty:FlxText = new FlxText(20, levelInfo.y + 32, 0, "", 32);
-		levelDifficulty.text += CoolUtil.difficultyString();
+		var levelDifficulty:FlxText = new FlxText(20, levelInfo.y + 32, 0, CoolUtil.difficultyString(), 32);
 		levelDifficulty.scrollFactor.set();
 		levelDifficulty.font = levelInfo.font;
 		levelDifficulty.updateHitbox();
 		add(levelDifficulty);
 
-		levelBotplay = new FlxText(0, 0, 0, "", 32);
-		levelBotplay.text += CoolUtil.difficultyString();
+		levelBotplay = new FlxText(0, 0, 0, "BOTPLAY", 32);
 		levelBotplay.scrollFactor.set();
 		levelBotplay.visible = PlayState.cpuControlled;
 		levelBotplay.font = levelInfo.font;
@@ -130,11 +127,11 @@ class PauseSubState extends MusicBeatSubstate
 			}
 		}
 
-		if (FlxG.keys.justPressed.J)
-		{
-			// for reference later!
-			// PlayerSettings.player1.controls.replaceBinding(Control.LEFT, Keys, FlxKey.J, null);
-		}
+		// if (FlxG.keys.justPressed.J)
+		// {
+		// for reference later!
+		// PlayerSettings.player1.controls.replaceBinding(Control.LEFT, Keys, FlxKey.J, null);
+		// }
 	}
 
 	override function destroy()
