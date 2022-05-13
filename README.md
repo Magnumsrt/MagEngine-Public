@@ -6,6 +6,8 @@ This is the repository for Friday Night Funkin': Mag Engine, a modding engine fo
 
 The engine is based of the source code of Friday Night Funkin', a game originally made for Ludum Dare 47 "Stuck In a Loop".
 
+> Uh oh! Your tryin to kiss ur hot girlfriend, but her MEAN and EVIL dad is trying to KILL you! He's an ex-rockstar, the only way to get to his heart? The power of music... 
+
 Play the Ludum Dare prototype here: https://ninja-muffin24.itch.io/friday-night-funkin
 
 Play the Newgrounds one here: https://www.newgrounds.com/portal/view/770371
