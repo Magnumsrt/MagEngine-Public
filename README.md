@@ -18,11 +18,12 @@ IF YOU MAKE A MOD AND DISTRIBUTE A MODIFIED / RECOMPILED VERSION, YOU MUST OPEN 
 
 # Credits / shoutouts
 
--   [Magnumsrt](https://twitter.com/MagnumsrtYT) - Owner, coder, artist, and developer
--   [Stilic](https://www.youtube.com/channel/UCY2VZxpdhxLnL0p6TbqIfHw) - Assistant coder and contributer
+-   [Magnumsrt](https://twitter.com/MagnumsrtYT) - Coding and art
+-   [Stilic](https://gamebanana.com/members/1893262) - Assistant coding
+-   [Shadow Mario](https://twitter.com/Shadow_Mario_) - Mod directory code, color tweens in the Freeplay menu and scroll code
+-   [PolybiusProxy](https://twitter.com/polybiusproxy) and [BrightFyre](https://twitter.com/fyre_bright) - MP4 video extension
+-   [Leather128](https://gamebanana.com/members/1799813) - Polymod handling code
 -   [Vermex](https://gamebanana.com/members/1664988) - Pixel note splashes
--   [PolybiusProxy](https://twitter.com/polybiusproxy) - MP4 video extension
--   [Leather128](https://gamebanana.com/members/1799813) - Polymod enable and disable code (genius)
 
 ## Original credits / shoutouts
 
@@ -56,7 +57,6 @@ flixel
 flixel-addons
 flixel-ui
 hscript
-hscript-ex
 ```
 
 So for each of those type `haxelib install [library]` so shit like `haxelib install newgrounds`
@@ -80,8 +80,8 @@ To run it from your desktop (Windows, Mac, Linux) it can be a bit more involved.
 -   MSVC v142 - VS 2019 C++ x64/x86 build tools
 -   Windows SDK (10.0.17763.0)
 
-Once that is done you can open up a command line in the project's directory and run `lime test windows -debug`. Once that command finishes (it takes forever even on a higher end PC), you can run FNF from the .exe file under export\release\windows\bin
-As for Mac, 'lime test mac -debug' should work, if not the internet surely has a guide on how to compile Haxe stuff for Mac.
+Once that is done you can open up a command line in the project's directory and run `lime test windows -debug`. Once that command finishes (it takes forever even on a higher end PC), you can run the engine from the .exe file under export\release\windows\bin.
+As for Mac, `lime test mac -debug` should work, if not the internet surely has a guide on how to compile Haxe stuff for Mac.
 
 ### Additional guides
 
