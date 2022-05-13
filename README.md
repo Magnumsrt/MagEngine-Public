@@ -43,7 +43,7 @@ https://github.com/magnumsrtisswag/MagEngine-Public/releases
 
 IF YOU WANT TO COMPILE THE ENGINE YOURSELF, CONTINUE READING!!!
 
-### Installing the Required Programs
+### Installing the required programs
 
 First, you need to install Haxe and HaxeFlixel. I'm too lazy to write and keep updated with that setup (which is pretty simple).
 
