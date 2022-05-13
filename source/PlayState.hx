@@ -2588,13 +2588,11 @@ class PlayState extends MusicBeatState
 			dad.dance();
 
 		if (curBeat % 8 == 7 && curSong == 'Bopeebo')
-		{
-			boyfriend.playAnim('hey', true);
-		}
+			boyfriend.hey();
 
 		if (curBeat % 16 == 15 && curSong == 'Tutorial' && dad.curCharacter == 'gf' && curBeat > 16 && curBeat < 48)
 		{
-			boyfriend.playAnim('hey', true);
+			boyfriend.hey();
 			dad.playAnim('cheer', true);
 		}
 
