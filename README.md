@@ -1,28 +1,29 @@
 # Mag Engine
 
-Ever wanted to make a full week mod with phases, custom characters, custom stages, and dialogues? I'm sure we all have, but not all of us know how to code. BUT! With Mag Engine, it fixes literally all of those problems.
+This is the repository for Friday Night Funkin': Mag Engine, a modding engine for Friday Night Funkin', that requires no code to use.
 
-**This is easily one of if not the easiest engine to mod, with source, or without.**
+## Friday Night Funkin'
 
-## Friday Night Funkin
+The engine is based of the source code of Friday Night Funkin', originally made for Ludum Dare 47 "Stuck In a Loop".
 
-The engine is based of the source code of Friday Night Funkin, a game originally made for Ludum Dare 47 "Stuck In a Loop".
+> Uh oh! Your tryin to kiss ur hot girlfriend, but her MEAN and EVIL dad is trying to KILL you! He's an ex-rockstar, the only way to get to his heart? The power of music... 
 
-Play the Ludum Dare prototype here: https://ninja-muffin24.itch.io/friday-night-funkin
+**Play the Ludum Dare prototype here:** https://ninja-muffin24.itch.io/friday-night-funkin
 
-Play the Newgrounds one here: https://www.newgrounds.com/portal/view/770371
+**Play the Newgrounds one here:** https://www.newgrounds.com/portal/view/770371
 
-Support the project on the itch.io page: https://ninja-muffin24.itch.io/funkin
+**Support the project on the itch.io page:** https://ninja-muffin24.itch.io/funkin
 
-IF YOU MAKE A MOD AND DISTRIBUTE A MODIFIED / RECOMPILED VERSION, YOU MUST OPEN SOURCE YOUR MOD AS WELL
+_IF YOU MAKE A MOD AND DISTRIBUTE A MODIFIED / RECOMPILED VERSION, YOU MUST OPEN SOURCE YOUR MOD AS WELL_
 
 # Credits / shoutouts
 
--   [Magnumsrt](https://twitter.com/MagnumsrtYT) - Owner, coder, artist, and developer
--   [Stilic](https://www.youtube.com/channel/UCY2VZxpdhxLnL0p6TbqIfHw) - Assistant coder and contributer
+-   [Magnumsrt](https://twitter.com/MagnumsrtYT) - Coding and art
+-   [Stilic](https://gamebanana.com/members/1893262) - Assistant coding
+-   [Shadow Mario](https://twitter.com/Shadow_Mario_) - Mod directory code, color tweens in the Freeplay menu and scroll code
+-   [PolybiusProxy](https://twitter.com/polybiusproxy) and [BrightFyre](https://twitter.com/fyre_bright) - MP4 video extension
+-   [Leather128](https://gamebanana.com/members/1799813) - Polymod handling code
 -   [Vermex](https://gamebanana.com/members/1664988) - Pixel note splashes
--   [PolybiusProxy](https://twitter.com/polybiusproxy) - MP4 video extension
--   [Leather128](https://gamebanana.com/members/1799813) - Polymod enable and disable code (genius)
 
 ## Original credits / shoutouts
 
@@ -46,7 +47,7 @@ IF YOU WANT TO COMPILE THE ENGINE YOURSELF, CONTINUE READING!!!
 
 First, you need to install Haxe and HaxeFlixel. I'm too lazy to write and keep updated with that setup (which is pretty simple).
 
-1. [Install Haxe](https://haxe.org/download/version/4.1.5/) (DOWNLOAD THE LATEST HAXE!!! STOP USING HAXE 4.1.5!!!!!)
+1. [Install Haxe](https://haxe.org/download/version/4.1.5/) (USE THE LATEST HAXE!!! STOP USING HAXE 4.1.5!!!!!)
 2. [Install HaxeFlixel](https://haxeflixel.com/documentation/install-haxeflixel/) after downloading Haxe
 
 Other installations you'd need are the additional libraries, a fully updated list will be in `Project.xml` in the project root. Currently, these are all of the things you need to install:
@@ -80,8 +81,8 @@ To run it from your desktop (Windows, Mac, Linux) it can be a bit more involved.
 -   MSVC v142 - VS 2019 C++ x64/x86 build tools
 -   Windows SDK (10.0.17763.0)
 
-Once that is done you can open up a command line in the project's directory and run `lime test windows -debug`. Once that command finishes (it takes forever even on a higher end PC), you can run FNF from the .exe file under export\release\windows\bin
-As for Mac, 'lime test mac -debug' should work, if not the internet surely has a guide on how to compile Haxe stuff for Mac.
+Once that is done you can open up a command line in the project's directory and run `lime test windows -debug`. Once that command finishes (it takes forever even on a higher end PC), you can run the engine from the .exe file under export\release\windows\bin.
+As for Mac, `lime test mac -debug` should work, if not the internet surely has a guide on how to compile Haxe stuff for Mac.
 
 ### Additional guides
 
