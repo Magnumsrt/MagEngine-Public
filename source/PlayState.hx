@@ -62,6 +62,8 @@ class PlayState extends MusicBeatState
 	public var gf:Character;
 	public var boyfriend:Boyfriend;
 
+	var characters:Array<Character> = [];
+
 	public static var singAnimations:Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 
 	public var notes:FlxTypedGroup<Note>;
@@ -749,6 +751,7 @@ class PlayState extends MusicBeatState
 		}
 
 		add(gf);
+		characters.push(gf);
 
 		// Shitty layering but whatev it works LOL
 		if (curStage == 'limo')
@@ -756,6 +759,8 @@ class PlayState extends MusicBeatState
 
 		add(dad);
 		add(boyfriend);
+		characters.push(dad);
+		characters.push(boyfriend);
 
 		var doof:DialogueBox = null;
 		if (dialogue != null && dialogue.length > 0)
@@ -1318,6 +1323,10 @@ class PlayState extends MusicBeatState
 
 			if (!startTimer.finished)
 				startTimer.active = false;
+
+			for (char in characters)
+				if (char.idleTimer != null && !char.idleTimer.finished)
+					char.idleTimer.active = false;
 		}
 
 		super.openSubState(SubState);
@@ -1332,6 +1341,11 @@ class PlayState extends MusicBeatState
 
 			if (!startTimer.finished)
 				startTimer.active = true;
+
+			for (char in characters)
+				if (char.idleTimer != null && !char.idleTimer.finished)
+					char.idleTimer.active = true;
+
 			paused = false;
 
 			callScripts('resume');
@@ -1783,7 +1797,7 @@ class PlayState extends MusicBeatState
 					}
 
 					dad.playAnim(singAnimations[Std.int(Math.abs(daNote.noteData))] + altAnim, true);
-					dad.holdTimer = 0;
+					dad.startIdle();
 
 					if (SONG.needsVoices)
 						vocals.volume = 1;
@@ -1819,15 +1833,8 @@ class PlayState extends MusicBeatState
 				}
 			});
 
-			if (!inCutscene)
-			{
-				if (!cpuControlled)
-					keyShit();
-				else if (boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
-					&& boyfriend.animation.curAnim.name.startsWith('sing')
-					&& !boyfriend.animation.curAnim.name.endsWith('miss'))
-					boyfriend.dance();
-			}
+			if (!inCutscene && !cpuControlled)
+				keyShit();
 		}
 
 		callScripts('updatePost', [elapsed]);
@@ -2265,11 +2272,6 @@ class PlayState extends MusicBeatState
 				if (daNote.isSustainNote && daNote.canBeHit && daNote.mustPress && controlHoldArray[daNote.noteData])
 					goodNoteHit(daNote);
 			});
-			if (!controlHoldArray.contains(true)
-				&& boyfriend.holdTimer > Conductor.stepCrochet * 0.001 * boyfriend.singDuration
-				&& boyfriend.animation.curAnim.name.startsWith('sing')
-				&& !boyfriend.animation.curAnim.name.endsWith('miss'))
-				boyfriend.dance();
 		}
 
 		if (keyPressByController)
@@ -2384,7 +2386,7 @@ class PlayState extends MusicBeatState
 			health += note.hitHealth * healthGain;
 
 			boyfriend.playAnim(singAnimations[Std.int(Math.abs(note.noteData))], true);
-			boyfriend.holdTimer = 0;
+			boyfriend.startIdle(!cpuControlled);
 
 			var coolDat:Int = Std.int(Math.abs(note.noteData)) % 4;
 			if (cpuControlled)

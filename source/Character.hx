@@ -1,5 +1,6 @@
 package;
 
+import flixel.util.FlxTimer;
 import openfl.utils.Assets;
 import animateatlas.AtlasFrameMaker;
 import flixel.util.FlxColor;
@@ -41,15 +42,17 @@ class Character extends FlxSprite
 	public var hasMissAnimations:Bool = false;
 	public var danceIdle:Bool = false;
 
-	public var singDuration:Float = 4;
+	public var singDuration:Float = 4.1;
 
 	public var barColor:FlxColor = FlxColor.BLACK;
 
 	public var cameraPosition:Array<Float> = [0, 0];
 
-	public var holdTimer:Float = 0;
+	public var idleTimer:FlxTimer;
 	public var heyTimer:Float = 0;
 	public var specialAnim:Bool = false;
+
+	var checkHold:Bool = false;
 
 	public var icon:String;
 
@@ -478,15 +481,14 @@ class Character extends FlxSprite
 				dance();
 			}
 
-			if (!isPlayer)
+			if (checkHold)
 			{
-				if (animation.curAnim.name.startsWith('sing'))
-					holdTimer += elapsed;
-
-				if (holdTimer >= Conductor.stepCrochet * 0.001 * 4)
+				var controls:Controls = CoolUtil.getControls();
+				var controlHoldArray:Array<Bool> = [controls.NOTE_LEFT, controls.NOTE_DOWN, controls.NOTE_UP, controls.NOTE_RIGHT];
+				if (!controlHoldArray.contains(true))
 				{
 					dance();
-					holdTimer = 0;
+					checkHold = false;
 				}
 			}
 
@@ -495,6 +497,22 @@ class Character extends FlxSprite
 		}
 
 		super.update(elapsed);
+	}
+
+	public function startIdle(holdCheck:Bool = false)
+	{
+		if (idleTimer == null)
+			idleTimer = new FlxTimer().start(Conductor.stepCrochet * 0.001 * singDuration, function(tmr:FlxTimer)
+			{
+				if (holdCheck)
+					checkHold = true;
+				else if (animation.curAnim != null
+					&& animation.curAnim.name.startsWith('sing')
+					&& !animation.curAnim.name.endsWith('miss'))
+					dance();
+			});
+		else
+			idleTimer.reset();
 	}
 
 	public function loadOffsetFromFile(character:String)
@@ -509,9 +527,6 @@ class Character extends FlxSprite
 
 	public var danced:Bool = false;
 
-	/**
-	 * FOR GF DANCING SHIT
-	 */
 	public function dance()
 	{
 		if (!debugMode && !specialAnim)
@@ -528,6 +543,13 @@ class Character extends FlxSprite
 			else if (animation.getByName('idle') != null)
 				playAnim('idle');
 		}
+	}
+
+	public function hey(time:Float = 0.6)
+	{
+		playAnim('hey', true);
+		specialAnim = true;
+		heyTimer = time;
 	}
 
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0)

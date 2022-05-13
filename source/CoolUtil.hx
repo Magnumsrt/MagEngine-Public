@@ -22,6 +22,10 @@ class CoolUtil
 		return Math.max(min, Math.min(max, value));
 	}
 
+	inline public static function getControls():Controls {
+		return PlayerSettings.player1.controls;
+	}
+
 	public static function floorDecimal(value:Float, decimals:Int):Float
 	{
 		if (decimals < 1)
