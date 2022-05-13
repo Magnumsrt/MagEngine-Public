@@ -107,6 +107,13 @@ class Main extends Sprite
 		leMain.toggleFPS(MagPrefs.getValue('fps'));
 		leMain.toggleMem(MagPrefs.getValue('mem'));
 		leMain.toggleMemPeak(MagPrefs.getValue('memPeak'));
+		leMain.updateFPSDisplay();
+	}
+
+	public function updateFPSDisplay()
+	{
+		if (fpsCounter != null)
+			fpsCounter.updateText();
 	}
 
 	public function toggleFPS(value:Bool)

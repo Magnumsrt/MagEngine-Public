@@ -11,11 +11,11 @@ typedef Setting =
 	var value:Dynamic;
 
 	// for string, percent and numbers types
-	@:optional var options:Array<String>;
-	@:optional var curOption:Int;
-	@:optional var decimals:Int;
-	@:optional var min:Float;
-	@:optional var max:Float;
+	var ?options:Array<String>;
+	var ?curOption:Int;
+	var ?decimals:Int;
+	var ?min:Float;
+	var ?max:Float;
 }
 
 enum SettingType
@@ -63,7 +63,8 @@ class MagPrefs
 		// hit windows (based on the new fnf windows, see https://twitter.com/kade0912/status/1511477162469113859/photo/1)
 		'sickWindow' => {
 			type: Integer,
-			value: 34
+			// tryna to make this better (value before was 34 lmao)
+			value: 36
 		},
 		'goodWindow' => {
 			type: Integer,

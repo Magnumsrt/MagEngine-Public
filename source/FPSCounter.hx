@@ -50,24 +50,32 @@ class FPSCounter extends TextField
 		var currentCount = times.length;
 		currentFPS = Math.round((currentCount + cacheCount) / 2);
 
-		if (visible && currentCount != cacheCount)
+		if (currentCount != cacheCount)
+			updateText();
+
+		cacheCount = currentCount;
+	}
+
+	public function updateText()
+	{
+		if (visible)
 		{
 			text = "";
 			if (showFPS)
-				text += "FPS: " + times.length + "\n";
+				text += "FPS: " + times.length;
 
-			#if openfl
+			#if (openfl && !html5)
 			var mem:Float = Math.abs(FlxMath.roundDecimal(System.totalMemory / 1000000, 1));
 			if (mem > memPeak)
 				memPeak = mem;
 
 			if (showMEM)
-				text += "MEM: " + mem + " MB\n";
-			if (showMEMPeak)
-				text += "MEM peak: " + memPeak + " MB";
+			{
+				text += "\nMEM: " + mem + " MB";
+				if (showMEMPeak)
+					text += " / " + memPeak + " MB";
+			}
 			#end
 		}
-
-		cacheCount = currentCount;
 	}
 }
