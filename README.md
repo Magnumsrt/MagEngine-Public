@@ -1,12 +1,10 @@
 # Mag Engine
 
-Ever wanted to make a full week mod with phases, custom characters, custom stages, and dialogues? I'm sure we all have, but not all of us know how to code. BUT! With Mag Engine, it fixes literally all of those problems.
+This is the repository for Friday Night Funkin': Mag Engine, a modding engine for Friday Night Funkin', that requires no code to use.
 
-**This is easily one of if not the easiest engine to mod, with source, or without.**
+## Friday Night Funkin'
 
-## Friday Night Funkin
-
-The engine is based of the source code of Friday Night Funkin, a game originally made for Ludum Dare 47 "Stuck In a Loop".
+The engine is based of the source code of Friday Night Funkin', a game originally made for Ludum Dare 47 "Stuck In a Loop".
 
 Play the Ludum Dare prototype here: https://ninja-muffin24.itch.io/friday-night-funkin
 
