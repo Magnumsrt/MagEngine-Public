@@ -45,7 +45,7 @@ class OptionsMenuState extends MusicBeatState
 					'noteSplashes'
 				],
 				['Opponent Notes Glow', 'Makes the opponent notes glow on hit.', 'cpuNotesGlow'],
-				['Notes behind HUD', 'Makes the notes goes behind the HUD.', 'notesBehindHud']
+				['Notes Behind HUD', 'Makes the notes goes behind the HUD.', 'notesBehindHud']
 			],
 		],
 		[
