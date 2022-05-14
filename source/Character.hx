@@ -550,23 +550,6 @@ class Character extends FlxSprite
 		super.update(elapsed);
 	}
 
-	public function startIdle(holdCheck:Bool = false)
-	{
-		if (idleTimer == null)
-			idleTimer = new FlxTimer().start(Conductor.stepCrochet * 0.001 * singDuration, function(tmr:FlxTimer)
-			{
-				if (holdCheck)
-					checkHold = true;
-				if (!checkHold
-					&& animation.curAnim != null
-					&& animation.curAnim.name.startsWith('sing')
-					&& !animation.curAnim.name.endsWith('miss'))
-					dance();
-			});
-		else
-			idleTimer.reset();
-	}
-
 	public function loadOffsetFromFile(character:String)
 	{
 		var offset:Array<String> = CoolUtil.coolTextFile(Paths.getPath('images/characters/' + character + 'Offsets.txt', TEXT, null));
@@ -595,6 +578,32 @@ class Character extends FlxSprite
 			else if (animation.getByName('idle') != null)
 				playAnim('idle');
 		}
+	}
+
+	public function startIdle(holdCheck:Bool = false)
+	{
+		if (idleTimer == null)
+			idleTimer = new FlxTimer().start(Conductor.stepCrochet * 0.001 * singDuration, function(tmr:FlxTimer)
+			{
+				if (holdCheck)
+					checkHold = true;
+				if (!checkHold
+					&& animation.curAnim != null
+					&& animation.curAnim.name.startsWith('sing')
+					&& !animation.curAnim.name.endsWith('miss'))
+					dance();
+			});
+		else
+			idleTimer.reset();
+	}
+
+	public function beatDance(?curBeat:Int)
+	{
+		if ((curBeat == null || curBeat % danceEveryNumBeats == 0)
+			&& animation.curAnim.name != null
+			&& !animation.curAnim.name.startsWith("sing")
+			&& !stunned)
+			dance();
 	}
 
 	public function hey(time:Float = 0.6)

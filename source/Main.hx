@@ -74,6 +74,12 @@ class Main extends Sprite
 		FlxG.mouse.useSystemCursor = true;
 		FlxG.mouse.visible = false;
 
+		FlxG.signals.preStateCreate.add(function(state:FlxState)
+		{
+			if (!Std.isOfType(state, PlayState) && !Std.isOfType(state, ChartingState))
+				Cache.clear();
+		});
+
 		MagPrefs.load();
 
 		#if !html5

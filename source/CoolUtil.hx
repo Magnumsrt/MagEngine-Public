@@ -22,7 +22,8 @@ class CoolUtil
 		return Math.max(min, Math.min(max, value));
 	}
 
-	inline public static function getControls():Controls {
+	inline public static function getControls():Controls
+	{
 		return PlayerSettings.player1.controls;
 	}
 

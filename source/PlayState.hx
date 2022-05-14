@@ -191,9 +191,6 @@ class PlayState extends MusicBeatState
 	{
 		instance = this;
 
-		if (!MusicBeatState.resetedShit)
-			Cache.clear();
-
 		#if SCRIPTS
 		var dumbShet:String = Paths.getPreloadPath('data/' + Paths.formatToSongPath(SONG.song));
 		#if MODS
@@ -634,16 +631,13 @@ class PlayState extends MusicBeatState
 			countdownSuffix = '-' + countdownStyle;
 
 		// CACHE SHIT GOES HERE!!
-		if (!MusicBeatState.resetedShit)
+		for (asset in countdownAssets.get(countdownStyle))
+			Paths.image(asset);
+		Paths.sound('introGo' + countdownSuffix);
+		for (i in 1...4)
 		{
-			for (asset in countdownAssets.get(countdownStyle))
-				Paths.image(asset);
-			Paths.sound('introGo' + countdownSuffix);
-			for (i in 1...4)
-			{
-				Paths.sound('intro' + i + countdownSuffix);
-				Paths.sound('missnote' + i);
-			}
+			Paths.sound('intro' + i + countdownSuffix);
+			Paths.sound('missnote' + i);
 		}
 
 		var gfVersion:String = SONG.gfVersion;
@@ -746,7 +740,7 @@ class PlayState extends MusicBeatState
 		characters.push(boyfriend);
 
 		var doof:DialogueBox = null;
-		if (dialogue != null && dialogue.length > 0)
+		if (isStoryMode && dialogue != null && dialogue.length > 0)
 		{
 			doof = new DialogueBox(false, dialogue);
 			// doof.x += 70;
@@ -1065,23 +1059,10 @@ class PlayState extends MusicBeatState
 
 			startTimer = new FlxTimer().start(Conductor.crochet / 1000, function(tmr:FlxTimer)
 			{
-				if (tmr.loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
-					&& gf.animation.curAnim.name != null
-					&& !gf.animation.curAnim.name.startsWith("sing")
-					&& !gf.stunned)
-					gf.dance();
-
-				if (tmr.loopsLeft % boyfriend.danceEveryNumBeats == 0
-					&& boyfriend.animation.curAnim != null
-					&& !boyfriend.animation.curAnim.name.startsWith('sing')
-					&& !boyfriend.stunned)
-					boyfriend.dance();
-
-				if (tmr.loopsLeft % dad.danceEveryNumBeats == 0
-					&& dad.animation.curAnim != null
-					&& !dad.animation.curAnim.name.startsWith('sing')
-					&& !dad.stunned)
-					dad.dance();
+				if (tmr.loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0)
+					gf.beatDance();
+				boyfriend.beatDance(tmr.loopsLeft);
+				dad.beatDance(tmr.loopsLeft);
 
 				if (countdownStyle != 'normal')
 					countdownSuffix = '-' + countdownStyle;
@@ -2551,23 +2532,10 @@ class PlayState extends MusicBeatState
 		iconP1.bounce();
 		iconP2.bounce();
 
-		if (curBeat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
-			&& gf.animation.curAnim.name != null
-			&& !gf.animation.curAnim.name.startsWith("sing")
-			&& !gf.stunned)
-			gf.dance();
-
-		if (curBeat % boyfriend.danceEveryNumBeats == 0
-			&& boyfriend.animation.curAnim != null
-			&& !boyfriend.animation.curAnim.name.startsWith('sing')
-			&& !boyfriend.stunned)
-			boyfriend.dance();
-
-		if (curBeat % dad.danceEveryNumBeats == 0
-			&& dad.animation.curAnim != null
-			&& !dad.animation.curAnim.name.startsWith('sing')
-			&& !dad.stunned)
-			dad.dance();
+		if (curBeat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0)
+			gf.beatDance();
+		boyfriend.beatDance(curBeat);
+		dad.beatDance(curBeat);
 
 		if (curBeat % 8 == 7 && curSong == 'Bopeebo')
 			boyfriend.hey();
