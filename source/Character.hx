@@ -56,7 +56,8 @@ class Character extends FlxSprite
 
 	public var icon:String;
 
-	public var camMoveArray:Array<Int> = [0, 0];
+	public var camMoveArray:Array<Float> = [0, 0];
+	public var camMoveAdd:Float = 15;
 
 	public var stunned:Bool = false;
 
@@ -181,6 +182,7 @@ class Character extends FlxSprite
 				frames = Paths.getSparrowAtlas('characters/momCar');
 
 				animation.addByPrefix('idle', "Mom Idle", 24, false);
+				animation.addByIndices('idle-loop', "Mom Idle", [10, 11, 12, 13], "", 24, true);
 				animation.addByPrefix('singUP', "Mom Up Pose", 24, false);
 				animation.addByPrefix('singDOWN', "MOM DOWN POSE", 24, false);
 				animation.addByPrefix('singLEFT', 'Mom Left Pose', 24, false);
@@ -286,6 +288,7 @@ class Character extends FlxSprite
 				frames = Paths.getSparrowAtlas('characters/bfCar');
 
 				animation.addByPrefix('idle', 'BF idle dance', 24, false);
+				animation.addByIndices('idle-loop', 'BF idle dance', [8, 9, 10, 11, 12, 13, 14], "", 24, true);
 				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
 				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
 				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
@@ -577,15 +580,14 @@ class Character extends FlxSprite
 		if (!AnimName.endsWith('miss'))
 		{
 			camMoveArray = [0, 0];
-			var camAdd:Int = 15;
 			if (AnimName.startsWith('singLEFT'))
-				camMoveArray = [-camAdd, 0];
+				camMoveArray = [-camMoveAdd, 0];
 			if (AnimName.startsWith('singDOWN'))
-				camMoveArray = [0, camAdd];
+				camMoveArray = [0, camMoveAdd];
 			if (AnimName.startsWith('singUP'))
-				camMoveArray = [0, -camAdd];
+				camMoveArray = [0, -camMoveAdd];
 			if (AnimName.startsWith('singRIGHT'))
-				camMoveArray = [camAdd, 0];
+				camMoveArray = [camMoveAdd, 0];
 		}
 	}
 
