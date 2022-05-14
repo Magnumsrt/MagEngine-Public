@@ -4,7 +4,7 @@ package;
 import sys.FileSystem;
 #end
 import haxe.Json;
-import lime.utils.Assets;
+import openfl.utils.Assets;
 
 using StringTools;
 
@@ -20,7 +20,7 @@ typedef SwagWeek =
 	var hideFreeplay:Bool;
 }
 
-class Week
+class WeekData
 {
 	public static var currentDirectory:String;
 	public static var loadedWeeks:Map<String, SwagWeek> = [];
@@ -59,13 +59,6 @@ class Week
 	public static function getCurrentWeek()
 	{
 		return loadedWeeks.get(getWeekFileName());
-	}
-
-	public static function setNextDirectory(week:Int)
-	{
-		LoadingState.nextDirectory = null;
-		if (weeksList[week] != null)
-			LoadingState.nextDirectory = weeksList[week];
 	}
 
 	public static function loadFromJson(week:String):SwagWeek

@@ -1,7 +1,7 @@
 package;
 
 import flixel.tweens.FlxTween;
-import Week.SwagWeek;
+import WeekData.SwagWeek;
 import flixel.system.FlxSound;
 #if DISCORD
 import Discord.DiscordClient;
@@ -44,7 +44,7 @@ class FreeplayState extends MusicBeatState
 	{
 		Cache.clear();
 
-		Week.loadWeeks();
+		WeekData.loadWeeks();
 
 		/* 
 			if (FlxG.sound.music != null)
@@ -59,9 +59,9 @@ class FreeplayState extends MusicBeatState
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 
-		for (i in 0...Week.weeksList.length)
+		for (i in 0...WeekData.weeksList.length)
 		{
-			var week:SwagWeek = Week.loadedWeeks.get(Week.weeksList[i]);
+			var week:SwagWeek = WeekData.loadedWeeks.get(WeekData.weeksList[i]);
 			for (song in week.songs)
 				addSong(song[0], i, song[1], FlxColor.fromRGB(song[2][0], song[2][1], song[2][2]));
 		}
@@ -225,7 +225,6 @@ class FreeplayState extends MusicBeatState
 			PlayState.storyDifficulty = curDifficulty;
 
 			PlayState.storyWeek = songs[curSelected].week;
-			Week.setNextDirectory(PlayState.storyWeek);
 			LoadingState.loadAndSwitchState(new PlayState());
 
 			destroyVocals();

@@ -1,7 +1,7 @@
 package;
 
 import flixel.graphics.FlxGraphic;
-import Week.SwagWeek;
+import WeekData.SwagWeek;
 #if DISCORD
 import Discord.DiscordClient;
 #end
@@ -57,8 +57,8 @@ class StoryMenuState extends MusicBeatState
 
 		persistentUpdate = persistentDraw = true;
 
-		Week.loadWeeks();
-		weekShit = Week.loadedWeeks.get(Week.weeksList[curWeek]);
+		WeekData.loadWeeks();
+		weekShit = WeekData.loadedWeeks.get(WeekData.weeksList[curWeek]);
 
 		scoreText = new FlxText(10, 10, 0, "", 36);
 		scoreText.setFormat("VCR OSD Mono", 32);
@@ -92,9 +92,9 @@ class StoryMenuState extends MusicBeatState
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 
-		for (i in 0...Week.weeksList.length)
+		for (i in 0...WeekData.weeksList.length)
 		{
-			var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, Week.weeksList[i]);
+			var weekThing:MenuItem = new MenuItem(0, yellowBG.y + yellowBG.height + 10, WeekData.weeksList[i]);
 			weekThing.y += (weekThing.height + 20) * i;
 			weekThing.targetY = i;
 			grpWeekText.add(weekThing);
@@ -106,7 +106,7 @@ class StoryMenuState extends MusicBeatState
 			// weekThing.updateHitbox();
 
 			// Needs an offset thingie
-			if (weekIsLocked(Week.weeksList[i]))
+			if (weekIsLocked(WeekData.weeksList[i]))
 			{
 				var lock:FlxSprite = new FlxSprite(weekThing.width + 10 + weekThing.x);
 				lock.frames = ui_tex;
@@ -121,7 +121,7 @@ class StoryMenuState extends MusicBeatState
 		for (char in 0...3)
 		{
 			var weekCharacterThing:MenuCharacter = new MenuCharacter(FlxG.width * 0.25 * (1 + char) - 150,
-				Week.loadedWeeks.get(Week.weeksList[0]).weekCharacters[char]);
+				WeekData.loadedWeeks.get(WeekData.weeksList[0]).weekCharacters[char]);
 			weekCharacterThing.y += 70;
 			grpWeekCharacters.add(weekCharacterThing);
 		}
@@ -230,7 +230,7 @@ class StoryMenuState extends MusicBeatState
 
 	function selectWeek()
 	{
-		if (!weekIsLocked(Week.weeksList[curWeek]))
+		if (!weekIsLocked(WeekData.weeksList[curWeek]))
 		{
 			if (stopspamming == false)
 			{
@@ -255,7 +255,6 @@ class StoryMenuState extends MusicBeatState
 
 			PlayState.SONG = Song.loadFromJson(Highscore.formatSong(PlayState.storyPlaylist[0].toLowerCase(), curDifficulty), PlayState.storyPlaylist[0]);
 			PlayState.storyWeek = curWeek;
-			Week.setNextDirectory(PlayState.storyWeek);
 			PlayState.campaignScore = 0;
 			new FlxTimer().start(1, function(tmr:FlxTimer)
 			{
@@ -312,17 +311,17 @@ class StoryMenuState extends MusicBeatState
 	{
 		curWeek += change;
 
-		if (curWeek >= Week.weeksList.length)
+		if (curWeek >= WeekData.weeksList.length)
 			curWeek = 0;
 		if (curWeek < 0)
-			curWeek = Week.weeksList.length - 1;
+			curWeek = WeekData.weeksList.length - 1;
 
-		weekShit = Week.loadedWeeks.get(Week.weeksList[curWeek]);
+		weekShit = WeekData.loadedWeeks.get(WeekData.weeksList[curWeek]);
 
 		txtWeekTitle.text = weekShit.storyName.toUpperCase();
 		txtWeekTitle.x = FlxG.width - (txtWeekTitle.width + 10);
 
-		var unlocked:Bool = !weekIsLocked(Week.weeksList[curWeek]);
+		var unlocked:Bool = !weekIsLocked(WeekData.weeksList[curWeek]);
 		difficultySelectors.visible = unlocked;
 
 		var bullShit:Int = 0;
@@ -344,7 +343,7 @@ class StoryMenuState extends MusicBeatState
 
 	function weekIsLocked(name:String):Bool
 	{
-		var leWeek:SwagWeek = Week.loadedWeeks.get(name);
+		var leWeek:SwagWeek = WeekData.loadedWeeks.get(name);
 		return (!leWeek.startUnlocked
 			&& leWeek.weekBefore.length > 0
 			&& (!weekCompleted.exists(leWeek.weekBefore) || !weekCompleted.get(leWeek.weekBefore)));

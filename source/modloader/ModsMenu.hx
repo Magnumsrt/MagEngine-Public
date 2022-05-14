@@ -1,5 +1,6 @@
 package modloader;
 
+#if MODS
 import modloader.ModList;
 import modloader.PolymodHandler;
 import modloader.ModsMenuOption;
@@ -15,11 +16,10 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.ui.FlxButton;
-import lime.utils.Assets;
+import openfl.utils.Assets;
 
 class ModsMenu extends MusicBeatState
 {
-	#if MODS
 	var curSelected:Int = 0;
 
 	var page:FlxTypedGroup<ModsMenuOption> = new FlxTypedGroup<ModsMenuOption>();
@@ -189,5 +189,5 @@ class ModsMenu extends MusicBeatState
 			point.set(x, y);
 		}
 	}
-	#end
 }
+#end

@@ -85,7 +85,8 @@ class Script
 		interp.variables.set("FlxStringUtil", flixel.util.FlxStringUtil);
 		interp.variables.set("FlxTimer", flixel.util.FlxTimer);
 		interp.variables.set("Json", Json);
-		interp.variables.set("Assets", lime.utils.Assets);
+		interp.variables.set("Assets", openfl.utils.Assets);
+		interp.variables.set("LimeAssets", lime.utils.Assets);
 		interp.variables.set("ShaderFilter", openfl.filters.ShaderFilter);
 		interp.variables.set("Exception", haxe.Exception);
 		interp.variables.set("Lib", openfl.Lib);

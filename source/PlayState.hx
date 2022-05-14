@@ -304,7 +304,7 @@ class PlayState extends MusicBeatState
 
 		// String that contains the mode defined here so it isn't necessary to call changePresence for each mode
 		if (isStoryMode)
-			detailsText = "Story Mode: " + Week.getCurrentWeek().weekName;
+			detailsText = "Story Mode: " + WeekData.getCurrentWeek().weekName;
 		else
 			detailsText = "Freeplay";
 
@@ -1920,10 +1920,10 @@ class PlayState extends MusicBeatState
 					MusicBeatState.switchState(new StoryMenuState());
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
-					StoryMenuState.weekCompleted.set(Week.weeksList[storyWeek], true);
+					StoryMenuState.weekCompleted.set(WeekData.weeksList[storyWeek], true);
 
 					if (SONG.validScore)
-						Highscore.saveWeekScore(Week.getCurrentWeek().weekName, campaignScore, storyDifficulty);
+						Highscore.saveWeekScore(WeekData.getCurrentWeek().weekName, campaignScore, storyDifficulty);
 
 					FlxG.save.data.weekCompleted = StoryMenuState.weekCompleted;
 					FlxG.save.flush();

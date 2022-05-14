@@ -17,8 +17,6 @@ class LoadingState extends MusicBeatState
 {
 	inline static var MIN_TIME = 1.0;
 
-	public static var nextDirectory:String;
-
 	// Browsers will load create(), you can make your song load a custom directory there
 	// If you're compiling to desktop (or something that doesn't use NO_PRELOAD_ALL), search for getNextState instead
 	// I'd recommend doing it on both actually lol
@@ -149,9 +147,9 @@ class LoadingState extends MusicBeatState
 	{
 		var directory:String = 'shared';
 
-		if (nextDirectory != null && nextDirectory.length > 0)
-			directory = nextDirectory;
-		nextDirectory = null;
+		if (StageData.forceNextDirectory != null && StageData.forceNextDirectory.length > 0)
+			directory = StageData.forceNextDirectory;
+		StageData.forceNextDirectory = null;
 
 		Paths.currentLevel = directory;
 		trace('new level is ' + directory);

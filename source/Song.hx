@@ -2,8 +2,7 @@ package;
 
 import Section.SwagSection;
 import haxe.Json;
-import haxe.format.JsonParser;
-import lime.utils.Assets;
+import openfl.utils.Assets;
 
 using StringTools;
 
@@ -51,7 +50,9 @@ class Song
 				daSong = songData.song;
 				daBpm = songData.bpm; */
 
-		return parseJSONshit(rawJson);
+		var nuts:SwagSong = parseJSONshit(rawJson);
+		StageData.loadDirectory(nuts);
+		return nuts;
 	}
 
 	public static function parseJSONshit(rawJson:String):SwagSong

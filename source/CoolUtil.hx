@@ -1,7 +1,7 @@
 package;
 
 import flixel.FlxG;
-import lime.utils.Assets;
+import openfl.utils.Assets;
 
 using StringTools;
 
