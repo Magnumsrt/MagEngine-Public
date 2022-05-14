@@ -1442,57 +1442,16 @@ class PlayState extends MusicBeatState
 		if (isDad)
 		{
 			char = dad;
-
-			camFollow.set(char.getMidpoint().x
-				+ 150
-				+ dad.cameraPosition[0]
-				+ dadCameraOffset[0],
-				char.getMidpoint().y
-				- 100
-				+ dad.cameraPosition[1]
-				+ dadCameraOffset[1]);
-
-			// switch (dad.curCharacter)
-			// {
-			// 	case 'mom':
-			// 		camFollow.y = char.getMidpoint().y;
-			// 	case 'senpai':
-			// 		camFollow.y = char.getMidpoint().y - 430;
-			// 		camFollow.x = char.getMidpoint().x - 100;
-			// 	case 'senpai-angry':
-			// 		camFollow.y = char.getMidpoint().y - 430;
-			// 		camFollow.x = char.getMidpoint().x - 100;
-			// }
-
+			camFollow.set(char.getMidpoint().x + 150, char.getMidpoint().y - 100);
+			camFollow.x += char.cameraPosition[0] + dadCameraOffset[0];
+			camFollow.y += char.cameraPosition[1] + dadCameraOffset[1];
 			tweenCamIn();
 		}
 		else
 		{
-			camFollow.set(char.getMidpoint().x
-				- 100
-				- boyfriend.cameraPosition[0]
-				- boyfriendCameraOffset[0],
-				char.getMidpoint().y
-				- 100
-				+ boyfriend.cameraPosition[1]
-				+ boyfriendCameraOffset[1]);
-
-			// if (isPixelStage)
-			// {
-			// 	camFollow.x = char.getMidpoint().x - 200;
-			// 	camFollow.y = char.getMidpoint().y - 200;
-			// }
-			// else
-			// {
-			// 	switch (curStage)
-			// 	{
-			// 		case 'limo':
-			// 			camFollow.x = char.getMidpoint().x - 300;
-			// 		case 'mall':
-			// 			camFollow.y = char.getMidpoint().y - 200;
-			// 	}
-			// }
-
+			camFollow.set(char.getMidpoint().x - 100, char.getMidpoint().y - 100);
+			camFollow.x -= char.cameraPosition[0] - boyfriendCameraOffset[0];
+			camFollow.y += char.cameraPosition[1] + boyfriendCameraOffset[1];
 			tweenCamOut();
 		}
 
@@ -1854,7 +1813,12 @@ class PlayState extends MusicBeatState
 			});
 
 			if (!inCutscene)
-				keyShit();
+			{
+				if (!cpuControlled)
+					keyShit();
+				else
+					boyfriend.startIdle();
+			}
 		}
 
 		callScripts('updatePost', [elapsed]);
@@ -2406,7 +2370,8 @@ class PlayState extends MusicBeatState
 			health += note.hitHealth * healthGain;
 
 			boyfriend.playAnim(singAnimations[Std.int(Math.abs(note.noteData))], true);
-			boyfriend.startIdle(!cpuControlled);
+			if (cpuControlled)
+				boyfriend.startIdle(true);
 
 			var coolDat:Int = Std.int(Math.abs(note.noteData)) % 4;
 			if (cpuControlled)
