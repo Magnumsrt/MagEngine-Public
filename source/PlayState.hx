@@ -1,5 +1,6 @@
 package;
 
+import StageData.SwagStage;
 import openfl.utils.Assets;
 import lime.app.Application;
 import haxe.io.Path;
@@ -79,6 +80,10 @@ class PlayState extends MusicBeatState
 
 	private static var prevCamFollow:FlxPoint;
 	private static var prevCamFollowPos:FlxObject;
+
+	public var boyfriendCameraOffset:Array<Float> = [0, 0];
+	public var opponentCameraOffset:Array<Float> = [0, 0];
+	public var girlfriendCameraOffset:Array<Float> = [0, 0];
 
 	public var strumLineNotes:FlxTypedGroup<StrumNote>;
 	public var playerStrums:FlxTypedGroup<StrumNote>;
@@ -403,8 +408,6 @@ class PlayState extends MusicBeatState
 				}
 			case 'limo':
 				{
-					defaultCamZoom = 0.90;
-
 					var skyBG:FlxSprite = new FlxSprite(-120, -50).loadGraphic(Paths.image('limo/limoSunset'));
 					skyBG.scrollFactor.set(0.1, 0.1);
 					add(skyBG);
@@ -449,8 +452,6 @@ class PlayState extends MusicBeatState
 				}
 			case 'mall':
 				{
-					defaultCamZoom = 0.80;
-
 					var bg:FlxSprite = new FlxSprite(-1000, -500).loadGraphic(Paths.image('christmas/bgWalls'));
 					bg.antialiasing = true;
 					bg.scrollFactor.set(0.2, 0.2);
@@ -522,8 +523,6 @@ class PlayState extends MusicBeatState
 				}
 			case 'school':
 				{
-					// defaultCamZoom = 0.9;
-
 					var bgSky = new FlxSprite().loadGraphic(Paths.image('weeb/weebSky'));
 					bgSky.scrollFactor.set(0.1, 0.1);
 					add(bgSky);
@@ -595,7 +594,6 @@ class PlayState extends MusicBeatState
 				}
 			case 'stage':
 				{
-					defaultCamZoom = 0.9;
 					curStage = 'stage';
 					var bg:FlxSprite = new FlxSprite(-600, -200).loadGraphic(Paths.image('stageback'));
 					bg.antialiasing = true;
@@ -714,27 +712,26 @@ class PlayState extends MusicBeatState
 
 		boyfriend = new Boyfriend(770, 450, SONG.player1);
 
-		// REPOSITIONING PER STAGE
 		switch (curStage)
 		{
 			case 'limo':
-				boyfriend.y -= 220;
-				boyfriend.x += 260;
+				// boyfriend.y -= 220;
+				// boyfriend.x += 260;
 
 				resetFastCar();
 				add(fastCar);
 
-			case 'mall':
-				boyfriend.x += 200;
+			// case 'mall':
+			// 	boyfriend.x += 200;
 
-			case 'mallEvil':
-				boyfriend.x += 320;
-				dad.y -= 80;
-			case 'school':
-				boyfriend.x += 200;
-				boyfriend.y += 220;
-				gf.x += 180;
-				gf.y += 300;
+			// case 'mallEvil':
+			// 	boyfriend.x += 320;
+			// 	dad.y -= 80;
+			// case 'school':
+			// 	boyfriend.x += 200;
+			// 	boyfriend.y += 220;
+			// 	gf.x += 180;
+			// 	gf.y += 300;
 			case 'schoolEvil':
 				// trailArea.scrollFactor.set();
 
@@ -744,11 +741,45 @@ class PlayState extends MusicBeatState
 				add(evilTrail);
 				// evilTrail.scrollFactor.set(1.1, 1.1);
 
-				boyfriend.x += 200;
-				boyfriend.y += 220;
-				gf.x += 180;
-				gf.y += 300;
+				// boyfriend.x += 200;
+				// boyfriend.y += 220;
+				// gf.x += 180;
+				// gf.y += 300;
 		}
+
+		var stageData:SwagStage = StageData.currentStage;
+		if (stageData == null)
+			stageData = {
+				directory: "",
+				defaultZoom: 0.9,
+				isPixelStage: false,
+
+				boyfriend: [770, 100],
+				girlfriend: [400, 130],
+				opponent: [100, 100],
+
+				camera_boyfriend: [0, 0],
+				camera_opponent: [0, 0],
+				camera_girlfriend: [0, 0],
+			};
+
+		defaultCamZoom = stageData.defaultZoom;
+		isPixelStage = stageData.isPixelStage;
+		boyfriend.x = stageData.boyfriend[0];
+		boyfriend.y = stageData.boyfriend[1];
+		gf.x = stageData.girlfriend[0];
+		gf.y = stageData.girlfriend[1];
+		dad.x = stageData.opponent[0];
+		dad.y = stageData.opponent[1];
+
+		if (boyfriendCameraOffset != null)
+			boyfriendCameraOffset = stageData.camera_boyfriend;
+
+		if (opponentCameraOffset != null)
+			opponentCameraOffset = stageData.camera_opponent;
+
+		if (girlfriendCameraOffset != null)
+			girlfriendCameraOffset = stageData.camera_girlfriend;
 
 		add(gf);
 		characters.push(gf);
@@ -1446,9 +1477,6 @@ class PlayState extends MusicBeatState
 					camFollow.x = char.getMidpoint().x - 100;
 			}
 
-			if (char.curCharacter == 'mom')
-				vocals.volume = 1;
-
 			if (SONG.song.toLowerCase() == 'tutorial')
 				tweenCamIn();
 		}
@@ -1461,16 +1489,16 @@ class PlayState extends MusicBeatState
 				camFollow.x = char.getMidpoint().x - 200;
 				camFollow.y = char.getMidpoint().y - 200;
 			}
-			else
-			{
-				switch (curStage)
-				{
-					case 'limo':
-						camFollow.x = char.getMidpoint().x - 300;
-					case 'mall':
-						camFollow.y = char.getMidpoint().y - 200;
-				}
-			}
+			// else
+			// {
+			// 	switch (curStage)
+			// 	{
+			// 		case 'limo':
+			// 			camFollow.x = char.getMidpoint().x - 300;
+			// 		case 'mall':
+			// 			camFollow.y = char.getMidpoint().y - 200;
+			// 	}
+			// }
 
 			if (SONG.song.toLowerCase() == 'tutorial')
 				FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});

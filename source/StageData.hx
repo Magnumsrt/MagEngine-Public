@@ -16,16 +16,15 @@ typedef SwagStage =
 	var boyfriend:Array<Dynamic>;
 	var girlfriend:Array<Dynamic>;
 	var opponent:Array<Dynamic>;
-	var hide_girlfriend:Bool;
 	var camera_boyfriend:Array<Float>;
 	var camera_opponent:Array<Float>;
 	var camera_girlfriend:Array<Float>;
-	var camera_speed:Null<Float>;
 }
 
 class StageData
 {
-    public static var forceNextDirectory:String;
+	public static var currentStage:SwagStage;
+	public static var forceNextDirectory:String;
 
 	public static function loadDirectory(SONG:SwagSong)
 	{
@@ -60,6 +59,7 @@ class StageData
 		}
 
 		var stageFile:SwagStage = loadFromJson(stage);
+        currentStage = stageFile;
 		if (stageFile == null)
 			forceNextDirectory = '';
 		else
