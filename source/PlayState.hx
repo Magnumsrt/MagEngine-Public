@@ -924,6 +924,12 @@ class PlayState extends MusicBeatState
 		healthBar.updateBar();
 	}
 
+	public function changeCharacter(char:Character, newChar:String)
+	{
+		char.changeCharacter(newChar, char.isPlayer);
+		reloadHealthBarColors();
+	}
+
 	function schoolIntro(?dialogueBox:DialogueBox):Void
 	{
 		if (dialogueBox == null)
@@ -1565,16 +1571,13 @@ class PlayState extends MusicBeatState
 		else
 			iconP2.animation.curAnim.curFrame = 0;
 
-		/* if (FlxG.keys.justPressed.NINE)
-			MusicBeatState.switchState(new Charting()); */
-
-		// if (FlxG.keys.justPressed.EIGHT)
-		// {
-		// 	persistentUpdate = false;
-		// 	paused = true;
-		// 	cancelMusicFadeTween();
-		// 	MusicBeatState.switchState(new AnimationDebug(SONG.player2));
-		// }
+		if (FlxG.keys.justPressed.EIGHT)
+		{
+			persistentUpdate = false;
+			paused = true;
+			cancelMusicFadeTween();
+			MusicBeatState.switchState(new AnimationDebug(SONG.player2));
+		}
 
 		if (startingSong)
 		{
@@ -1812,13 +1815,8 @@ class PlayState extends MusicBeatState
 				}
 			});
 
-			if (!inCutscene)
-			{
-				if (!cpuControlled)
-					keyShit();
-				else
-					boyfriend.startIdle();
-			}
+			if (!inCutscene && !cpuControlled)
+				keyShit();
 		}
 
 		callScripts('updatePost', [elapsed]);
@@ -2370,8 +2368,7 @@ class PlayState extends MusicBeatState
 			health += note.hitHealth * healthGain;
 
 			boyfriend.playAnim(singAnimations[Std.int(Math.abs(note.noteData))], true);
-			if (cpuControlled)
-				boyfriend.startIdle(true);
+			boyfriend.startIdle(!cpuControlled);
 
 			var coolDat:Int = Std.int(Math.abs(note.noteData)) % 4;
 			if (cpuControlled)

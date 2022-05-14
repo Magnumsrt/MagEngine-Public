@@ -80,6 +80,19 @@ class Character extends FlxSprite
 
 		antialiasing = true;
 
+		// some reset lol
+		singDuration = 4;
+		idleTimer = null;
+		heyTimer = 0;
+		specialAnim = false;
+		checkHold = false;
+
+		animOffsets.clear();
+		stunned = false;
+
+		positionArray = [0, 0];
+		cameraPosition = [0, 0];
+
 		var isHardcoded:Bool = true;
 
 		switch (curCharacter)
@@ -539,13 +552,13 @@ class Character extends FlxSprite
 
 	public function startIdle(holdCheck:Bool = false)
 	{
-		// i am adding something here for prevent ugly behavior of bf lol
 		if (idleTimer == null)
-			idleTimer = new FlxTimer().start(0.02 + Conductor.stepCrochet * 0.001 * singDuration, function(tmr:FlxTimer)
+			idleTimer = new FlxTimer().start(Conductor.stepCrochet * 0.001 * singDuration, function(tmr:FlxTimer)
 			{
 				if (holdCheck)
 					checkHold = true;
-				else if (animation.curAnim != null
+				if (!checkHold
+					&& animation.curAnim != null
 					&& animation.curAnim.name.startsWith('sing')
 					&& !animation.curAnim.name.endsWith('miss'))
 					dance();
