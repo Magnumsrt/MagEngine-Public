@@ -365,12 +365,14 @@ class ChartingState extends MusicBeatState
 		}
 
 		FlxG.sound.playMusic(Paths.inst(daSong), 0.6);
+		FlxG.sound.pause();
 
-		// WONT WORK FOR TUTORIAL OR TEST SONG!!! REDO LATER
-		vocals = new FlxSound().loadEmbedded(Paths.voices(daSong));
+		if (_song.needsVoices)
+			vocals = new FlxSound().loadEmbedded(Paths.voices(daSong));
+		else
+			vocals = new FlxSound();
+
 		FlxG.sound.list.add(vocals);
-
-		FlxG.sound.music.pause();
 		vocals.pause();
 
 		FlxG.sound.music.onComplete = function()
@@ -467,7 +469,6 @@ class ChartingState extends MusicBeatState
 			else
 				return _song.notes[curSection].lengthInSteps;
 	}*/
-
 	function sectionStartTime():Float
 	{
 		var daBPM:Float = _song.bpm;

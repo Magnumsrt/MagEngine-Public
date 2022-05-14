@@ -16,6 +16,7 @@ typedef SwagCharacter =
 	var image:String;
 	var icon:String;
 	var healthbarColor:Array<Int>;
+	var position:Array<Float>;
 	var cameraPosition:Array<Float>;
 	var singDuration:Float;
 	var scale:Float;
@@ -42,10 +43,11 @@ class Character extends FlxSprite
 	public var hasMissAnimations:Bool = false;
 	public var danceIdle:Bool = false;
 
-	public var singDuration:Float = 4.1;
+	public var singDuration:Float = 4;
 
 	public var barColor:FlxColor = FlxColor.BLACK;
 
+	public var positionArray:Array<Float> = [0, 0];
 	public var cameraPosition:Array<Float> = [0, 0];
 
 	public var idleTimer:FlxTimer;
@@ -138,6 +140,9 @@ class Character extends FlxSprite
 				barColor = FlxColor.fromRGB(165, 0, 77);
 				setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 				updateHitbox();
+
+				cameraPosition = [-20, 80];
+
 				antialiasing = false;
 
 			case 'dad':
@@ -164,6 +169,8 @@ class Character extends FlxSprite
 				animation.addByIndices('danceRight', 'spooky dance idle', [8, 10, 12, 14], "", 12, false);
 
 				barColor = 0xFFd57e00;
+
+				positionArray = [0, 200];
 
 			case 'mom':
 				frames = Paths.getSparrowAtlas('characters/Mom_Assets');
@@ -203,6 +210,8 @@ class Character extends FlxSprite
 
 				barColor = 0xFFf3ff6e;
 
+				positionArray = [0, 100];
+
 			case 'monster-christmas':
 				frames = Paths.getSparrowAtlas('characters/monsterChristmas');
 
@@ -213,6 +222,8 @@ class Character extends FlxSprite
 				animation.addByPrefix('singRIGHT', 'Monster Right note', 24, false);
 
 				barColor = 0xFFf3ff6e;
+
+				positionArray = [0, 130];
 
 				icon = 'monster';
 
@@ -241,6 +252,8 @@ class Character extends FlxSprite
 				animation.addByPrefix('singUPmiss', 'pico Up note miss', 24);
 				animation.addByPrefix('singDOWNmiss', 'Pico Down Note MISS', 24);
 
+				positionArray = [0, 300];
+
 				barColor = 0xFFb7d855;
 				flipX = true;
 
@@ -266,6 +279,8 @@ class Character extends FlxSprite
 
 				barColor = 0xFF31b0d1;
 				flipX = true;
+
+				positionArray = [0, 350];
 			case 'bf-christmas':
 				frames = Paths.getSparrowAtlas('characters/bfChristmas');
 
@@ -282,6 +297,8 @@ class Character extends FlxSprite
 
 				barColor = 0xFF31b0d1;
 				flipX = true;
+
+				positionArray = [0, 350];
 
 				icon = 'bf';
 			case 'bf-car':
@@ -301,6 +318,8 @@ class Character extends FlxSprite
 				barColor = 0xFF31b0d1;
 				flipX = true;
 
+				positionArray = [0, 350];
+
 				icon = 'bf';
 			case 'bf-pixel':
 				frames = Paths.getSparrowAtlas('characters/bfPixel');
@@ -318,6 +337,9 @@ class Character extends FlxSprite
 				setGraphicSize(Std.int(width * 6));
 				updateHitbox();
 				barColor = 0xFF31b0d1;
+
+				positionArray = [0, 350];
+				cameraPosition = [50, -60];
 
 				width -= 100;
 				height -= 100;
@@ -354,6 +376,12 @@ class Character extends FlxSprite
 				setGraphicSize(Std.int(width * 6));
 				updateHitbox();
 
+				positionArray = [0, 350];
+				cameraPosition = [50, -60];
+
+				positionArray = [150, 360];
+				cameraPosition = [-240, -330];
+
 				icon = 'senpai-pixel';
 
 				antialiasing = false;
@@ -369,6 +397,9 @@ class Character extends FlxSprite
 				barColor = 0xFFffaa6f;
 				setGraphicSize(Std.int(width * 6));
 				updateHitbox();
+
+				positionArray = [150, 360];
+				cameraPosition = [-240, -330];
 
 				icon = 'senpai-pixel';
 
@@ -386,6 +417,8 @@ class Character extends FlxSprite
 				setGraphicSize(Std.int(width * 6));
 				updateHitbox();
 				barColor = 0xFFff3c6e;
+
+				positionArray = [-150, 100];
 
 				icon = 'spirit-pixel';
 
@@ -406,10 +439,11 @@ class Character extends FlxSprite
 
 				barColor = 0xFF9a00f8;
 
+				positionArray = [-500, 0];
+
 				icon = 'parents';
 
 			default:
-				#if sys
 				var parsedJson:SwagCharacter = cast Json.parse(Assets.getText(Paths.getPath('characters/' + curCharacter + '.json', TEXT)));
 
 				flipX = parsedJson.flipX;
@@ -418,13 +452,15 @@ class Character extends FlxSprite
 				setGraphicSize(Std.int(width * parsedJson.scale));
 				updateHitbox();
 
+				positionArray = parsedJson.position;
 				cameraPosition = parsedJson.cameraPosition;
+
 				singDuration = parsedJson.singDuration;
 
 				icon = parsedJson.icon;
 				barColor = FlxColor.fromRGB(parsedJson.healthbarColor[0], parsedJson.healthbarColor[1], parsedJson.healthbarColor[2]);
 
-				if (Paths.fileExists(Paths.modFolder("images/characters/") + parsedJson.image + ".json", TEXT))
+				if (Paths.fileExists(Paths.modFolder("images/characters/") + parsedJson.image + ".json"))
 					frames = AtlasFrameMaker.construct(Paths.modFolder("characters/") + parsedJson.image);
 				else if (parsedJson.animations != null && parsedJson.animations.length > 0)
 				{
@@ -438,7 +474,6 @@ class Character extends FlxSprite
 				}
 
 				isHardcoded = false;
-				#end
 		}
 
 		if (isHardcoded)
@@ -504,8 +539,9 @@ class Character extends FlxSprite
 
 	public function startIdle(holdCheck:Bool = false)
 	{
+		// i am adding something here for prevent ugly behavior of bf lol
 		if (idleTimer == null)
-			idleTimer = new FlxTimer().start(Conductor.stepCrochet * 0.001 * singDuration, function(tmr:FlxTimer)
+			idleTimer = new FlxTimer().start(0.02 + Conductor.stepCrochet * 0.001 * singDuration, function(tmr:FlxTimer)
 			{
 				if (holdCheck)
 					checkHold = true;

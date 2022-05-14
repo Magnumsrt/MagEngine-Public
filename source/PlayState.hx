@@ -1,7 +1,6 @@
 package;
 
 import StageData.SwagStage;
-import openfl.utils.Assets;
 import lime.app.Application;
 import haxe.io.Path;
 import flixel.input.gamepad.FlxGamepad;
@@ -82,7 +81,7 @@ class PlayState extends MusicBeatState
 	private static var prevCamFollowPos:FlxObject;
 
 	public var boyfriendCameraOffset:Array<Float> = [0, 0];
-	public var opponentCameraOffset:Array<Float> = [0, 0];
+	public var dadCameraOffset:Array<Float> = [0, 0];
 	public var girlfriendCameraOffset:Array<Float> = [0, 0];
 
 	public var strumLineNotes:FlxTypedGroup<StrumNote>;
@@ -664,74 +663,32 @@ class PlayState extends MusicBeatState
 			SONG.gfVersion = gfVersion;
 		}
 
-		gf = new Character(400, 130, gfVersion);
+		gf = new Character(0, 0, gfVersion);
 		gf.scrollFactor.set(0.95, 0.95);
 
-		dad = new Character(100, 100, SONG.player2);
+		dad = new Character(0, 0, SONG.player2);
 
-		var camPos:FlxPoint = new FlxPoint(dad.getGraphicMidpoint().x, dad.getGraphicMidpoint().y);
-
-		switch (SONG.player2)
+		var camPos:FlxPoint = new FlxPoint(girlfriendCameraOffset[0], girlfriendCameraOffset[1]);
+		if (gf != null)
 		{
-			case 'gf':
+			camPos.x += gf.getGraphicMidpoint().x + gf.cameraPosition[0];
+			camPos.y += gf.getGraphicMidpoint().y + gf.cameraPosition[1];
+
+			if (dad.curCharacter.startsWith('gf'))
+			{
 				dad.setPosition(gf.x, gf.y);
 				dad.danceEveryNumBeats = 2;
 				gf.visible = false;
-				if (isStoryMode)
-				{
-					camPos.x += 600;
-					tweenCamIn();
-				}
-
-			case "spooky":
-				dad.y += 200;
-			case "monster":
-				dad.y += 100;
-			case 'monster-christmas':
-				dad.y += 130;
-			case 'dad':
-				camPos.x += 400;
-			case 'pico':
-				camPos.x += 600;
-				dad.y += 300;
-			case 'parents-christmas':
-				dad.x -= 500;
-			case 'senpai':
-				dad.x += 150;
-				dad.y += 360;
-				camPos.set(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
-			case 'senpai-angry':
-				dad.x += 150;
-				dad.y += 360;
-				camPos.set(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
-			case 'spirit':
-				dad.x -= 150;
-				dad.y += 100;
-				camPos.set(dad.getGraphicMidpoint().x + 300, dad.getGraphicMidpoint().y);
+			}
 		}
 
-		boyfriend = new Boyfriend(770, 450, SONG.player1);
+		boyfriend = new Boyfriend(0, 0, SONG.player1);
 
 		switch (curStage)
 		{
 			case 'limo':
-				// boyfriend.y -= 220;
-				// boyfriend.x += 260;
-
 				resetFastCar();
 				add(fastCar);
-
-			// case 'mall':
-			// 	boyfriend.x += 200;
-
-			// case 'mallEvil':
-			// 	boyfriend.x += 320;
-			// 	dad.y -= 80;
-			// case 'school':
-			// 	boyfriend.x += 200;
-			// 	boyfriend.y += 220;
-			// 	gf.x += 180;
-			// 	gf.y += 300;
 			case 'schoolEvil':
 				// trailArea.scrollFactor.set();
 
@@ -740,11 +697,6 @@ class PlayState extends MusicBeatState
 				// evilTrail.changeGraphic()
 				add(evilTrail);
 				// evilTrail.scrollFactor.set(1.1, 1.1);
-
-				// boyfriend.x += 200;
-				// boyfriend.y += 220;
-				// gf.x += 180;
-				// gf.y += 300;
 		}
 
 		var stageData:SwagStage = StageData.currentStage;
@@ -765,18 +717,18 @@ class PlayState extends MusicBeatState
 
 		defaultCamZoom = stageData.defaultZoom;
 		isPixelStage = stageData.isPixelStage;
-		boyfriend.x = stageData.boyfriend[0];
-		boyfriend.y = stageData.boyfriend[1];
-		gf.x = stageData.girlfriend[0];
-		gf.y = stageData.girlfriend[1];
-		dad.x = stageData.opponent[0];
-		dad.y = stageData.opponent[1];
+		boyfriend.x = stageData.boyfriend[0] + boyfriend.positionArray[0];
+		boyfriend.y = stageData.boyfriend[1] + boyfriend.positionArray[1];
+		gf.x = stageData.girlfriend[0] + gf.positionArray[0];
+		gf.y = stageData.girlfriend[1] + gf.positionArray[1];
+		dad.x = stageData.opponent[0] + dad.positionArray[0];
+		dad.y = stageData.opponent[1] + dad.positionArray[1];
 
 		if (boyfriendCameraOffset != null)
 			boyfriendCameraOffset = stageData.camera_boyfriend;
 
-		if (opponentCameraOffset != null)
-			opponentCameraOffset = stageData.camera_opponent;
+		if (dadCameraOffset != null)
+			dadCameraOffset = stageData.camera_opponent;
 
 		if (girlfriendCameraOffset != null)
 			girlfriendCameraOffset = stageData.camera_girlfriend;
@@ -1207,7 +1159,12 @@ class PlayState extends MusicBeatState
 		previousFrameTime = FlxG.game.ticks;
 
 		if (!paused)
-			FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
+		{
+			if (FlxG.sound.music == null)
+				FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
+			else
+				FlxG.sound.music.play();
+		}
 		FlxG.sound.music.onComplete = endSong;
 		vocals.play();
 
@@ -1230,6 +1187,9 @@ class PlayState extends MusicBeatState
 		Conductor.changeBPM(songData.bpm);
 
 		curSong = songData.song;
+
+		FlxG.sound.playMusic(Paths.inst(PlayState.SONG.song), 1, false);
+		FlxG.sound.music.pause();
 
 		if (SONG.needsVoices)
 			vocals = new FlxSound().loadEmbedded(Paths.voices(curSong));
@@ -1329,12 +1289,33 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	function tweenCamIn():Void
+	public var cameraTwn:FlxTween;
+
+	public function tweenCamIn(force:Bool = false):Void
 	{
-		FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
+		if ((force || Paths.formatToSongPath(SONG.song) == 'tutorial') && cameraTwn == null && FlxG.camera.zoom != 1.3)
+			cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1.3}, (Conductor.stepCrochet * 4 / 1000), {
+				ease: FlxEase.elasticInOut,
+				onComplete: function(twn:FlxTween)
+				{
+					cameraTwn = null;
+				}
+			});
 	}
 
-	function snapCamFollowToPos(x:Float, y:Float)
+	public function tweenCamOut(force:Bool = false):Void
+	{
+		if ((force || Paths.formatToSongPath(SONG.song) == 'tutorial') && cameraTwn == null && FlxG.camera.zoom != 1)
+			cameraTwn = FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {
+				ease: FlxEase.elasticInOut,
+				onComplete: function(twn:FlxTween)
+				{
+					cameraTwn = null;
+				}
+			});
+	}
+
+	public function snapCamFollowToPos(x:Float, y:Float)
 	{
 		camFollow.set(x, y);
 		camFollowPos.setPosition(x, y);
@@ -1437,25 +1418,24 @@ class PlayState extends MusicBeatState
 		vocals.play();
 	}
 
-	function moveCameraBySection(id:Int = 0)
+	public function moveCameraBySection(id:Int = 0)
 	{
 		if (SONG.notes[id] != null)
 		{
-			moveCamera(!SONG.notes[id].mustHitSection);
-
 			var char:String = 'boyfriend';
 			if (!SONG.notes[id].mustHitSection)
 			{
-				if (dad.curCharacter == 'gf')
+				if (dad.curCharacter.startsWith('gf'))
 					char = 'gf';
 				else
 					char = 'dad';
 			}
+			moveCamera(!SONG.notes[id].mustHitSection);
 			callScripts('moveCamera', [char]);
 		}
 	}
 
-	function moveCamera(isDad:Bool)
+	public function moveCamera(isDad:Bool)
 	{
 		var char:Character = boyfriend;
 
@@ -1463,32 +1443,45 @@ class PlayState extends MusicBeatState
 		{
 			char = dad;
 
-			camFollow.set(char.getMidpoint().x + 150, char.getMidpoint().y - 100);
+			camFollow.set(char.getMidpoint().x
+				+ 150
+				+ dad.cameraPosition[0]
+				+ dadCameraOffset[0],
+				char.getMidpoint().y
+				- 100
+				+ dad.cameraPosition[1]
+				+ dadCameraOffset[1]);
 
-			switch (dad.curCharacter)
-			{
-				case 'mom':
-					camFollow.y = char.getMidpoint().y;
-				case 'senpai':
-					camFollow.y = char.getMidpoint().y - 430;
-					camFollow.x = char.getMidpoint().x - 100;
-				case 'senpai-angry':
-					camFollow.y = char.getMidpoint().y - 430;
-					camFollow.x = char.getMidpoint().x - 100;
-			}
+			// switch (dad.curCharacter)
+			// {
+			// 	case 'mom':
+			// 		camFollow.y = char.getMidpoint().y;
+			// 	case 'senpai':
+			// 		camFollow.y = char.getMidpoint().y - 430;
+			// 		camFollow.x = char.getMidpoint().x - 100;
+			// 	case 'senpai-angry':
+			// 		camFollow.y = char.getMidpoint().y - 430;
+			// 		camFollow.x = char.getMidpoint().x - 100;
+			// }
 
-			if (SONG.song.toLowerCase() == 'tutorial')
-				tweenCamIn();
+			tweenCamIn();
 		}
 		else
 		{
-			camFollow.set(char.getMidpoint().x - 100, char.getMidpoint().y - 100);
+			camFollow.set(char.getMidpoint().x
+				- 100
+				- boyfriend.cameraPosition[0]
+				- boyfriendCameraOffset[0],
+				char.getMidpoint().y
+				- 100
+				+ boyfriend.cameraPosition[1]
+				+ boyfriendCameraOffset[1]);
 
-			if (isPixelStage)
-			{
-				camFollow.x = char.getMidpoint().x - 200;
-				camFollow.y = char.getMidpoint().y - 200;
-			}
+			// if (isPixelStage)
+			// {
+			// 	camFollow.x = char.getMidpoint().x - 200;
+			// 	camFollow.y = char.getMidpoint().y - 200;
+			// }
 			// else
 			// {
 			// 	switch (curStage)
@@ -1500,8 +1493,7 @@ class PlayState extends MusicBeatState
 			// 	}
 			// }
 
-			if (SONG.song.toLowerCase() == 'tutorial')
-				FlxTween.tween(FlxG.camera, {zoom: 1}, (Conductor.stepCrochet * 4 / 1000), {ease: FlxEase.elasticInOut});
+			tweenCamOut();
 		}
 
 		if (allowCamMove)
@@ -1861,7 +1853,7 @@ class PlayState extends MusicBeatState
 				}
 			});
 
-			if (!inCutscene && !cpuControlled)
+			if (!inCutscene)
 				keyShit();
 		}
 

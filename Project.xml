@@ -45,15 +45,16 @@
 	<!-- MAG ENGINE CUSTOMIZATION -->
 	<define name="DISCORD" if="desktop" unless="hl" />
 	<define name="MODS" if="desktop" />
+	<define name="VIDEOS" if="web || windows || linux" unless="32bits" />
 	<define name="SCRIPTS" />
 
-	<!-- <define name="PRELOAD_ALL" /> -->
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web" />
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web" />
 
 	<define name="PRELOAD_ALL" unless="web" />
 	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL" />
 
+	<library name="videos" preload="true" />
 	<section if="PRELOAD_ALL">
 		<library name="songs" preload="true" />
 		<library name="shared" preload="true" />
@@ -74,6 +75,7 @@
 		<library name="week6" preload="false" />
 	</section>
 
+	<assets path="assets/videos" library="videos" if="VIDEOS" />
 	<assets path="assets/songs" library="songs" exclude="*.ogg" if="web" />
 	<assets path="assets/songs" library="songs" exclude="*.mp3" unless="web" />
 	<assets path="assets/shared" library="shared" exclude="*.ogg" if="web" />

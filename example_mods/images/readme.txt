@@ -1,1 +1,1 @@
-cool images for your mod goes here.
+Images for your mod goes here.

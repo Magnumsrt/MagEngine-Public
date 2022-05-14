@@ -12,10 +12,12 @@ class PolymodHandler
 		loadModMetadata();
 		Polymod.init({
 			modRoot: 'mods/',
+			framework: OPENFL,
 			dirs: ModList.getActiveMods(metadataArrays),
 			errorCallback: onError,
 			frameworkParams: {
 				assetLibraryPaths: [
+					'videos' => 'videos',
 					'shared' => 'shared',
 					'songs' => 'songs',
 					'fonts' => 'fonts',

@@ -59,15 +59,15 @@ class StageData
 		}
 
 		var stageFile:SwagStage = loadFromJson(stage);
-        currentStage = stageFile;
+		currentStage = stageFile;
 		if (stageFile == null)
 			forceNextDirectory = '';
 		else
 			forceNextDirectory = stageFile.directory;
 	}
 
-	public static function loadFromJson(week:String):SwagStage
+	public static function loadFromJson(stage:String):SwagStage
 	{
-		return cast Json.parse(Assets.getText(Paths.getPath('weeks/' + week + '.json', TEXT)).trim());
+		return cast Json.parse(Assets.getText(Paths.getPath('stages/' + stage + '.json', TEXT)).trim());
 	}
 }
