@@ -224,9 +224,7 @@ class LoadingState extends MusicBeatState
 				path += "/library.json";
 			}
 			else
-			{
 				rootPath = Path.directory(path);
-			}
 			@:privateAccess
 			path = LimeAssets.__cacheBreak(path);
 		}

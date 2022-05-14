@@ -25,7 +25,7 @@ class HealthIcon extends AttachedSprite
 		if (this.char != char)
 		{
 			var name:String = 'icons/icon-' + char;
-			if (!Paths.fileExists('images/' + name + '.png', IMAGE))
+			if (!Paths.fileExists(Paths.getPath('images/' + name + '.png', IMAGE)))
 				name = 'icons/icon-face';
 			var file:FlxGraphic = Paths.image(name);
 

@@ -137,13 +137,13 @@ class Paths
 		return 'mods/' + key;
 	}
 
-	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String)
+	inline static public function fileExists(key:String, ?ignoreMods:Bool = false)
 	{
 		#if MODS
-		if (FileSystem.exists(mods(key)) || FileSystem.exists(mods(key)))
+		if (!ignoreMods && (FileSystem.exists(mods(key)) || FileSystem.exists(mods(key))))
 			return true;
 		#end
-		if (OpenFlAssets.exists(Paths.getPath(key, type, library)))
+		if (OpenFlAssets.exists(key))
 			return true;
 		return false;
 	}
@@ -187,7 +187,7 @@ class Paths
 	public static function returnGraphic(key:String, ?library:String)
 	{
 		var path = getPath('images/$key.png', IMAGE, library);
-		if (OpenFlAssets.exists(path, IMAGE))
+		if (fileExists(path))
 			return Cache.getGraphic(path);
 		trace('oh no ${key} is returning null NOOOO');
 		return null;

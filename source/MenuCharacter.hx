@@ -51,7 +51,7 @@ class MenuCharacter extends FlxSprite
 		else
 		{
 			var path:String = Paths.getPath('images/menucharacters/' + character + '.json', TEXT);
-			if (!Assets.exists(path))
+			if (!Paths.fileExists(path))
 				path = Paths.getPreloadPath('images/menucharacters/bf.json');
 
 			var charFile:SwagMenuCharacter = cast Json.parse(Assets.getText(path));

@@ -212,7 +212,7 @@ class PlayState extends MusicBeatState
 		}
 		#end
 		dumbShet += '/modchart.hx';
-		if (Assets.exists(dumbShet))
+		if (Paths.fileExists(dumbShet))
 			scripts.push(new Script(dumbShet));
 		#end
 
@@ -282,7 +282,7 @@ class PlayState extends MusicBeatState
 
 		// i hate haxe string interpolation
 		var doofPath:String = Paths.txt('$songName/$songName' + 'Dialogue');
-		if (Assets.exists(doofPath))
+		if (Paths.fileExists(doofPath))
 			dialogue = CoolUtil.coolTextFile(doofPath);
 
 		#if DISCORD
