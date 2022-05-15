@@ -69,6 +69,9 @@ class TitleState extends MusicBeatState
 			#end
 		}
 
+		PlayState.SONG = Song.loadFromJson('bopeebo', 'bopeebo');
+		LoadingState.loadAndSwitchState(new PlayState());
+
 		#if FREEPLAY
 		MusicBeatState.switchState(new FreeplayState());
 		#elseif CHARTING
@@ -204,9 +207,7 @@ class TitleState extends MusicBeatState
 		// FlxG.watch.addQuick('amp', FlxG.sound.music.amplitude);
 
 		if (FlxG.keys.justPressed.F)
-		{
 			FlxG.fullscreen = !FlxG.fullscreen;
-		}
 
 		var pressedEnter:Bool = FlxG.keys.justPressed.ENTER;
 

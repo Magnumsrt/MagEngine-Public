@@ -285,8 +285,7 @@ class PlayState extends MusicBeatState
 		// 	];
 		// }
 
-		// i hate haxe string interpolation
-		var doofPath:String = Paths.txt('$songName/$songName' + 'Dialogue');
+		var doofPath:String = Paths.txt('$songName/dialogue');
 		if (Paths.fileExists(doofPath))
 			dialogue = CoolUtil.coolTextFile(doofPath);
 
@@ -743,17 +742,6 @@ class PlayState extends MusicBeatState
 		characters.push(dad);
 		characters.push(boyfriend);
 
-		var doof:DialogueBox = null;
-		if (isStoryMode && dialogue != null && dialogue.length > 0)
-		{
-			doof = new DialogueBox(false, dialogue);
-			// doof.x += 70;
-			// doof.y = FlxG.height * 0.5;
-			doof.scrollFactor.set();
-			doof.finishThing = startCountdown;
-			doof.cameras = [camHUD];
-		}
-
 		Conductor.songPosition = -5000;
 
 		strumLine = new FlxSprite(MagPrefs.getValue('middleScroll') ? STRUM_X_MIDDLESCROLL : STRUM_X, 50).makeGraphic(FlxG.width, 10);
@@ -855,47 +843,69 @@ class PlayState extends MusicBeatState
 		// cameras = [FlxG.cameras.list[1]];
 		startingSong = true;
 
-		if (isStoryMode)
-		{
-			switch (curSong.toLowerCase())
-			{
-				case "winter-horrorland":
-					var blackScreen:FlxSprite = new FlxSprite(0, 0).makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.BLACK);
-					add(blackScreen);
-					blackScreen.scrollFactor.set();
-					for (ui in allUI)
-						ui.visible = false;
+		// TODO: ADD isStoryMode
 
-					new FlxTimer().start(0.1, function(tmr:FlxTimer)
+		// if (isStoryMode)
+		// {
+		switch (curSong.toLowerCase())
+		{
+			case "winter-horrorland":
+				var blackScreen:FlxSprite = new FlxSprite(0, 0).makeGraphic(Std.int(FlxG.width * 2), Std.int(FlxG.height * 2), FlxColor.BLACK);
+				add(blackScreen);
+				blackScreen.scrollFactor.set();
+				for (ui in allUI)
+					ui.visible = false;
+
+				new FlxTimer().start(0.1, function(tmr:FlxTimer)
+				{
+					remove(blackScreen);
+					FlxG.sound.play(Paths.sound('Lights_Turn_On'));
+					snapCamFollowToPos(400, -2050);
+					FlxG.camera.focusOn(camFollow);
+					FlxG.camera.zoom = 1.5;
+
+					new FlxTimer().start(0.8, function(tmr:FlxTimer)
 					{
 						remove(blackScreen);
-						FlxG.sound.play(Paths.sound('Lights_Turn_On'));
-						snapCamFollowToPos(400, -2050);
-						FlxG.camera.focusOn(camFollow);
-						FlxG.camera.zoom = 1.5;
-
-						new FlxTimer().start(0.8, function(tmr:FlxTimer)
-						{
-							remove(blackScreen);
-							FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 2.5, {
-								ease: FlxEase.quadInOut,
-								onComplete: function(twn:FlxTween)
-								{
-									for (ui in allUI)
-										ui.visible = true;
-									startCountdown();
-								}
-							});
+						FlxTween.tween(FlxG.camera, {zoom: defaultCamZoom}, 2.5, {
+							ease: FlxEase.quadInOut,
+							onComplete: function(twn:FlxTween)
+							{
+								for (ui in allUI)
+									ui.visible = true;
+								startCountdown();
+							}
 						});
 					});
-				case 'senpai' | 'roses' | 'thorns':
-					schoolIntro(doof);
-				default:
+				});
+			case 'senpai' | 'roses' | 'thorns':
+				if (dialogue != null && dialogue.length > 0)
+				{
+					var doof:PixelDialogue = new PixelDialogue(false, dialogue);
+					// doof.x += 70;
+					// doof.y = FlxG.height * 0.5;
+					doof.scrollFactor.set();
+					doof.finishThing = startCountdown;
+					doof.cameras = [camHUD];
+					openPixelDialogue(doof);
+				}
+				else
 					startCountdown();
-			}
+			default:
+				if (dialogue != null && dialogue.length > 0)
+				{
+					var doof:Dialogue = new Dialogue(false, dialogue);
+					doof.scrollFactor.set();
+					doof.finishThing = startCountdown;
+					doof.cameras = [camHUD];
+					openDialogue(doof);
+				}
+				else
+					startCountdown();
 		}
-		else
-			startCountdown();
+		// }
+		// else
+		// 	startCountdown();
 
 		recalculateRating();
 
@@ -928,11 +938,16 @@ class PlayState extends MusicBeatState
 		reloadHealthBarColors();
 	}
 
-	function schoolIntro(?dialogueBox:DialogueBox):Void
+	function openDialogue(dialogueBox:Dialogue):Void
 	{
-		if (dialogueBox == null)
-			startCountdown();
+		new FlxTimer().start(0.3, function(tmr:FlxTimer)
+		{
+			add(dialogueBox);
+		});
+	}
 
+	function openPixelDialogue(dialogueBox:PixelDialogue):Void
+	{
 		var songName:String = Paths.formatToSongPath(SONG.song);
 
 		if (songName == 'roses')
@@ -970,57 +985,48 @@ class PlayState extends MusicBeatState
 			black.alpha -= 0.15;
 
 			if (black.alpha > 0)
-			{
 				tmr.reset(0.3);
-			}
 			else
 			{
-				if (dialogueBox != null)
-				{
-					inCutscene = true;
+				inCutscene = true;
 
-					if (songName == 'thorns')
+				if (songName == 'thorns')
+				{
+					add(senpaiEvil);
+					senpaiEvil.alpha = 0;
+					new FlxTimer().start(0.3, function(swagTimer:FlxTimer)
 					{
-						add(senpaiEvil);
-						senpaiEvil.alpha = 0;
-						new FlxTimer().start(0.3, function(swagTimer:FlxTimer)
+						senpaiEvil.alpha += 0.15;
+						if (senpaiEvil.alpha < 1)
 						{
-							senpaiEvil.alpha += 0.15;
-							if (senpaiEvil.alpha < 1)
+							swagTimer.reset();
+						}
+						else
+						{
+							senpaiEvil.animation.play('idle');
+							FlxG.sound.play(Paths.sound('Senpai_Dies'), 1, false, null, true, function()
 							{
-								swagTimer.reset();
-							}
-							else
+								remove(senpaiEvil);
+								remove(red);
+								FlxG.camera.fade(FlxColor.WHITE, 0.01, true, function()
+								{
+									for (ui in allUI)
+										ui.visible = true;
+									add(dialogueBox);
+								}, true);
+							});
+							new FlxTimer().start(3.2, function(deadTime:FlxTimer)
 							{
-								senpaiEvil.animation.play('idle');
-								FlxG.sound.play(Paths.sound('Senpai_Dies'), 1, false, null, true, function()
-								{
-									remove(senpaiEvil);
-									remove(red);
-									FlxG.camera.fade(FlxColor.WHITE, 0.01, true, function()
-									{
-										for (ui in allUI)
-											ui.visible = true;
-										add(dialogueBox);
-									}, true);
-								});
-								new FlxTimer().start(3.2, function(deadTime:FlxTimer)
-								{
-									FlxG.camera.fade(FlxColor.WHITE, 1.6, false);
-								});
-							}
-						});
-					}
-					else
-					{
-						add(dialogueBox);
-					}
+								FlxG.camera.fade(FlxColor.WHITE, 1.6, false);
+							});
+						}
+					});
 				}
 				else
-					startCountdown();
-
-				remove(black);
+					add(dialogueBox);
 			}
+
+			remove(black);
 		});
 	}
 

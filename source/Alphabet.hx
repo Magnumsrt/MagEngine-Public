@@ -385,7 +385,7 @@ class Alphabet extends FlxSpriteGroup
 
 	override function update(elapsed:Float)
 	{
-		var lerpVal:Float = getLerpVal();
+		var lerpVal:Float = CoolUtil.boundTo(FlxG.elapsed * 9.6, 0, 1);
 
 		if (isMenuItem)
 		{
@@ -397,12 +397,8 @@ class Alphabet extends FlxSpriteGroup
 		}
 		else if (horizontalScroll)
 			x = FlxMath.lerp(x, targetX, lerpVal);
-		super.update(elapsed);
-	}
 
-	inline static public function getLerpVal()
-	{
-		return CoolUtil.boundTo(FlxG.elapsed * 9.6, 0, 1);
+		super.update(elapsed);
 	}
 
 	public function killTheTimer()

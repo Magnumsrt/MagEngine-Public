@@ -12,7 +12,7 @@ import flixel.util.FlxTimer;
 
 using StringTools;
 
-class DialogueBox extends FlxSpriteGroup
+class PixelDialogue extends FlxSpriteGroup
 {
 	var box:FlxSprite;
 
@@ -58,16 +58,13 @@ class DialogueBox extends FlxSpriteGroup
 
 		box = new FlxSprite(-20, 45);
 
-		var hasDialog = false;
 		switch (PlayState.SONG.song.toLowerCase())
 		{
 			case 'senpai':
-				hasDialog = true;
 				box.frames = Paths.getSparrowAtlas('pixelUI/dialogueBox-pixel');
 				box.animation.addByPrefix('normalOpen', 'Text Box Appear', 24, false);
 				box.animation.addByIndices('normal', 'Text Box Appear', [4], "", 24);
 			case 'roses':
-				hasDialog = true;
 				FlxG.sound.play(Paths.sound('ANGRY_TEXT_BOX'));
 
 				box.frames = Paths.getSparrowAtlas('pixelUI/dialogueBox-senpaiMad');
@@ -75,7 +72,6 @@ class DialogueBox extends FlxSpriteGroup
 				box.animation.addByIndices('normal', 'SENPAI ANGRY IMPACT SPEECH', [4], "", 24);
 
 			case 'thorns':
-				hasDialog = true;
 				box.frames = Paths.getSparrowAtlas('pixelUI/dialogueBox-evil');
 				box.animation.addByPrefix('normalOpen', 'Spirit Textbox spawn', 24, false);
 				box.animation.addByIndices('normal', 'Spirit Textbox spawn', [11], "", 24);
@@ -86,9 +82,6 @@ class DialogueBox extends FlxSpriteGroup
 		}
 
 		this.dialogueList = dialogueList;
-
-		if (!hasDialog)
-			return;
 
 		portraitLeft = new FlxSprite(-20, 40);
 		portraitLeft.frames = Paths.getSparrowAtlas('weeb/senpaiPortrait');
@@ -116,13 +109,12 @@ class DialogueBox extends FlxSpriteGroup
 		box.screenCenter(X);
 		portraitLeft.screenCenter(X);
 
-		handSelect = new FlxSprite(FlxG.width * 0.9, FlxG.height * 0.9).loadGraphic(Paths.image('pixelUI/hand_textbox'));
+		// junk pos cuz copied from psych
+		handSelect = new FlxSprite(1042, 590).loadGraphic(Paths.image('pixelUI/hand_textbox'));
+		handSelect.setGraphicSize(Std.int(handSelect.width * PlayState.daPixelZoom * 0.9));
+		handSelect.updateHitbox();
+		handSelect.visible = false;
 		add(handSelect);
-
-		if (!talkingRight)
-		{
-			// box.flipX = true;
-		}
 
 		swagDialogue = new FlxTypeText(242, 502, Std.int(FlxG.width * 0.6), "", 32);
 		swagDialogue.font = 'Pixel Arial 11 Bold';
@@ -165,7 +157,7 @@ class DialogueBox extends FlxSpriteGroup
 
 		if (!isEnding)
 		{
-			if (FlxG.keys.justPressed.ANY && dialogueStarted == true)
+			if (CoolUtil.getControls().ACCEPT && dialogueStarted == true)
 			{
 				FlxG.sound.play(Paths.sound('clickText'), 0.8);
 
@@ -183,6 +175,7 @@ class DialogueBox extends FlxSpriteGroup
 						portraitLeft.visible = false;
 						portraitRight.visible = false;
 						swagDialogue.alpha -= 1 / 5;
+						handSelect.alpha -= 1 / 5;
 					}, 5);
 
 					new FlxTimer().start(1.2, function(tmr:FlxTimer)
@@ -210,6 +203,12 @@ class DialogueBox extends FlxSpriteGroup
 
 		swagDialogue.resetText(dialogueList[0]);
 		swagDialogue.start(0.04, true);
+		swagDialogue.completeCallback = function()
+		{
+			handSelect.visible = true;
+		};
+
+		handSelect.visible = false;
 
 		switch (curCharacter)
 		{
