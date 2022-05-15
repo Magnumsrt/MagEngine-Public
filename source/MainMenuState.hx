@@ -54,8 +54,7 @@ class MainMenuState extends MusicBeatState
 		persistentUpdate = persistentDraw = true;
 
 		var bg:FlxSprite = new FlxSprite(-80).loadGraphic(Paths.image('menuBG'));
-		bg.scrollFactor.x = 0;
-		bg.scrollFactor.y = 0.18;
+		bg.scrollFactor.set(0, 0.18);
 		bg.setGraphicSize(Std.int(bg.width * 1.2));
 		bg.updateHitbox();
 		bg.screenCenter();
@@ -92,8 +91,16 @@ class MainMenuState extends MusicBeatState
 			menuItem.ID = i;
 			menuItem.screenCenter(X);
 			menuItems.add(menuItem);
-			var scr:Float = optionShit.length / 2 * 0.135;
-			menuItem.scrollFactor.set(0, scr);
+			if (optionShit.length > 4)
+			{
+				var scr:Float = optionShit.length / 2 * 0.135;
+				menuItem.scrollFactor.set(0, scr);
+			}
+			else
+			{
+				menuItem.y += 60;
+				menuItem.scrollFactor.set();
+			}
 			menuItem.antialiasing = true;
 		}
 

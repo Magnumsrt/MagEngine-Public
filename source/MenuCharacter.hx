@@ -66,7 +66,8 @@ class MenuCharacter extends FlxSprite
 					hasConfirmAnimation = true;
 			}
 
-			flipX = charFile.flipX;
+			if (charFile.flipX != null)
+				flipX = charFile.flipX;
 
 			if (charFile.scale != 1)
 			{
