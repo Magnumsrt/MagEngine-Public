@@ -259,6 +259,8 @@ class TitleState extends MusicBeatState
 							OutdatedSubState.newVersion = updateVersion;
 							MusicBeatState.switchState(new OutdatedSubState());
 						}
+						else
+							MusicBeatState.switchState(new MainMenuState());
 					}
 					http.onError = function(msg:String)
 					{
