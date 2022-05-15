@@ -549,7 +549,8 @@ class ChartingState extends MusicBeatState
 			vocals.stop();
 
 			FlxG.mouse.visible = false;
-			MusicBeatState.switchState(new PlayState());
+			StageData.loadDirectory(_song);
+			LoadingState.loadAndSwitchState(new PlayState());
 		}
 
 		if (FlxG.keys.justPressed.E)
@@ -665,6 +666,17 @@ class ChartingState extends MusicBeatState
 		super.update(elapsed);
 	}
 
+	override function stepHit()
+	{
+		super.stepHit();
+
+		if (Math.abs(inst.time - (Conductor.songPosition - Conductor.offset)) > 20
+			|| (_song.needsVoices && Math.abs(vocals.time - (Conductor.songPosition - Conductor.offset)) > 20))
+		{
+			resyncVocals();
+		}
+	}
+
 	function changeNoteSustain(value:Float):Void
 	{
 		if (curSelectedNote != null)
@@ -697,6 +709,15 @@ class ChartingState extends MusicBeatState
 		updateBeat();
 
 		return curStep;
+	}
+
+	function resyncVocals():Void
+	{
+		vocals.pause();
+		inst.play();
+		Conductor.songPosition = inst.time;
+		vocals.time = Conductor.songPosition;
+		vocals.play();
 	}
 
 	function resetSection(songBeginning:Bool = false):Void

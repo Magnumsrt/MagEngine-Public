@@ -2490,8 +2490,6 @@ class PlayState extends MusicBeatState
 		inst.fadeTween = null;
 	}
 
-	var lastStepHit:Int = -1;
-
 	override function stepHit()
 	{
 		super.stepHit();
@@ -2501,11 +2499,6 @@ class PlayState extends MusicBeatState
 		{
 			resyncVocals();
 		}
-
-		if (curStep == lastStepHit)
-			return;
-		else
-			lastStepHit = curStep;
 
 		callScripts('stepHit');
 	}
