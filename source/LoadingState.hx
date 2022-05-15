@@ -163,6 +163,7 @@ class LoadingState extends MusicBeatState
 				&& isLibraryLoaded("shared")
 				&& isLibraryLoaded(directory);
 		}
+		trace(loaded);
 
 		if (!loaded)
 			return new LoadingState(target, stopMusic, directory);
