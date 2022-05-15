@@ -1,13 +1,13 @@
 package;
 
-import openfl.utils.Assets;
-import haxe.Exception;
 #if sys
 import sys.io.File;
 #end
 #if DISCORD
 import Discord.DiscordClient;
 #end
+import openfl.utils.Assets;
+import haxe.Exception;
 import hscript.Expr.Error;
 import flixel.FlxBasic;
 import hscript.Parser;
@@ -97,7 +97,9 @@ class Script
 		interp.variables.set("FlxGraphic", flixel.graphics.FlxGraphic);
 		interp.variables.set("BitmapData", openfl.display.BitmapData);
 		#end
+		#if MODS
 		interp.variables.set("ModsMenu", modloader.ModsMenu);
+		#end
 		interp.variables.set("MagPrefs", MagPrefs);
 		interp.variables.set("Song", Song);
 		interp.variables.set("Song", Song);

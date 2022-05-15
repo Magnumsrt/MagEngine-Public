@@ -1,5 +1,8 @@
 package;
 
+#if MODS
+import modloader.ModsMenu;
+#end
 #if DISCORD
 import Discord.DiscordClient;
 #end
@@ -18,7 +21,6 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import lime.app.Application;
-import modloader.ModsMenu;
 
 using StringTools;
 
@@ -172,8 +174,10 @@ class MainMenuState extends MusicBeatState
 										MusicBeatState.switchState(new StoryMenuState());
 									case 'freeplay':
 										MusicBeatState.switchState(new FreeplayState());
+									#if MODS
 									case 'mods':
 										MusicBeatState.switchState(new ModsMenu());
+									#end
 									case 'options':
 										MusicBeatState.switchState(new OptionsMenuState());
 								}
