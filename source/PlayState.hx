@@ -1645,18 +1645,15 @@ class PlayState extends MusicBeatState
 		}
 		doDeathCheck();
 
-		if (unspawnNotes[0] != null)
+		while (unspawnNotes[0] != null)
 		{
-			var time:Float = 3000; // shit be werid on 4:3
-			if (songSpeed < 1)
-				time /= songSpeed;
-
-			while (unspawnNotes.length > 0 && unspawnNotes[0].strumTime - Conductor.songPosition < time)
+			if (unspawnNotes[0].strumTime - Conductor.songPosition < 1800 / SONG.speed)
 			{
-				var dunceNote:Note = unspawnNotes[0];
-				notes.insert(0, dunceNote);
-				unspawnNotes.splice(unspawnNotes.indexOf(dunceNote), 1);
+				notes.add(unspawnNotes[0]);
+				unspawnNotes.shift();
 			}
+			else
+				break;
 		}
 
 		if (generatedMusic)
@@ -2008,7 +2005,7 @@ class PlayState extends MusicBeatState
 		rating.velocity.y -= FlxG.random.int(140, 175);
 		rating.velocity.x -= FlxG.random.int(0, 10);
 		rating.cameras = [camHUD];
-		add(rating);
+		insert(members.indexOf(strumLineNotes), rating);
 
 		var comboSpr:FlxSprite = new FlxSprite().loadGraphic(Paths.image(altPath + 'combo' + altSuffix));
 		comboSpr.screenCenter();
@@ -2018,7 +2015,7 @@ class PlayState extends MusicBeatState
 		comboSpr.velocity.x += FlxG.random.int(1, 10);
 		comboSpr.cameras = [camHUD];
 		if (MagPrefs.getValue('comboDisplay') && combo >= 10)
-			add(comboSpr);
+			insert(members.indexOf(strumLineNotes), comboSpr);
 
 		if (!isPixelStage)
 		{
@@ -2068,7 +2065,7 @@ class PlayState extends MusicBeatState
 				numScore.velocity.x = FlxG.random.float(-5, 5);
 
 				numScore.cameras = [camHUD];
-				add(numScore);
+				insert(members.indexOf(strumLineNotes), numScore);
 
 				FlxTween.tween(numScore, {alpha: 0}, 0.2, {
 					onComplete: function(tween:FlxTween)
