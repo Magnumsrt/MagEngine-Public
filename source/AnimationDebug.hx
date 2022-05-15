@@ -114,7 +114,7 @@ class AnimationDebug extends MusicBeatState
 		textAnim.text = char.animation.curAnim.name;
 
 		if (controls.BACK)
-			LoadingState.loadAndSwitchState(new PlayState());
+			MusicBeatState.switchState(new PlayState());
 
 		if (FlxG.keys.justPressed.E)
 			FlxG.camera.zoom += 0.25;
