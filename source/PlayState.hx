@@ -940,7 +940,7 @@ class PlayState extends MusicBeatState
 
 	function openDialogue(dialogueBox:Dialogue):Void
 	{
-		new FlxTimer().start(0.3, function(tmr:FlxTimer)
+		new FlxTimer().start(0.7, function(tmr:FlxTimer)
 		{
 			add(dialogueBox);
 		});
@@ -1157,7 +1157,6 @@ class PlayState extends MusicBeatState
 
 		if (FlxG.sound.music != null)
 			FlxG.sound.music.stop();
-
 		inst.play();
 		vocals.play();
 

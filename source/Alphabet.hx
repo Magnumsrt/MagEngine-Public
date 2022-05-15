@@ -61,6 +61,9 @@ class Alphabet extends FlxSpriteGroup
 		this.typed = typed;
 		isBold = bold;
 
+		if (typingSpeed == null || typingSpeed == 0)
+			typingSpeed = this.typingSpeed;
+
 		if (text != "")
 		{
 			if (typed)
@@ -217,13 +220,15 @@ class Alphabet extends FlxSpriteGroup
 
 	var consecutiveSpaces:Int = 0;
 
+	inline static var DEFAULT_DIALOGUE_SOUND:String = 'clickText';
+
 	public static function setDialogueSound(name:String = '')
 	{
 		if (name == null || name.trim() == '')
-			name = 'dialogue';
+			name = DEFAULT_DIALOGUE_SOUND;
 		soundDialog = Paths.sound(name);
 		if (soundDialog == null)
-			soundDialog = Paths.sound('dialogue');
+			soundDialog = Paths.sound(DEFAULT_DIALOGUE_SOUND);
 	}
 
 	var typeTimer:FlxTimer = null;
@@ -262,7 +267,7 @@ class Alphabet extends FlxSpriteGroup
 		}
 	}
 
-	var LONG_TEXT_ADD:Float = -24; // text is over 2 rows long, make it go up a bit
+	inline static var LONG_TEXT_ADD:Float = -24; // text is over 2 rows long, make it go up a bit
 
 	public function timerCheck(?tmr:FlxTimer = null)
 	{

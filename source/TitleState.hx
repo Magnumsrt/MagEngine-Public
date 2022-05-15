@@ -69,7 +69,7 @@ class TitleState extends MusicBeatState
 			#end
 		}
 
-		PlayState.SONG = Song.loadFromJson('bopeebo', 'bopeebo');
+		PlayState.SONG = Song.loadFromJson('test', 'test');
 		LoadingState.loadAndSwitchState(new PlayState());
 
 		#if FREEPLAY

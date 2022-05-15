@@ -62,19 +62,19 @@ class PixelDialogue extends FlxSpriteGroup
 		{
 			case 'senpai':
 				box.frames = Paths.getSparrowAtlas('pixelUI/dialogueBox-pixel');
-				box.animation.addByPrefix('normalOpen', 'Text Box Appear', 24, false);
 				box.animation.addByIndices('normal', 'Text Box Appear', [4], "", 24);
+				box.animation.addByPrefix('normalOpen', 'Text Box Appear', 24, false);
 			case 'roses':
 				FlxG.sound.play(Paths.sound('ANGRY_TEXT_BOX'));
 
 				box.frames = Paths.getSparrowAtlas('pixelUI/dialogueBox-senpaiMad');
-				box.animation.addByPrefix('normalOpen', 'SENPAI ANGRY IMPACT SPEECH', 24, false);
 				box.animation.addByIndices('normal', 'SENPAI ANGRY IMPACT SPEECH', [4], "", 24);
+				box.animation.addByPrefix('normalOpen', 'SENPAI ANGRY IMPACT SPEECH', 24, false);
 
 			case 'thorns':
 				box.frames = Paths.getSparrowAtlas('pixelUI/dialogueBox-evil');
-				box.animation.addByPrefix('normalOpen', 'Spirit Textbox spawn', 24, false);
 				box.animation.addByIndices('normal', 'Spirit Textbox spawn', [11], "", 24);
+				box.animation.addByPrefix('normalOpen', 'Spirit Textbox spawn', 24, false);
 
 				var face:FlxSprite = new FlxSprite(320, 170).loadGraphic(Paths.image('weeb/spiritFaceForward'));
 				face.setGraphicSize(Std.int(face.width * 6));
