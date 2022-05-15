@@ -1,12 +1,12 @@
 package;
 
+import flixel.math.FlxMath;
 import lime.app.Promise;
 import lime.app.Future;
 import flixel.FlxG;
 import flixel.FlxState;
 import flixel.FlxSprite;
 import flixel.util.FlxTimer;
-import flixel.math.FlxMath;
 import openfl.utils.Assets;
 import lime.utils.Assets as LimeAssets;
 import lime.utils.AssetLibrary;
@@ -17,17 +17,16 @@ class LoadingState extends MusicBeatState
 {
 	inline static var MIN_TIME = 1.0;
 
-	// Browsers will load create(), you can make your song load a custom directory there
-	// If you're compiling to desktop (or something that doesn't use NO_PRELOAD_ALL), search for getNextState instead
-	// I'd recommend doing it on both actually lol
-	// TO DO: Make this easier
+	var directory:String;
+
 	var target:FlxState;
 	var stopMusic = false;
-	var directory:String;
 	var callbacks:MultiCallback;
-	var targetShit:Float = 0;
 
-	function new(target:FlxState, stopMusic:Bool, directory:String)
+	var funkay:FlxSprite;
+	var loadBar:FlxSprite;
+
+	function new(target:FlxState, stopMusic:Bool, ?directory:String)
 	{
 		super();
 		this.target = target;
@@ -35,20 +34,18 @@ class LoadingState extends MusicBeatState
 		this.directory = directory;
 	}
 
-	var funkay:FlxSprite;
-	var loadBar:FlxSprite;
-
 	override function create()
 	{
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, 0xffcaff4d);
 		add(bg);
+
 		funkay = new FlxSprite().loadGraphic(Paths.image('funkay'));
 		funkay.setGraphicSize(0, FlxG.height);
 		funkay.updateHitbox();
 		funkay.antialiasing = true;
-		add(funkay);
 		funkay.scrollFactor.set();
 		funkay.screenCenter();
+		add(funkay);
 
 		loadBar = new FlxSprite(0, FlxG.height - 20).makeGraphic(FlxG.width, 10, 0xffff16d2);
 		loadBar.screenCenter(X);
@@ -105,6 +102,7 @@ class LoadingState extends MusicBeatState
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
+
 		funkay.setGraphicSize(Std.int(0.88 * FlxG.width + 0.9 * (funkay.width - 0.88 * FlxG.width)));
 		funkay.updateHitbox();
 		if (controls.ACCEPT)
@@ -114,10 +112,7 @@ class LoadingState extends MusicBeatState
 		}
 
 		if (callbacks != null)
-		{
-			targetShit = FlxMath.remapToRange(callbacks.numRemaining / callbacks.length, 1, 0, 0, 1);
-			loadBar.scale.x += 0.5 * (targetShit - loadBar.scale.x);
-		}
+			loadBar.scale.x += 0.5 * (FlxMath.remapToRange(callbacks.numRemaining / callbacks.length, 1, 0, 0, 1) - loadBar.scale.x);
 	}
 
 	function onLoad()
@@ -157,13 +152,10 @@ class LoadingState extends MusicBeatState
 		#if NO_PRELOAD_ALL
 		var loaded:Bool = false;
 		if (PlayState.SONG != null)
-		{
 			loaded = isSoundLoaded(getSongPath())
 				&& (!PlayState.SONG.needsVoices || isSoundLoaded(getVocalPath()))
 				&& isLibraryLoaded("shared")
 				&& isLibraryLoaded(directory);
-		}
-		trace(loaded);
 
 		if (!loaded)
 			return new LoadingState(target, stopMusic, directory);
@@ -239,9 +231,7 @@ class LoadingState extends MusicBeatState
 			var library = AssetLibrary.fromManifest(manifest);
 
 			if (library == null)
-			{
 				promise.error("Cannot open library \"" + id + "\"");
-			}
 			else
 			{
 				@:privateAccess

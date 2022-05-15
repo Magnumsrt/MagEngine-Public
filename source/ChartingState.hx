@@ -549,7 +549,6 @@ class ChartingState extends MusicBeatState
 			vocals.stop();
 
 			FlxG.mouse.visible = false;
-			StageData.loadDirectory(_song);
 			LoadingState.loadAndSwitchState(new PlayState());
 		}
 

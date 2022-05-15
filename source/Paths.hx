@@ -94,12 +94,12 @@ class Paths
 
 	inline static public function voicesPath(song:String)
 	{
-		return Paths.getPath('${formatToSongPath(song)}/Voices', SOUND, 'songs');
+		return 'songs:assets/songs/${song.toLowerCase()}/Voices.$SOUND_EXT';
 	}
 
 	inline static public function instPath(song:String)
 	{
-		return Paths.getPath('${formatToSongPath(song)}/Voices', SOUND, 'songs');
+		return 'songs:assets/songs/${song.toLowerCase()}/Inst.$SOUND_EXT';
 	}
 
 	inline static public function voices(song:String)

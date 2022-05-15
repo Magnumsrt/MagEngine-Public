@@ -42,9 +42,14 @@ class Cache
 		if (sounds.exists(path))
 			return sounds.get(path);
 		// poop fart
-		var fartSound:Sound = Assets.getSound(path, false);
-		sounds.set(path.substring(path.indexOf(':') + 1, path.length), fartSound);
+		var fartSound:Sound = Assets.getSound(path);
+		sounds.set(path, fartSound);
 		return fartSound;
+	}
+
+	inline static public function hasSound(path:String)
+	{
+		return sounds.exists(path);
 	}
 
 	public static function clear()
@@ -58,7 +63,7 @@ class Cache
 	{
 		for (bitmap in bitmaps)
 		{
-			if (!dumpExclusions.contains(bitmap.path.substring(bitmap.path.indexOf(':') + 1, bitmap.path.length)))
+			if (!dumpExclusions.contains(bitmap.path))
 			{
 				bitmaps.remove(bitmap);
 				bitmap.dispose();
@@ -69,8 +74,13 @@ class Cache
 	public static function clearSounds()
 	{
 		for (key in sounds.keys())
-			if (!dumpExclusions.contains(key.substring(key.indexOf(':') + 1, key.length)))
+		{
+			if (!dumpExclusions.contains(key))
+			{
 				sounds.remove(key);
+				Assets.cache.clear(key);
+			}
+		}
 	}
 }
 
