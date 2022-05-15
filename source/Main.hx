@@ -76,7 +76,7 @@ class Main extends Sprite
 
 		FlxG.signals.preStateCreate.add(function(state:FlxState)
 		{
-			if (!Std.isOfType(state, PlayState) && !Std.isOfType(state, ChartingState))
+			if (!Std.isOfType(state, PlayState) && !Std.isOfType(state, ChartingState) && !Std.isOfType(state, AnimationDebug))
 				Cache.clear();
 		});
 

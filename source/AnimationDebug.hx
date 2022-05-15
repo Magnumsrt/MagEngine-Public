@@ -113,6 +113,9 @@ class AnimationDebug extends MusicBeatState
 	{
 		textAnim.text = char.animation.curAnim.name;
 
+		if (controls.BACK)
+			LoadingState.loadAndSwitchState(new PlayState());
+
 		if (FlxG.keys.justPressed.E)
 			FlxG.camera.zoom += 0.25;
 		if (FlxG.keys.justPressed.Q)
@@ -135,19 +138,13 @@ class AnimationDebug extends MusicBeatState
 				camFollow.velocity.x = 0;
 		}
 		else
-		{
 			camFollow.velocity.set();
-		}
 
 		if (FlxG.keys.justPressed.W)
-		{
 			curAnim -= 1;
-		}
 
 		if (FlxG.keys.justPressed.S)
-		{
 			curAnim += 1;
-		}
 
 		if (curAnim < 0)
 			curAnim = animList.length - 1;
