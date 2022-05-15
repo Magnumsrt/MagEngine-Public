@@ -536,7 +536,7 @@ class Character extends FlxSprite
 			{
 				var controls:Controls = CoolUtil.getControls();
 				var controlHoldArray:Array<Bool> = [controls.NOTE_LEFT, controls.NOTE_DOWN, controls.NOTE_UP, controls.NOTE_RIGHT];
-				if (!controlHoldArray.contains(true))
+				if (PlayState.cpuControlled || !controlHoldArray.contains(true))
 				{
 					dance();
 					checkHold = false;
@@ -582,19 +582,25 @@ class Character extends FlxSprite
 
 	public function startIdle(holdCheck:Bool = false)
 	{
+		var time:Float = Conductor.stepCrochet * 0.001 * singDuration;
+		var callback = function(tmr:FlxTimer)
+		{
+			if (holdCheck)
+				checkHold = true;
+			if (!checkHold
+				&& animation.curAnim != null
+				&& animation.curAnim.name.startsWith('sing')
+				&& !animation.curAnim.name.endsWith('miss'))
+				dance();
+		};
+
 		if (idleTimer == null)
-			idleTimer = new FlxTimer().start(Conductor.stepCrochet * 0.001 * singDuration, function(tmr:FlxTimer)
-			{
-				if (holdCheck)
-					checkHold = true;
-				if (!checkHold
-					&& animation.curAnim != null
-					&& animation.curAnim.name.startsWith('sing')
-					&& !animation.curAnim.name.endsWith('miss'))
-					dance();
-			});
+			idleTimer = new FlxTimer().start(time, callback);
 		else
-			idleTimer.reset();
+		{
+			idleTimer.onComplete = callback;
+			idleTimer.reset(time);
+		}
 	}
 
 	public function beatDance(?curBeat:Int)

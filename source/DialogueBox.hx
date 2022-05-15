@@ -163,13 +163,13 @@ class DialogueBox extends FlxSpriteGroup
 			dialogueStarted = true;
 		}
 
-		if (FlxG.keys.justPressed.ANY && dialogueStarted == true)
+		if (!isEnding)
 		{
-			FlxG.sound.play(Paths.sound('clickText'), 0.8);
-
-			if (dialogueList[1] == null && dialogueList[0] != null)
+			if (FlxG.keys.justPressed.ANY && dialogueStarted == true)
 			{
-				if (!isEnding)
+				FlxG.sound.play(Paths.sound('clickText'), 0.8);
+
+				if (dialogueList[1] == null && dialogueList[0] != null)
 				{
 					isEnding = true;
 
@@ -191,11 +191,11 @@ class DialogueBox extends FlxSpriteGroup
 						kill();
 					});
 				}
-			}
-			else
-			{
-				dialogueList.remove(dialogueList[0]);
-				startDialogue();
+				else
+				{
+					dialogueList.remove(dialogueList[0]);
+					startDialogue();
+				}
 			}
 		}
 

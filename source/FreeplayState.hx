@@ -34,7 +34,7 @@ class FreeplayState extends MusicBeatState
 
 	var instPlaying:Int = -1;
 
-	static var vocals:FlxSound;
+	var vocals:FlxSound;
 
 	var grpSongs:FlxTypedGroup<Alphabet>;
 
@@ -46,18 +46,13 @@ class FreeplayState extends MusicBeatState
 
 		WeekData.loadWeeks();
 
-		/* 
-			if (FlxG.sound.music != null)
-			{
-				if (!FlxG.sound.music.playing)
-					FlxG.sound.playMusic(Paths.music('freakyMenu'));
-			}
-		 */
-
 		#if DISCORD
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
+
+		if (FlxG.sound.music == null)
+			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 
 		for (i in 0...WeekData.weeksList.length)
 		{
@@ -186,18 +181,20 @@ class FreeplayState extends MusicBeatState
 		if (controls.BACK)
 		{
 			FlxG.sound.play(Paths.sound('cancelMenu'));
-			if (instPlaying != -1)
-			{
-				destroyVocals();
-				FlxG.sound.playMusic(Paths.music('freakyMenu'));
-			}
 			MusicBeatState.switchState(new MainMenuState());
+			if (instPlaying != -1)
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 		}
 
 		#if PRELOAD_ALL
 		if (FlxG.keys.justPressed.P && instPlaying != curSelected)
 		{
-			destroyVocals();
+			if (vocals != null)
+			{
+				vocals.stop();
+				vocals.destroy();
+				vocals = null;
+			}
 			FlxG.sound.music.volume = 0;
 
 			PlayState.SONG = Song.loadFromJson(Highscore.formatSong(songs[curSelected].songName.toLowerCase(), curDifficulty),
@@ -226,19 +223,7 @@ class FreeplayState extends MusicBeatState
 
 			PlayState.storyWeek = songs[curSelected].week;
 			LoadingState.loadAndSwitchState(new PlayState());
-
-			destroyVocals();
 		}
-	}
-
-	private static function destroyVocals()
-	{
-		if (vocals != null)
-		{
-			vocals.stop();
-			vocals.destroy();
-		}
-		vocals = null;
 	}
 
 	function changeDiff(change:Int = 0)
