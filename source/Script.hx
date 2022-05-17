@@ -122,7 +122,7 @@ class Script
 		parser.allowTypes = true;
 		try
 		{
-			interp.execute(parser.parseString(#if MODS File.getContent(path) #else Assets.getText(path) #end));
+			interp.execute(parser.parseString(Assets.getText(path)));
 			trace('loaded script ' + path);
 			call('create');
 		}
