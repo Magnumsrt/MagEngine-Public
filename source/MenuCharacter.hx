@@ -12,7 +12,7 @@ typedef SwagMenuCharacter =
 	var position:Array<Int>;
 	var idle_anim:String;
 	var confirm_anim:String;
-	var flipX:Bool;
+	var ?flipX:Bool;
 }
 
 class MenuCharacter extends FlxSprite
