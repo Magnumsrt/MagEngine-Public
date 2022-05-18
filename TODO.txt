@@ -1,5 +1,6 @@
 - add week 7 shit
 - make the advanced dialogue system
 - unharcode all stages and characters
+- add support for StepMania (idk just a funni idea)
 
-GOAL: port a Matt song (including the dialogues)
+GOAL: port a VS Matt song (including the dialogues)
