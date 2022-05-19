@@ -31,7 +31,6 @@ class Cache
 			if (bitmap.path == path)
 				return bitmap.graphic;
 
-		// fuck, html5 don't use a gpu
 		var dumbMap:BitmapAsset = new BitmapAsset(path, #if sys true #else false #end);
 		bitmaps.push(dumbMap);
 		return dumbMap.graphic;
