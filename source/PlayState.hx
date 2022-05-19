@@ -634,6 +634,7 @@ class PlayState extends MusicBeatState
 			countdownSuffix = '-' + countdownStyle;
 
 		// CACHE SHIT GOES HERE!!
+		Paths.music('breakfast');
 		for (asset in countdownAssets.get(countdownStyle))
 			Paths.image(asset);
 		Paths.sound('introGo' + countdownSuffix);
