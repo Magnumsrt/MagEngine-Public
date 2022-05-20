@@ -139,7 +139,7 @@ class StrumNote extends FlxSprite
 		{
 			playAnim('static');
                         if (oldCallback != null)
-                        	oldCallback();
+                        	oldCallback(name);
 			animation.finishCallback = oldCallback;
 		};
 	}
