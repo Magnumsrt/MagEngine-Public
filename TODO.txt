@@ -1,6 +1,7 @@
 - add week 7 shit
-- make the advanced dialogue system
+- add the advanced dialogue system
 - unharcode all stages and characters
-- add support for StepMania (idk just a funni idea)
+- refactor cringe code and make it simpler
+- add support for StepMania charts (idk just a funni idea)
 
 GOAL: port a VS Matt song (including the dialogues)
