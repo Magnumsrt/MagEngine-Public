@@ -1925,7 +1925,6 @@ class PlayState extends MusicBeatState
 				cancelMusicFadeTween();
 				MusicBeatState.switchState(new FreeplayState());
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
-				cpuControlled = false;
 			}
 			transitioning = true;
 		}
