@@ -58,7 +58,7 @@ class NoteSplash extends FlxSprite
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 			updateHitbox();
 			offset.x += 100;
-			offset.y += 80;
+			offset.y += 100;
 		}
 		else
 		{

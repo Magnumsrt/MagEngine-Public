@@ -582,7 +582,7 @@ class Character extends FlxSprite
 
 	public function startIdle(holdCheck:Bool = false)
 	{
-		var time:Float = Conductor.stepCrochet * 0.001 * singDuration;
+		var time:Float = Conductor.stepCrochet * 0.0011 * singDuration;
 		var callback = function(tmr:FlxTimer)
 		{
 			if (holdCheck)
@@ -603,9 +603,13 @@ class Character extends FlxSprite
 		}
 	}
 
-	public function beatDance(?curBeat:Int)
+	public function beatDance(?curBeat:Int, ?speed:Int)
 	{
-		if ((curBeat == null || curBeat % danceEveryNumBeats == 0)
+		var numBeats:Int = danceEveryNumBeats;
+		if (speed != null && speed != 1)
+			numBeats = Math.round(speed * numBeats);
+
+		if ((curBeat == null || curBeat % numBeats == 0)
 			&& animation.curAnim.name != null
 			&& !animation.curAnim.name.startsWith("sing")
 			&& !stunned)

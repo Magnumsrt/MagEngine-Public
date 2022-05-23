@@ -83,12 +83,11 @@ class Alphabet extends FlxSpriteGroup
 
 	public function changeText(newText:String, newTypingSpeed:Float = -1)
 	{
-		for (i in 0...lettersArray.length)
+		for (letter in lettersArray)
 		{
-			var letter = lettersArray[0];
-			letter.destroy();
-			remove(letter);
+			letter.kill();
 			lettersArray.remove(letter);
+			letter.destroy();
 		}
 		lettersArray = [];
 		splitWords = [];
@@ -134,10 +133,6 @@ class Alphabet extends FlxSpriteGroup
 		var xPos:Float = 0;
 		for (character in splitWords)
 		{
-			// if (character.fastCodeAt() == " ")
-			// {
-			// }
-
 			var spaceChar:Bool = (character == " " || (isBold && character == "_"));
 			if (spaceChar)
 			{
@@ -214,21 +209,22 @@ class Alphabet extends FlxSpriteGroup
 
 	public var curRow:Int = 0;
 
-	var dialogueSound:FlxSound = null;
-
-	private static var soundDialog:Sound = null;
+	var dialogueSound:FlxSound;
 
 	var consecutiveSpaces:Int = 0;
 
-	inline static var DEFAULT_DIALOGUE_SOUND:String = 'clickText';
+	inline static var DEFAULT_DIALOGUE_SOUND:String = 'pixelText';
 
-	public static function setDialogueSound(name:String = '')
+	public function setDialogueSound(name:String = '')
 	{
-		if (name == null || name.trim() == '')
+		if (name == null || name.length <= 0)
 			name = DEFAULT_DIALOGUE_SOUND;
-		soundDialog = Paths.sound(name);
-		if (soundDialog == null)
-			soundDialog = Paths.sound(DEFAULT_DIALOGUE_SOUND);
+
+		var sound:Sound = Paths.sound(name);
+		if (sound == null)
+			sound = Paths.sound(DEFAULT_DIALOGUE_SOUND);
+
+		dialogueSound = FlxG.sound.load(sound);
 	}
 
 	var typeTimer:FlxTimer = null;
@@ -240,10 +236,8 @@ class Alphabet extends FlxSpriteGroup
 
 		// trace(arrayShit);
 
-		if (soundDialog == null)
-		{
-			Alphabet.setDialogueSound();
-		}
+		if (dialogueSound == null)
+			setDialogueSound();
 
 		if (speed <= 0)
 		{
@@ -252,8 +246,7 @@ class Alphabet extends FlxSpriteGroup
 				timerCheck();
 			}
 			if (dialogueSound != null)
-				dialogueSound.stop();
-			dialogueSound = FlxG.sound.play(soundDialog);
+				dialogueSound.play(true);
 		}
 		else
 		{
@@ -365,8 +358,7 @@ class Alphabet extends FlxSpriteGroup
 				if (tmr != null)
 				{
 					if (dialogueSound != null)
-						dialogueSound.stop();
-					dialogueSound = FlxG.sound.play(soundDialog);
+						dialogueSound.play(true);
 				}
 
 				add(letter);

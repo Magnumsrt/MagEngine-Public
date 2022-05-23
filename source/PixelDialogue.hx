@@ -20,7 +20,7 @@ class PixelDialogue extends FlxSpriteGroup
 
 	var dialogueList:Array<String> = [];
 
-	var swagDialogue:FlxTypeText;
+	var dialogue:FlxTypeText;
 
 	public var finishThing:Void->Void;
 
@@ -30,7 +30,7 @@ class PixelDialogue extends FlxSpriteGroup
 	var handSelect:FlxSprite;
 	var bgFade:FlxSprite;
 
-	public function new(talkingRight:Bool = true, ?dialogueList:Array<String>)
+	public function new(dialogueList:Array<String>)
 	{
 		super();
 
@@ -116,14 +116,18 @@ class PixelDialogue extends FlxSpriteGroup
 		handSelect.visible = false;
 		add(handSelect);
 
-		swagDialogue = new FlxTypeText(242, 502, Std.int(FlxG.width * 0.6), "", 32);
-		swagDialogue.font = 'Pixel Arial 11 Bold';
-		swagDialogue.color = 0xFF3F2021;
-		swagDialogue.borderStyle = SHADOW;
-		swagDialogue.borderColor = 0xFFD89494;
-		swagDialogue.borderSize = 2;
-		swagDialogue.sounds = [FlxG.sound.load(Paths.sound('pixelText'), 0.6)];
-		add(swagDialogue);
+		dialogue = new FlxTypeText(242, 502, Std.int(FlxG.width * 0.6), "", 32);
+		dialogue.font = 'Pixel Arial 11 Bold';
+		dialogue.color = 0xFF3F2021;
+		dialogue.borderStyle = SHADOW;
+		dialogue.borderColor = 0xFFD89494;
+		dialogue.borderSize = 2;
+		dialogue.sounds = [FlxG.sound.load(Paths.sound('pixelText'), 0.6)];
+		dialogue.completeCallback = function()
+		{
+			handSelect.visible = true;
+		};
+		add(dialogue);
 	}
 
 	var dialogueOpened:Bool = false;
@@ -137,7 +141,7 @@ class PixelDialogue extends FlxSpriteGroup
 		if (PlayState.SONG.song.toLowerCase() == 'thorns')
 		{
 			portraitLeft.color = FlxColor.BLACK;
-			swagDialogue.color = FlxColor.WHITE;
+			dialogue.color = FlxColor.WHITE;
 		}
 
 		if (box.animation.curAnim != null)
@@ -174,7 +178,7 @@ class PixelDialogue extends FlxSpriteGroup
 						bgFade.alpha -= 1 / 5 * 0.7;
 						portraitLeft.visible = false;
 						portraitRight.visible = false;
-						swagDialogue.alpha -= 1 / 5;
+						dialogue.alpha -= 1 / 5;
 						handSelect.alpha -= 1 / 5;
 					}, 5);
 
@@ -201,12 +205,8 @@ class PixelDialogue extends FlxSpriteGroup
 	{
 		cleanDialog();
 
-		swagDialogue.resetText(dialogueList[0]);
-		swagDialogue.start(0.04, true);
-		swagDialogue.completeCallback = function()
-		{
-			handSelect.visible = true;
-		};
+		dialogue.resetText(dialogueList[0]);
+		dialogue.start(0.04, true);
 
 		handSelect.visible = false;
 

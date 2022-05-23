@@ -19,7 +19,7 @@ class Dialogue extends FlxSpriteGroup
 
 	var dialogueList:Array<String> = [];
 
-	var swagDialogue:Alphabet;
+	var dialogue:Alphabet;
 
 	public var finishThing:Void->Void;
 
@@ -27,10 +27,9 @@ class Dialogue extends FlxSpriteGroup
 	var portraitRight:FlxSprite;
 
 	// TODO: draw a hand select lol
-	// var handSelect:FlxSprite;
 	var bgFade:FlxSprite;
 
-	public function new(talkingRight:Bool = true, ?dialogueList:Array<String>)
+	public function new(dialogueList:Array<String>)
 	{
 		super();
 
@@ -59,20 +58,12 @@ class Dialogue extends FlxSpriteGroup
 
 		this.dialogueList = dialogueList;
 
-		portraitLeft = new FlxSprite(-20, 40);
-		portraitLeft.frames = Paths.getSparrowAtlas('weeb/senpaiPortrait');
-		portraitLeft.animation.addByPrefix('enter', 'Senpai Portrait Enter', 24, false);
-		portraitLeft.setGraphicSize(Std.int(portraitLeft.width * PlayState.daPixelZoom * 0.9));
-		portraitLeft.updateHitbox();
+		portraitLeft = new FlxSprite(-20, 40).loadGraphic(Paths.image('lol'));
 		portraitLeft.scrollFactor.set();
 		add(portraitLeft);
 		portraitLeft.visible = false;
 
-		portraitRight = new FlxSprite(0, 40);
-		portraitRight.frames = Paths.getSparrowAtlas('weeb/bfPortrait');
-		portraitRight.animation.addByPrefix('enter', 'Boyfriend portrait enter', 24, false);
-		portraitRight.setGraphicSize(Std.int(portraitRight.width * PlayState.daPixelZoom * 0.9));
-		portraitRight.updateHitbox();
+		portraitRight = new FlxSprite(0, 40).loadGraphic(Paths.image('week54prototype'));
 		portraitRight.scrollFactor.set();
 		add(portraitRight);
 		portraitRight.visible = false;
@@ -83,13 +74,6 @@ class Dialogue extends FlxSpriteGroup
 		box.screenCenter(X);
 		box.x += 25;
 		portraitLeft.screenCenter(X);
-
-		// junk pos cuz copied from psych
-		// handSelect = new FlxSprite(1042, 590).loadGraphic(Paths.image('pixelUI/hand_textbox'));
-		// handSelect.setGraphicSize(Std.int(handSelect.width * PlayState.daPixelZoom * 0.9));
-		// handSelect.updateHitbox();
-		// handSelect.visible = false;
-		// add(handSelect);
 	}
 
 	var dialogueOpened:Bool = false;
@@ -122,8 +106,7 @@ class Dialogue extends FlxSpriteGroup
 				{
 					isEnding = true;
 
-					if (PlayState.SONG.song.toLowerCase() == 'senpai' || PlayState.SONG.song.toLowerCase() == 'thorns')
-						FlxG.sound.music.fadeOut(2.2, 0);
+					FlxG.sound.music.fadeOut(2.2, 0);
 
 					new FlxTimer().start(0.2, function(tmr:FlxTimer)
 					{
@@ -131,8 +114,7 @@ class Dialogue extends FlxSpriteGroup
 						bgFade.alpha -= 1 / 5 * 0.7;
 						portraitLeft.visible = false;
 						portraitRight.visible = false;
-						swagDialogue.alpha -= 1 / 5;
-						// handSelect.alpha -= 1 / 5;
+						dialogue.alpha -= 1 / 5;
 					}, 5);
 
 					new FlxTimer().start(1.2, function(tmr:FlxTimer)
@@ -158,38 +140,27 @@ class Dialogue extends FlxSpriteGroup
 	{
 		cleanDialog();
 
-		if (swagDialogue != null)
+		if (dialogue != null)
 		{
-			swagDialogue.killTheTimer();
-			swagDialogue.kill();
-			remove(swagDialogue, true);
+			dialogue.killTheTimer();
+			dialogue.kill();
+			remove(dialogue, true);
 		}
-		var daDialog:Alphabet = new Alphabet(40, box.y + 70, dialogueList[0], false, true, 0, 0.7);
-		swagDialogue = daDialog;
-		add(daDialog);
-		// swagDialogue.completeCallback = function()
-		// {
-		// 	handSelect.visible = true;
-		// };
-
-		// handSelect.visible = false;
+		dialogue = new Alphabet(30, box.y + 55, dialogueList[0], false, true, 0, 0.7);
+		add(dialogue);
 
 		switch (curCharacter)
 		{
 			case 'dad':
+				box.flipX = true;
 				portraitRight.visible = false;
 				if (!portraitLeft.visible)
-				{
 					portraitLeft.visible = true;
-					portraitLeft.animation.play('enter');
-				}
 			case 'bf':
+				box.flipX = false;
 				portraitLeft.visible = false;
 				if (!portraitRight.visible)
-				{
 					portraitRight.visible = true;
-					portraitRight.animation.play('enter');
-				}
 		}
 	}
 

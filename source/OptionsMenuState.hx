@@ -13,71 +13,127 @@ import flixel.group.FlxGroup.FlxTypedGroup;
 
 using StringTools;
 
+typedef Page =
+{
+	var title:String;
+	var options:Array<Option>;
+}
+
+typedef Option =
+{
+	var name:String;
+	var description:String;
+	var id:String;
+}
+
 class OptionsMenuState extends MusicBeatState
 {
-	var options:Array<Array<Dynamic>> = [
-		[
-			'gameplay',
-			[
-				['Ghost Tapping', 'Let you press where there are not notes.', 'ghostTapping'],
-				['Downscroll', 'Swaps the notes scroll direction to down.', 'downScroll'],
-				[
-					'Middlescroll',
-					'Centers the player strumline and hides the opponent strumline.',
-					'middleScroll'
-				],
-				[
-					'Camera Movement',
-					'Makes the camera follows the character on note hit.',
-					'cameraMove'
-				],
-				['Misses Display', 'Shows your misses.', 'missesDisplay'],
-				['Accuracy Display', 'Shows your accuracy.', 'accDisplay'],
-				['Combo Display', 'Shows the combo text.', 'comboDisplay'],
+	var pages:Array<Page> = [
+		{
+			title: 'gameplay',
+			options: [
+				{
+					name: 'Ghost Tapping',
+					description: 'Let you press where there are not notes.',
+					id: 'ghostTapping'
+				},
+				{
+					name: 'Downscroll',
+					description: 'Swaps the notes scroll direction to down.',
+					id: 'downScroll'
+				},
+				{
+					name: 'Middlescroll',
+					description: 'Centers the player strumline and hides the opponent strumline.',
+					id: 'middleScroll'
+				},
+				{
+					name: 'Camera Movement',
+					description: 'Makes the camera follows the character on note hit.',
+					id: 'cameraMove'
+				},
+				{
+					name: 'Misses Display',
+					description: 'Shows your misses.',
+					id: 'missesDisplay'
+				},
+				{
+					name: 'Accuracy Display',
+					description: 'Shows your accuracy.',
+					id: 'accDisplay'
+				},
+				{
+					name: 'Combo Display',
+					description: 'Swaps the notes scroll direction to down.',
+					id: 'comboDisplay'
+				}
 			]
-		],
-		[
-			'notes',
-			[
-				[
-					'Note Splashes',
-					'Spawns a splash when getting a "Sick!" hit rating.',
-					'noteSplashes'
-				],
-				['Opponent Notes Glow', 'Makes the opponent notes glow on hit.', 'cpuNotesGlow'],
-				['Notes Behind HUD', 'Makes the notes goes behind the HUD.', 'notesBehindHud']
-			],
-		],
-		[
-			'graphics',
-			[
-				#if !mobile ['FPS Display', 'Shows the current FPS.', 'fps'],
-				#if !html5 ['Framerate', 'How much images the game must display per second?', 'framerate'],
-				['Memory Display', 'Shows the current memory usage.', 'mem'], ['Memory Peak Display', 'Shows the current memory peak.', 'memPeak'] #end
+		},
+		{
+			title: 'notes',
+			options: [
+				{
+					name: 'Note Splashes',
+					description: 'Spawns a splash when getting a "Sick!" hit rating.',
+					id: 'noteSplashes'
+				},
+				{
+					name: 'Opponent Notes Glow',
+					description: 'Makes the opponent notes glow on hit.',
+					id: 'cpuNotesGlow'
+				},
+				{
+					name: 'Notes Behind HUD',
+					description: 'Makes the notes goes behind the HUD.',
+					id: 'notesBehindHud'
+				}
+			]
+		},
+		{
+			title: 'graphics',
+			options: [
+				#if !mobile
+				{
+					name: 'FPS Display',
+					description: 'Shows the current FPS.',
+					id: 'fps'
+				},
+				#if !html5
+				{
+					name: 'Framerate',
+					description: 'How much images the game must display per second?',
+					id: 'framerate'
+				}, {
+					name: 'Memory Display',
+					description: 'Shows the current memory usage.',
+					id: 'mem'
+				}, {
+					name: 'Memory Peak Display',
+					description: 'Shows the current memory peak.',
+					id: 'memPeak'
+				}
+				#end
 				#end
 			]
-		],
-		[
-			'misc',
-			[
-				[
-					'Version Check',
-					'Checks on start if the current version is outdated',
-					'versionCheck'
-				]
+		},
+		{
+			title: 'misc',
+			options: [
+				{
+					name: 'Version Check',
+					description: 'Checks on start if the current version is outdated.',
+					id: 'versionCheck'
+				}
 			]
-		]
+		}
 	];
 
 	var selectinSection:Bool = true;
 
-	static var curSection:Int = 0;
-	static var curSelected:Int = 0;
+	static var curPage:Int = 0;
+	static var curOption:Int = 0;
 
 	var grpSections:FlxTypedGroup<Alphabet>;
-
-	var curOptions:Array<Array<String>>;
-
 	var optionsText:FlxText;
 	var descText:FlxText;
 
@@ -108,9 +164,9 @@ class OptionsMenuState extends MusicBeatState
 		optionsText.borderSize = 1.65;
 		add(optionsText);
 
-		for (i in 0...options.length)
+		for (i in 0...pages.length)
 		{
-			var sectionText:Alphabet = new Alphabet(0, coolY, options[i][0], true, false);
+			var sectionText:Alphabet = new Alphabet(0, coolY, pages[i].title, true, false);
 			sectionText.horizontalScroll = true;
 			sectionText.targetX = getSectionX(i);
 			sectionText.ID = i;
@@ -125,7 +181,7 @@ class OptionsMenuState extends MusicBeatState
 		descText.visible = false;
 		add(descText);
 
-		changeSection();
+		changePage();
 
 		// FlxG.sound.playMusic(Paths.music('title'), 0);
 		// FlxG.sound.music.fadeIn(2, 0, 0.8);
@@ -167,12 +223,12 @@ class OptionsMenuState extends MusicBeatState
 			if (controls.UI_LEFT_P)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
-				changeSection(-1);
+				changePage(-1);
 			}
 			if (controls.UI_RIGHT_P)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
-				changeSection(1);
+				changePage(1);
 			}
 		}
 		else
@@ -182,17 +238,17 @@ class OptionsMenuState extends MusicBeatState
 			if (controls.UI_UP_P)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
-				changeSelection(-1);
+				changeOption(-1);
 			}
 			if (controls.UI_DOWN_P)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
-				changeSelection(1);
+				changeOption(1);
 			}
 
 			if (controls.UI_LEFT || controls.UI_RIGHT)
 			{
-				var name:String = curOptions[curSelected][2];
+				var name:String = pages[curPage].options[curOption].id;
 				var setting:Setting = MagPrefs.getSetting(name);
 
 				var pressed = (controls.UI_LEFT_P || controls.UI_RIGHT_P);
@@ -262,7 +318,7 @@ class OptionsMenuState extends MusicBeatState
 					else if (name == 'fps' || name == 'mem' || name == 'memPeak')
 						Main.setFPSDisplay();
 
-					changeSelection();
+					changeOption();
 				}
 
 				if (setting.type != String)
@@ -279,11 +335,11 @@ class OptionsMenuState extends MusicBeatState
 		if (controls.RESET)
 		{
 			FlxG.sound.play(Paths.sound('cancelMenu'));
-			for (option in curOptions)
-				MagPrefs.resetSetting(option[2]);
+			for (option in pages[curPage].options)
+				MagPrefs.resetSetting(option.name);
 			Main.setFramerate(MagPrefs.getValue('framerate'));
 			Main.setFPSDisplay();
-			changeSelection();
+			changeOption();
 		}
 
 		if (controls.BACK)
@@ -298,7 +354,7 @@ class OptionsMenuState extends MusicBeatState
 			{
 				selectinSection = true;
 				descText.visible = false;
-				changeSelection();
+				changeOption();
 			}
 		}
 
@@ -307,7 +363,7 @@ class OptionsMenuState extends MusicBeatState
 			FlxG.sound.play(Paths.sound('confirmMenu'));
 			selectinSection = false;
 			descText.visible = true;
-			changeSelection();
+			changeOption();
 		}
 	}
 
@@ -316,30 +372,52 @@ class OptionsMenuState extends MusicBeatState
 		return -(FlxG.width / 3) + index * (FlxG.width / 2) - 150;
 	}
 
-	function changeSelection(change:Int = 0)
+	function changePage(change:Int = 0)
 	{
-		curOptions = options[curSection][1];
+		curPage += change;
 
-		curSelected += change;
+		if (curPage < 0)
+			curPage = pages.length - 1;
+		if (curPage >= pages.length)
+			curPage = 0;
 
-		if (curSelected < 0)
-			curSelected = curOptions.length - 1;
-		if (curSelected >= curOptions.length)
-			curSelected = 0;
+		changeOption();
 
-		descText.text = curOptions[curSelected][1];
+		for (item in grpSections.members)
+		{
+			item.targetX = getSectionX(item.ID + 1 - curPage);
+
+			item.alpha = 0.6;
+
+			if (selectinSection && item.ID == curPage)
+				item.alpha = 1;
+		}
+	}
+
+	function changeOption(change:Int = 0)
+	{
+		var options:Array<Option> = pages[curPage].options;
+
+		curOption += change;
+
+		if (curOption < 0)
+			curOption = options.length - 1;
+		if (curOption >= options.length)
+			curOption = 0;
+
+		descText.text = options[curOption].description;
 		descText.y = FlxG.height - descText.height * 2;
 
-		optionsText.text = '';
+		var leText:String = '';
 
-		for (i in 0...curOptions.length)
+		for (i in 0...options.length)
 		{
 			var selector:String = '';
-			if (!selectinSection && i == curSelected)
+			if (!selectinSection && i == curOption)
 				selector = '>  ';
 
 			var value:String = '';
-			var setting:Setting = MagPrefs.getSetting(curOptions[i][2]);
+			var setting:Setting = MagPrefs.getSetting(options[i].id);
 			switch (setting.type)
 			{
 				case Boolean:
@@ -350,29 +428,9 @@ class OptionsMenuState extends MusicBeatState
 					value = setting.value;
 			}
 
-			optionsText.text += selector + curOptions[i][0] + '  < ' + value + ' >\n';
+			leText += selector + options[i].name + '  < ' + value + ' >\n';
 		}
-	}
 
-	function changeSection(change:Int = 0)
-	{
-		curSection += change;
-
-		if (curSection < 0)
-			curSection = options.length - 1;
-		if (curSection >= options.length)
-			curSection = 0;
-
-		changeSelection();
-
-		for (item in grpSections.members)
-		{
-			item.targetX = getSectionX(item.ID + 1 - curSection);
-
-			item.alpha = 0.6;
-
-			if (selectinSection && item.ID == curSection)
-				item.alpha = 1;
-		}
+		optionsText.text = leText;
 	}
 }
