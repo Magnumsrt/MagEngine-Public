@@ -1,23 +1,10 @@
 package;
 
-import modloader.*;
 import haxe.Http;
-#if DISCORD
-import Discord.DiscordClient;
-#end
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.graphics.FlxGraphic;
-import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxGroup;
 import flixel.input.gamepad.FlxGamepad;
-import flixel.math.FlxPoint;
-import flixel.math.FlxRect;
-import flixel.system.FlxSound;
-import flixel.system.ui.FlxSoundTray;
-import flixel.text.FlxText;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 import lime.app.Application;
@@ -42,32 +29,7 @@ class TitleState extends MusicBeatState
 	{
 		super.create();
 
-		if (!initialized)
-		{
-			curWacky = FlxG.random.getObject(getIntroTextShit());
-
-			FlxG.game.focusLostFramerate = 60;
-			FlxG.keys.preventDefaultKeys = [TAB];
-
-			PlayerSettings.init();
-
-			FlxG.save.bind('funkin', 'ninjamuffin99');
-
-			#if MODS
-			PolymodHandler.loadMods();
-			#end
-
-			Highscore.load();
-
-			#if DISCORD
-			DiscordClient.initialize();
-
-			Application.current.onExit.add(function(exitCode)
-			{
-				DiscordClient.shutdown();
-			});
-			#end
-		}
+		curWacky = FlxG.random.getObject(getIntroTextShit());
 
 		PlayState.SONG = Song.loadFromJson('test', 'test');
 		LoadingState.loadAndSwitchState(new PlayState());

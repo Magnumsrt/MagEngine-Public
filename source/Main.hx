@@ -14,7 +14,7 @@ class Main extends Sprite
 {
 	var gameWidth:Int = 1280; // Width of the game in pixels (might be less / more in actual pixels depending on your zoom).
 	var gameHeight:Int = 720; // Height of the game in pixels (might be less / more in actual pixels depending on your zoom).
-	var initialState:Class<FlxState> = TitleState; // The FlxState the game starts with.
+	var initialState:Class<FlxState> = StartState; // The FlxState the game starts with.
 	var zoom:Float = -1; // If -1, zoom is automatically calculated to fit the window dimensions.
 	var framerate:Int = 60; // How many frames per second the game should run at.
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
@@ -64,32 +64,11 @@ class Main extends Sprite
 		Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, onCrash);
 		#end
 
-		#if !debug
-		initialState = TitleState;
-		#end
-
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
-
-		FlxG.fixedTimestep = false;
-		FlxG.mouse.useSystemCursor = true;
-		FlxG.mouse.visible = false;
-
-		FlxG.signals.preStateCreate.add(function(state:FlxState)
-		{
-			if (!Std.isOfType(state, PlayState) && !Std.isOfType(state, ChartingState) && !Std.isOfType(state, AnimationDebug))
-				Cache.clear();
-		});
-
-		MagPrefs.load();
-
-		#if !html5
-		setFramerate(MagPrefs.getValue('framerate'));
-		#end
 
 		#if !mobile
 		fpsCounter = new FPSCounter(8, 3, 0xffffff);
 		addChild(fpsCounter);
-		setFPSDisplay();
 		#end
 	}
 
@@ -151,7 +130,7 @@ class Main extends Sprite
 			switch (stackItem)
 			{
 				case FilePos(s, file, line, column):
-					errMsg += file + ' (line "' + line + '")\n';
+					errMsg += '$file:$line\n';
 				default:
 					Sys.println(stackItem);
 			}

@@ -30,11 +30,11 @@ class Paths
 
 		if (currentLevel != null)
 		{
-			var levelPath = getLibraryPathForce(file, currentLevel);
+			var levelPath:String = getLibraryPathForce(file, currentLevel);
 			if (OpenFlAssets.exists(levelPath, type))
 				return levelPath;
 
-			levelPath = getLibraryPathForce(file, "shared");
+			var levelPath:String = getLibraryPathForce(file, "shared");
 			if (OpenFlAssets.exists(levelPath, type))
 				return levelPath;
 		}
@@ -94,12 +94,12 @@ class Paths
 
 	inline static public function voicesPath(song:String)
 	{
-		return 'songs:assets/songs/${song.toLowerCase()}/Voices.$SOUND_EXT';
+		return getLibraryPathForce('${song.toLowerCase()}/Voices.$SOUND_EXT', 'songs');
 	}
 
 	inline static public function instPath(song:String)
 	{
-		return 'songs:assets/songs/${song.toLowerCase()}/Inst.$SOUND_EXT';
+		return getLibraryPathForce('${song.toLowerCase()}/Inst.$SOUND_EXT', 'songs');
 	}
 
 	inline static public function voices(song:String)
