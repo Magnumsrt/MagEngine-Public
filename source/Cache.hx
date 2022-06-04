@@ -95,7 +95,6 @@ class BitmapAsset
 	{
 		this.path = path;
 
-		// this is a baby. please take care of this baby.
 		data = Assets.getBitmapData(path, !storeInGpu);
 		if (storeInGpu)
 		{
