@@ -21,7 +21,7 @@ _IF YOU MAKE A MOD AND DISTRIBUTE A MODIFIED / RECOMPILED VERSION, YOU MUST OPEN
 -   [Magnumsrt](https://twitter.com/MagnumsrtYT) - Coding and art
 -   [Stilic](https://gamebanana.com/members/1893262) - Assistant coding
 -   [Shadow Mario](https://twitter.com/Shadow_Mario_) - Mod directory code, color tweens in the Freeplay menu and scroll code
--   [PolybiusProxy](https://twitter.com/polybiusproxy) and [BrightFyre](https://twitter.com/fyre_bright) - MP4 video extension
+-   [PolybiusProxy](https://twitter.com/polybiusproxy) - MP4 video extension
 -   [Leather128](https://gamebanana.com/members/1799813) - Polymod handling code
 -   [Vermex](https://gamebanana.com/members/1664988) - Pixel note splashes
 
@@ -62,7 +62,7 @@ hxCodec
 
 So for each of those type `haxelib install [library]` so shit like `haxelib install newgrounds`
 
-You'll also need to install a couple things that involve Gits. To do this, you need to do a few things first.
+You'll also need to install a couple things that involve Git. To do this, you need to do a few things first.
 
 1. Download [git-scm](https://git-scm.com/downloads). Works for Windows, Mac, and Linux, just select your build.
 2. Follow instructions to install the application properly.
