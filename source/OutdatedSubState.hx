@@ -17,7 +17,7 @@ class OutdatedSubState extends MusicBeatState
 		super.create();
 
 		var txt:FlxText = new FlxText(0, 0, FlxG.width,
-			"HEY! You're running an outdated version of the game!\nCurrent version is v"
+			"HEY! You're running an outdated version of Mag Engine!\nCurrent version is v"
 			+ Application.current.meta.get("version")
 			+ " while the most recent version is "
 			+ newVersion
@@ -31,7 +31,7 @@ class OutdatedSubState extends MusicBeatState
 	override function update(elapsed:Float)
 	{
 		if (controls.ACCEPT)
-			CoolUtil.openURL("hhttps://github.com/magnumsrtisswag/MagEngine-Public/releases");
+			CoolUtil.openURL("https://github.com/magnumsrtisswag/MagEngine-Public/releases");
 
 		if (controls.BACK)
 		{
