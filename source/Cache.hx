@@ -4,16 +4,12 @@ import flixel.FlxG;
 import openfl.system.System;
 import flixel.graphics.FlxGraphic;
 import openfl.display.BitmapData;
-import flash.media.Sound;
+import openfl.media.Sound;
 import openfl.utils.Assets;
 import openfl.display3D.textures.Texture;
 
 /**
- * This class manages all images and sounds assets used in-game.
- * 
- * The images can be stored on the GPU. This means that the images doesn't exist in standard RAM.
- * 
- * GPU bitmaps idea stolen from Rozebud trololol!
+ * Class that manages all images and sounds assets used in-game.
  */
 class Cache
 {
@@ -25,13 +21,13 @@ class Cache
 	static var bitmaps:Array<BitmapAsset> = [];
 	static var sounds:Map<String, Sound> = [];
 
-	public static function getGraphic(path:String)
+	public static function getGraphic(path:String, storeInGpu:Bool = false)
 	{
 		for (bitmap in bitmaps)
 			if (bitmap.path == path)
 				return bitmap.graphic;
 
-		var dumbMap:BitmapAsset = new BitmapAsset(path, #if sys true #else false #end);
+		var dumbMap:BitmapAsset = new BitmapAsset(path, storeInGpu);
 		bitmaps.push(dumbMap);
 		return dumbMap.graphic;
 	}
@@ -40,7 +36,7 @@ class Cache
 	{
 		if (sounds.exists(path))
 			return sounds.get(path);
-		// poop fart
+
 		var fartSound:Sound = Assets.getSound(path);
 		sounds.set(path, fartSound);
 		return fartSound;
@@ -86,23 +82,31 @@ class Cache
 class BitmapAsset
 {
 	public var path:String;
-	public var graphic:FlxGraphic;
 
-	var data:BitmapData;
 	var texture:Texture;
+
+	public var graphic:FlxGraphic;
+	public var bitmap(get, never):BitmapData;
+
+	public function get_bitmap():BitmapData
+	{
+		if (texture != null)
+			return BitmapData.fromTexture(texture);
+		else
+			return graphic.bitmap;
+	}
 
 	public function new(path:String, storeInGpu:Bool = true)
 	{
 		this.path = path;
 
-		data = Assets.getBitmapData(path, !storeInGpu);
+		var data:BitmapData = Assets.getBitmapData(path, !storeInGpu);
 		if (storeInGpu)
 		{
 			texture = FlxG.stage.context3D.createTexture(data.width, data.height, BGRA, false);
 			texture.uploadFromBitmapData(data);
 			data.dispose();
 			data.disposeImage();
-			data = null;
 		}
 
 		graphic = FlxGraphic.fromBitmapData(storeInGpu ? BitmapData.fromTexture(texture) : data);
@@ -115,10 +119,10 @@ class BitmapAsset
 	{
 		if (texture != null)
 			texture.dispose();
-		if (data != null)
+		else if (bitmap != null)
 		{
-			data.dispose();
-			data.disposeImage();
+			bitmap.dispose();
+			bitmap.disposeImage();
 		}
 
 		Assets.cache.removeBitmapData(path);

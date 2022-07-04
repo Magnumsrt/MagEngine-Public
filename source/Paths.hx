@@ -4,7 +4,6 @@ import modloader.ModList;
 #if sys
 import sys.FileSystem;
 #end
-import flixel.graphics.FlxGraphic;
 import flixel.FlxG;
 import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.utils.AssetType;
@@ -112,9 +111,9 @@ class Paths
 		return returnSound(null, '${formatToSongPath(song)}/Inst', 'songs');
 	}
 
-	inline static public function image(key:String, ?library:String)
+	inline static public function image(key:String, ?library:String, storeInGpu:Bool = false)
 	{
-		return returnGraphic(key, library);
+		return returnGraphic('images/$key', library, storeInGpu);
 	}
 
 	inline static public function font(key:String)
@@ -124,12 +123,12 @@ class Paths
 
 	inline static public function getSparrowAtlas(key:String, ?library:String)
 	{
-		return FlxAtlasFrames.fromSparrow(image(key, library), file('images/$key.xml', library));
+		return FlxAtlasFrames.fromSparrow(image(key, library, true), file('images/$key.xml', library));
 	}
 
 	inline static public function getPackerAtlas(key:String, ?library:String)
 	{
-		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file('images/$key.txt', library));
+		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library, true), file('images/$key.txt', library));
 	}
 
 	inline static public function mods(key:String = '')
@@ -184,11 +183,11 @@ class Paths
 		return path.toLowerCase().replace(' ', '-');
 	}
 
-	public static function returnGraphic(key:String, ?library:String)
+	public static function returnGraphic(key:String, ?library:String, storeInGpu:Bool = false)
 	{
-		var path = getPath('images/$key.png', IMAGE, library);
+		var path = getPath('$key.png', IMAGE, library);
 		if (fileExists(path))
-			return Cache.getGraphic(path);
+			return Cache.getGraphic(path, storeInGpu);
 		trace('oh no ${key} is returning null NOOOO');
 		return null;
 	}
